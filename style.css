@@ -8,44 +8,44 @@
 }
 
 :root {
-  --primary-color: #6B4226;
-  --secondary-color: #F2E8D5;
-  --black-color: #111111;
-  --dark-color: #353535;
-  --primary-color-200: #C97B63;
-  --primary-color-400: #3d2100;
-  --gray-color: #777F81;
-  --light-color: #1B1F3B;
+    --primary-color: #6B4226;
+    --secondary-color: #F2E8D5;
+    --black-color: #111111;
+    --dark-color: #353535;
+    --primary-color-200: #C97B63;
+    --primary-color-400: #3d2100;
+    --gray-color: #777F81;
+    --light-color: #1B1F3B;
 
   /* Font Sizes */
-  --font-size-s: 0.9rem;
-  --font-size-n: 1rem;
-  --font-size-m: 1.12rem;
-  --font-size-1: 1.5rem;
-  --font-size-x1: 2rem;
-  --font-size-xx1: 2.3rem;
+    --font-size-s: 0.9rem;
+    --font-size-n: 1rem;
+    --font-size-m: 1.12rem;
+    --font-size-1: 1.5rem;
+    --font-size-x1: 2rem;
+    --font-size-xx1: 2.3rem;
 
 
   /* Font Weights */
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
 
   /* bootstrap color-scheme */
-  --bs-dark-rgb: 80, 80, 80;
-  --bs-gray-100: #a97522;
-  --bs-gray-300: #a97522;
-  --bs-body-color-rgb: 53, 53, 53;
-  --bs-primary-rgb: 106, 233, 129;
-  --bs-secondary-rgb: 249, 246, 243;
+    --bs-dark-rgb: 80, 80, 80;
+    --bs-gray-100: #a97522;
+    --bs-gray-300: #a97522;
+    --bs-body-color-rgb: 53, 53, 53;
+    --bs-primary-rgb: 106, 233, 129;
+    --bs-secondary-rgb: 249, 246, 243;
 
-  --border-radius-s: 8px;
-  --border-radius-m: 30px;
-  --border-radius-circle: 50%;
+    --border-radius-s: 8px;
+    --border-radius-m: 30px;
+    --border-radius-circle: 50%;
 
-  /*MaxPageWidth*/
-  --site-max-width: 1300px;
+    /*MaxPageWidth*/
+    --site-max-width: 1300px;
 }
 
 
@@ -56,7 +56,7 @@ html{
 }
 
 .scroll-container {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 ul{
@@ -112,10 +112,10 @@ header{
 
 
 header .navbar{
-  display: flex;
-  padding: 20px;
-  align-content: center;
-  justify-content: space-between;
+    display: flex;
+    padding: 20px;
+    align-content: center;
+    justify-content: space-between;
 }
 
 .navbar .nav-logo .logo-text{
