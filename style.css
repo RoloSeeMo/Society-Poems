@@ -379,7 +379,7 @@ footer .footer-text .feedback{
     
 }
 
-@media screen and (max-width: 900px){
+@media screen and (max-width: 956px){
     :root{
         --font-size-s: 1rem;
         --font-size-n: 1.3rem;
@@ -486,3 +486,5 @@ footer .footer-text .feedback{
         text-align: center;
     }
 }
+
+@media screen and (max-width: )
