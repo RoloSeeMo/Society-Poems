@@ -8,7 +8,8 @@
 }
 
 :root {
-    --primary-color: #42230e;
+    --primary-color: hsl(24, 65%, 16%);
+    --between-prime-sec: hsl(32, 58%, 50%);
     --secondary-color: hsl(39, 53%, 70%);
     --black-color: #111111;
     --dark-color: #353535;
@@ -155,7 +156,7 @@ header .navbar{
     align-items: center;
     position: relative;
     min-height: 75vh;
-    background: var(--primary-color);
+    background: linear-gradient(var(--primary-color), var(--between-prime-sec));
     color: var(--primary-color-200);
     overflow: hidden;
     z-index: 1; /* Layers */
