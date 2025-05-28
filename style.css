@@ -338,12 +338,12 @@ header .navbar{
 
 .read-section .read-list .read-item .name{
     margin: 12px 0;
-    font-size: var(--font-size-1);
+    font-size: var(--font-size-m);
     font-weight: var(--font-weight-semibold);
 }
 
 .read-section .read-list .read-item .text{
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-s);
 }
 
 
