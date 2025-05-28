@@ -9,7 +9,7 @@
 
 :root {
     --primary-color: #42230e;
-    --secondary-color: #F2E8D5;
+    --secondary-color: hsl(39, 53%, 70%);
     --black-color: #111111;
     --dark-color: #353535;
     --primary-color-200: #C97B63;
