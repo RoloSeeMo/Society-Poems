@@ -480,7 +480,7 @@ footer .footer-text .feedback{
     }
 
     .read-section .read-list{
-        gap: 60px;
+        gap: 30px;
     }
 
     .read-section .read-list .read-item{
@@ -506,5 +506,16 @@ footer .footer-text .feedback{
     .footer .footer-text .feedback{
         margin-left: 50px;
         text-align: center;
+    }
+}
+
+@media screen and (max-width: 640px){
+
+    .read-section .read-list{
+        gap: 60px;
+    }
+    
+    .read-section .read-list .read-item{
+        width: 100%;
     }
 }
