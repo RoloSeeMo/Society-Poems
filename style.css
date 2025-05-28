@@ -484,9 +484,12 @@ footer .footer-text .feedback{
     }
 
     .read-section .read-list .read-item{
-        width: calc(100% / 3 - 110px);
+        width: calc(100% / 2 - 30px);
     }
     
+    .read-section .read-list .read-item .read-image{
+        max-width: 200px;   
+    }
 
     /* Footer Display */
     .footer{
