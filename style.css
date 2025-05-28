@@ -338,7 +338,7 @@ header .navbar{
 
 .read-section .read-list .read-item .name{
     margin: 12px 0;
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-x1);
     font-weight: var(--font-weight-semibold);
 }
 
