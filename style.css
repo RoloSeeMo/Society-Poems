@@ -497,4 +497,15 @@ footer .footer-text .feedback{
 
 
 @media (min-width:1025px) /* big landscape tablets, laptops, and desktops */ {  }  
-@media (min-width:1281px) /* hi-res laptops and desktops */ {  }  
+@media (min-width:1281px) /* hi-res laptops and desktops */ {
+    .read-section .read-list{
+        gap: 60px;
+    }
+
+    .read-section .read-list .read-item{
+        width: calc(100% / 3 - 110px);
+    } 
+    .about-section .section-content{
+        padding: 5vh 10vw;
+    }
+}
