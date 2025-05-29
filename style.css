@@ -367,6 +367,25 @@ footer .footer-text .feedback{
     margin-left: 10px;
 }
 
+@media screen and (min-width: 1025px){
+      .read-section .read-list{
+        gap: 60px;
+    }
+
+    .read-section .read-list .read-item{
+        width: calc(100% / 3 - 110px);
+    }
+    .read-section .read-list .read-item .name{
+    margin: 12px 0;
+    font-size: var(--font-size-m);
+    font-weight: var(--font-weight-semibold);
+    }
+
+    .read-section .read-list .read-item .text{
+        font-size: var(--font-size-s);
+    }
+}
+
 @media screen and (max-width: 1024px){
     .read-section .read-list{
         gap: 60px;
@@ -385,6 +404,7 @@ footer .footer-text .feedback{
         font-size: var(--font-size-s);
     }
 }
+
 
 @media screen and (max-width: 900px){
     :root{
