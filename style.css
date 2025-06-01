@@ -106,7 +106,6 @@ header{
     width: 100%;
     z-index: 5;
     position: fixed;
-
 }
 
 
@@ -425,6 +424,13 @@ footer .footer-text .feedback{
         background: rgba(0,0,0,0.2);
         transition: 2s ease;
     }    
+
+
+    .section .section-content{
+    max-width: var(--site-max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+   }
 
     .navbar :where(#menu-close-button, #menu-open-button){
         font-size:var(--font-size-1);
