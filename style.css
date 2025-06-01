@@ -45,7 +45,7 @@
   --border-radius-circle: 50%;
 
   /*MaxPageWidth*/
-  --site-max-width: 1300pxs;
+  --site-max-width: 1300px;
 }
 
 
@@ -78,7 +78,7 @@ img{
 }
 
 .section-content{
-    max-width: var(--site-max-width);
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 20px;
 }
