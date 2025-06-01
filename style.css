@@ -462,7 +462,7 @@ footer .footer-text .feedback{
         left: 0;
     }
 
-    .navbar .section-content .nav-logo .logo-text{
+    .navbar .nav-logo .logo-text{
         font-size: var(--font-size-s);
         color: var(--secondary-color);
     }
