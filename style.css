@@ -444,6 +444,12 @@ footer .footer-text .feedback{
     
     }
 
+    .navbar{
+        width: 300px;
+        height: 100px;
+        overflow: hidden;
+    }
+
     /* Display for Mobile Menu when Open */
     .navbar .nav-menu{
         display: block;
@@ -459,6 +465,7 @@ footer .footer-text .feedback{
         padding-top: 125px;
         background: var(--black-color);
         transition: left 0.2s ease;
+        overflow-y: scroll;
     }
     
     body.show-mobile-menu .navbar .nav-menu{
