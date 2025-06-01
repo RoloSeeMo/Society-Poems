@@ -78,7 +78,7 @@ img{
 }
 
 .section-content{
-    max-width: 100%;
+    max-width: var(--site-max-width);
     margin: 0 auto;
     padding: 0 20px;
 }
