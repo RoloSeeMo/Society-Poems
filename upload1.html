@@ -8,8 +8,32 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/Untitled1.png">
   <style>
+    /* Theme Variables */
+    [data-theme="day"] {
+      --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
+      --form-bg: #fff;
+      --text-primary: var(--black-color);
+      --preview-bg: #f9f9f9;
+      --input-bg: #fff;
+      --input-border: #ccc;
+    }
+
+    [data-theme="night"] {
+      --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
+      --form-bg: var(--dark-color);
+      --text-primary: var(--secondary-color);
+      --preview-bg: #2a2a2a;
+      --input-bg: var(--black-color);
+      --input-border: #555;
+    }
+
+    body[data-theme="night"] {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
     main.upload-section {
-      background: linear-gradient(to bottom, var(--secondary-color), white);
+      background: var(--bg-primary, linear-gradient(to bottom, var(--secondary-color), white));
       padding: 60px 20px;
       min-height: 100vh;
     }
@@ -54,7 +78,7 @@
     .upload-form {
       max-width: 800px;
       margin: 0 auto;
-      background: #fff;
+      background: var(--form-bg, #fff);
       padding: 40px;
       border-radius: var(--border-radius-m);
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -63,7 +87,7 @@
     .upload-form h1 {
       text-align: center;
       font-size: var(--font-size-x1);
-      color: var(--primary-color);
+      color: var(--text-primary, var(--primary-color));
       margin-bottom: 30px;
     }
 
@@ -71,7 +95,7 @@
       display: block;
       margin-bottom: 15px;
       font-weight: var(--font-weight-semibold);
-      color: var(--black-color);
+      color: var(--text-primary, var(--black-color));
     }
 
     .upload-form select,
@@ -82,8 +106,10 @@
       margin-top: 5px;
       margin-bottom: 10px;
       border-radius: var(--border-radius-s);
-      border: 1px solid #ccc;
+      border: 1px solid var(--input-border, #ccc);
       font-size: var(--font-size-n);
+      background: var(--input-bg, #fff);
+      color: var(--text-primary, var(--black-color));
     }
 
     .char-count {
@@ -121,12 +147,12 @@
     }
 
     .preview-box {
-      border: 1px solid #ccc;
+      border: 1px solid var(--input-border, #ccc);
       padding: 20px;
       border-radius: var(--border-radius-s);
       margin-top: 30px;
-      background: #f9f9f9;
-      color: var(--black-color);
+      background: var(--preview-bg, #f9f9f9);
+      color: var(--text-primary, var(--black-color));
       white-space: pre-wrap;
       position: relative;
     }
@@ -154,7 +180,7 @@
     }
 
     .modal-content {
-      background: white;
+      background: var(--form-bg, white);
       padding: 30px;
       border-radius: var(--border-radius-s);
       text-align: center;
@@ -164,7 +190,11 @@
 
     .modal-content h2 {
       margin-bottom: 15px;
-      color: var(--primary-color);
+      color: var(--text-primary, var(--primary-color));
+    }
+
+    .modal-content p {
+      color: var(--text-primary, var(--black-color));
     }
 
     @media screen and (max-width: 640px) {
