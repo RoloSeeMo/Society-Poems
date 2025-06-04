@@ -17,6 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
   function updateButtonText(theme) {
-    toggleButton.textContent = theme === "night" ? "☀️ Day Mode" : "🌙 Night Mode"
+    toggleButton.textContent = theme === "night" ? "☀️" : "🌙"
   }
 })
