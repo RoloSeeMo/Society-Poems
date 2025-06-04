@@ -9,6 +9,10 @@
   <link rel="icon" href="images/Untitled1.png">
   <style>
     /* Theme Variables */
+    html, body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
     [data-theme="day"] {
       --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
       --form-bg: #fff;
@@ -36,6 +40,7 @@
       background: var(--bg-primary, linear-gradient(to bottom, var(--secondary-color), white));
       padding: 60px 20px;
       min-height: 100vh;
+      transition: background 0.3s ease;
     }
 
     .upload-header {
@@ -82,6 +87,7 @@
       padding: 40px;
       border-radius: var(--border-radius-m);
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .upload-form h1 {
@@ -89,6 +95,7 @@
       font-size: var(--font-size-x1);
       color: var(--text-primary, var(--primary-color));
       margin-bottom: 30px;
+      transition: color 0.3s ease;
     }
 
     .upload-form label {
@@ -96,6 +103,7 @@
       margin-bottom: 15px;
       font-weight: var(--font-weight-semibold);
       color: var(--text-primary, var(--black-color));
+      transition: color 0.3s ease;
     }
 
     .upload-form select,
@@ -110,6 +118,7 @@
       font-size: var(--font-size-n);
       background: var(--input-bg, #fff);
       color: var(--text-primary, var(--black-color));
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .char-count {
@@ -155,6 +164,7 @@
       color: var(--text-primary, var(--black-color));
       white-space: pre-wrap;
       position: relative;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .preview-author {
@@ -186,15 +196,18 @@
       text-align: center;
       max-width: 400px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .modal-content h2 {
       margin-bottom: 15px;
       color: var(--text-primary, var(--primary-color));
+      transition: color 0.3s ease;
     }
 
     .modal-content p {
       color: var(--text-primary, var(--black-color));
+      transition: color 0.3s ease;
     }
 
     @media screen and (max-width: 640px) {
