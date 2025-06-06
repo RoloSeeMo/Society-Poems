@@ -25,28 +25,28 @@ function submitForm(e){
             var name = (document.getElementById("privacy").value);
         }
         // var name = document.getElementById("name").value;
-        var category = document.getElementById("genre").value;
-        var writing = document.getElementById("content").value;
+    var category = document.getElementById("genre").value;
+    var writing = document.getElementById("content").value;
             
-        console.log(name, category, writing);
+    console.log(name, category, writing);
 
-        // Validate form values
-        if (name === "" || email === "" || poem === "") {
-            alert("Please fill in all fields.");
-            return;
-        }
+    // Validate form values
+    if (name === "" || email === "" || poem === "") {
+        alert("Please fill in all fields.");
+        return;
+    }
 
-        // Create a new entry in the database
-        dbUpload.push({
-            name: name,
-            email: email,
-            poem: poem
-        }).then(() => {
-            alert("Poem submitted successfully!");
-            document.getElementById("uploadForm").reset(); // Reset the form
-        }).catch((error) => {
-            console.error("Error uploading poem:", error);
-            alert("There was an error submitting your poem. Please try again later.");
-        });
+    // Create a new entry in the database
+    dbUpload.push({
+        name: name,
+        email: email,
+        poem: poem
+    }).then(() => {
+        alert("Poem submitted successfully!");
+        document.getElementById("uploadForm").reset(); // Reset the form
+    }).catch((error) => {
+        console.error("Error uploading poem:", error);
+        alert("There was an error submitting your poem. Please try again later.");
+    });
 }
 
