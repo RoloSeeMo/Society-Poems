@@ -108,7 +108,14 @@ header{
     position: fixed;
 }
 
-
+.header-content{
+    display: flex;
+    flex-direction: column;
+    background: var(--black-color);
+    width: 100%;
+    z-index: 5;
+    position: fixed;
+}
 
 header .navbar{
   display: flex;
