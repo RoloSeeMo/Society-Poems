@@ -31,7 +31,7 @@ function submitForm(e){
     console.log(name, category, writing);
 
     // Validate form values
-    if (name === "" || email === "" || poem === "") {
+    if (name === "" || category === "" || writing === "") {
         alert("Please fill in all fields.");
         return;
     }
@@ -39,8 +39,8 @@ function submitForm(e){
     // Create a new entry in the database
     dbUpload.push({
         name: name,
-        email: email,
-        poem: poem
+        category: category,
+        writing: writing
     }).then(() => {
         alert("Poem submitted successfully!");
         document.getElementById("uploadForm").reset(); // Reset the form
