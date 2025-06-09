@@ -91,6 +91,35 @@
     button:hover {
       background-color: #218838;
     }
+    
+    /* Theme Variables */
+    html, body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    [data-theme="day"] {
+      --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
+      --form-bg: #fff;
+      --text-primary: var(--black-color);
+      --preview-bg: #f9f9f9;
+      --input-bg: #fff;
+      --input-border: #ccc;
+    }
+
+    [data-theme="night"] {
+      --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
+      --form-bg: var(--dark-color);
+      --text-primary: var(--secondary-color);
+      --preview-bg: #2a2a2a;
+      --input-bg: var(--black-color);
+      --input-border: #555;
+    }
+
+    body[data-theme="night"] {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
   </style>
 </head>
 
