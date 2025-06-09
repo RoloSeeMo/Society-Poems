@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/Untitled1.png">
 
-  
+
   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
     <script>
@@ -22,6 +22,7 @@
         messagingSenderId: "723670230106",
         appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
     };
+
     firebase.initializeApp(firebaseConfig);
 
     // Function to check if a user is logged in or not
@@ -33,6 +34,25 @@
         }
       });
     }
+
+     // Function to log out the user
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html"; // Redirect to login page
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+  // Attach logout function to the button
+  window.onload = function () {
+    checkAuthState();
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", logout);
+    }
+  }
   </script>
   
   <style>
@@ -249,8 +269,9 @@
 </head>
 
 
-<body onload = "checkAuthState()", data-theme="night">
+<body data-theme="night">
   <main class="upload-section">
+    
     <div class="upload-header">
       <a href="https://societypoems.com">Society Poems</a>
       <button id="toggleTheme" aria-label="Toggle Theme">🌙</button>
