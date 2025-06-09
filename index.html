@@ -32,6 +32,25 @@
       });
     }
     
+     // Function to log out the user
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      window.location.href = "login.html"; // Redirect to login page
+    }).catch((error) => {
+      console.error("Logout Error:", error);
+    });
+  }
+
+  // Attach logout function to the button
+  window.onload = function () {
+    checkAuthState();
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", logout);
+    }
+  }
+
   </script>
 </head>
 
@@ -52,13 +71,10 @@
                     <a href="#about" class="nav-link">About</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#poems" class="nav-link">Poems</a>
+                    <a href="feedback.html" class="nav-link">Contact</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Books</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Contact</a>
+                    <button id="logoutBtn" class="nav-link">Logout</button>
                 </li>
             </ul>
 
