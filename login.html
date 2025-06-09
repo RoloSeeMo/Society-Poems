@@ -119,7 +119,7 @@
       background: var(--bg-primary);
       color: var(--text-primary);
     }
-    
+
   </style>
 </head>
 
@@ -130,8 +130,23 @@
     <input type="email" id="email" required><br><br>
     <label for="password">Password:</label>
     <input type="password" id="password" required><br><br>
-    <button type="button" onclick="login()">Login</button>
+    <button type="button" id="enterBTN" onclick="login()">Login</button>
   </form>
+  
+
+  <script>
+  document.getElementById("username").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent form-like behavior
+      document.getElementById("enterBTN").click();
+    }
+  });
+
+  document.getElementById("enterBTN").addEventListener("click", function() {
+    login();
+    alert("Button clicked via Enter or mouse!");
+  });
+  </script>
 </body>
 </html>
 
