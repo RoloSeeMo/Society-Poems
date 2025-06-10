@@ -12,7 +12,7 @@
     
     <script>
     // Initialize Firebase with your project's config
-    var firebaseConfig = {
+    const firebaseConfig = {
         apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
         authDomain: "society-poems-97f4d.firebaseapp.com",
         databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
@@ -25,33 +25,40 @@
 
     // Function to check if a user is logged in or not
     function checkAuthState() {
+      // Show loading state initially
+      document.body.style.display = 'none';
+      
       firebase.auth().onAuthStateChanged(function(user) {
         if (!user) {
           // User is not signed in, redirect to the login page
+          console.log("No user found, redirecting to login");
           window.location.href = "login.html";
+        } else {
+          // User is signed in, show the page
+          console.log("User is signed in:", user.email);
+          document.body.style.display = 'block';
         }
       });
     }
     
-     // Function to log out the user
-  function logout() {
-    firebase.auth().signOut().then(() => {
-      window.location.href = "login.html"; // Redirect to login page
-    }).catch((error) => {
-      console.error("Logout Error:", error);
+    // Function to log out the user
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState();
+      
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+      }
     });
-    }
-
-  // Attach logout function to the button
-    window.onload = function () {
-        checkAuthState();
-
-        const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-            logoutBtn.addEventListener("click", logout);
-            }
-    }
-
     </script>
 </head>
 
