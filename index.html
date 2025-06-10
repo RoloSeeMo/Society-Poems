@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society Poems</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/Untitled1.png">
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    
+    <script>
+    // Initialize Firebase with your project's config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+        authDomain: "society-poems-97f4d.firebaseapp.com",
+        databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+        projectId: "society-poems-97f4d",
+        storageBucket: "society-poems-97f4d.firebasestorage.app",
+        messagingSenderId: "723670230106",
+        appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Function to check if a user is logged in or not
+    function checkAuthState() {
+      // Show loading state initially
+      document.body.style.display = 'none';
+      
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          // User is not signed in, redirect to the login page
+          console.log("No user found, redirecting to login");
+          window.location.href = "login.html";
+        } else {
+          // User is signed in, show the page
+          console.log("User is signed in:", user.email);
+          document.body.style.display = 'block';
+        }
+      });
+    }
+    
+    // Function to log out the user
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState();
+      
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+      }
+    });
+    </script>
+</head>
+
+<body>
+    <!-- Header / Navigation -->
+    <header>
+        <nav class="navbar section-content">
+            <a href="https://societypoems.com/" class="nav-logo">
+                <h2 class="logo-text">📖 Society Poems</h2>
+            </a>
+            <ul class="nav-menu">
+                <button id="menu-close-button" class="fas fa-times"></button>
+
+                <li class="nav-item">
+                    <a href="https://societypoems.com/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="feedback.html" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <button id="logoutBtn" class="nav-link">Logout</button>
+                </li>
+            </ul>
+
+            <button id="menu-open-button" class="fas fa-bars"></button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="poem-section">
+            <div class="section-content">
+                <div class="poem-details">
+                    <h2 class="title">Society Poems</h2>
+                    <h3 class="subtitle">A space for all to read and write.</h3>
+                    <p class="description">Where every page tells a story.</p>
+                    <div class="buttons">
+                        <a href="read.html" class="button read-here">READ</a>
+                        <a href="upload.html" class="button upload-here">UPLOAD</a>
+                    </div>
+                </div>
+                <div class="poem-image-wrapper">
+                    <img src="" alt="" class="poem-image">
+                </div>
+            </div>
+        </section>
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="section-content">
+                <div class="about-image-wrapper">
+                    <img src="images/Untitled1.png" style="border-radius: var(--border-radius-circle)" alt="About" class="about-image">
+                </div>
+                <div class="about-details">
+                    <h2 class="section-title">About</h2>
+                    <p class="text">Society Poems is just getting started.</p><p class="text">Upload to share with others.</p>
+                    <p class="text">Choose to be anonymous, or named.</p>
+                    <div class="social-link-list">
+                        <a href="https://www.instagram.com/officialsocietypoems/" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://x.com/offSocietyPoems" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Read Section -->
+        <section class="read-section">
+            <h2 class="section-title" id="read">Note from the Author</h2>
+            <div class="section-content">
+                <h2>Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback.html">receive your feedback!</a></h2>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="footer">
+            <p class="footer-text">© 2025 Society Poems <span class="contact">Contact</span><span class="feedback">Feedback</span><p class="footer-text"></p>
+        </div>
+    </footer>
+    <script src="scripts.js"></script>
+</body>
+
+</html>
