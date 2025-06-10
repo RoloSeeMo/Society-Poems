@@ -40,19 +40,19 @@
     }).catch((error) => {
       console.error("Logout Error:", error);
     });
-  }
-
-  // Attach logout function to the button
-  window.onload = function () {
-    checkAuthState();
-
-    const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
-        }
     }
 
-  </script>
+  // Attach logout function to the button
+    window.onload = function () {
+        checkAuthState();
+
+        const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+            logoutBtn.addEventListener("click", logout);
+            }
+    }
+
+    </script>
 </head>
 
 <body>
