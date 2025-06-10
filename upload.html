@@ -10,8 +10,8 @@
 
 
   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-    <script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <script>
     // Initialize Firebase with your project's config
     var firebaseConfig = {
         apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
@@ -35,7 +35,7 @@
       });
     }
 
-     // Function to log out the user
+    // Function to log out the user
     function logout() {
       firebase.auth().signOut().then(() => {
         window.location.href = "login.html"; // Redirect to login page
@@ -44,15 +44,15 @@
       });
     }
 
-  // Attach logout function to the button
-  window.onload = function () {
-    checkAuthState();
+    // Attach logout function to the button
+    window.onload = function () {
+      checkAuthState();
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", logout);
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+      }
     }
-  }
   </script>
   
   <style>
