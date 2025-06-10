@@ -12,7 +12,7 @@
     
     <script>
     // Initialize Firebase with your project's config
-    var firebaseConfig = {
+    const firebaseConfig = {
         apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
         authDomain: "society-poems-97f4d.firebaseapp.com",
         databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
@@ -25,34 +25,41 @@
 
     // Function to check if a user is logged in or not
     function checkAuthState() {
+      // Show loading state initially
+      document.body.style.display = 'none';
+      
       firebase.auth().onAuthStateChanged(function(user) {
         if (!user) {
           // User is not signed in, redirect to the login page
+          console.log("No user found, redirecting to login");
           window.location.href = "login.html";
+        } else {
+          // User is signed in, show the page
+          console.log("User is signed in:", user.email);
+          document.body.style.display = 'block';
         }
       });
     }
     
-     // Function to log out the user
-  function logout() {
-    firebase.auth().signOut().then(() => {
-      window.location.href = "login.html"; // Redirect to login page
-    }).catch((error) => {
-      console.error("Logout Error:", error);
-    });
-  }
-
-  // Attach logout function to the button
-  window.onload = function () {
-    checkAuthState();
-
-    const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
-        }
+    // Function to log out the user
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
     }
 
-  </script>
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState();
+      
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+      }
+    });
+    </script>
 </head>
 
 <body>
@@ -60,7 +67,7 @@
     <header>
         <nav class="navbar section-content">
             <a href="https://societypoems.com/" class="nav-logo">
-                <h2 class="logo-text">📖 Society Poems</h2>
+                <h2 class="logo-text">📖 Society Poem</h2>
             </a>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
@@ -76,6 +83,7 @@
                 </li>
                 <li class="nav-item">
                     <button id="logoutBtn" class="nav-link">Sign Out</button>
+                    <a href="feedback.html" class="nav-link">Contacts </a>
                 </li>
             </ul>
 
@@ -136,3 +144,7 @@
 </body>
 
 </html>
+    <script>
+      // Show the body after Firebase auth check
+      document.body.style.display = 'block';
+    </script>
