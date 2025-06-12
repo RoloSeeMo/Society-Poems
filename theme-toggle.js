@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleButton = document.getElementById("toggleTheme")
   const body = document.body
 
+  if (!toggleButton) return
+
   // Load saved theme or default to 'night'
   const savedTheme = localStorage.getItem("theme") || "night"
   body.setAttribute("data-theme", savedTheme)
@@ -17,6 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
   function updateButtonText(theme) {
-    toggleButton.textContent = theme === "night" ? "☀️" : "🌙"
+    toggleButton.textContent = theme === "night" ? "☀️ Theme" : "🌙 Theme"
   }
 })
