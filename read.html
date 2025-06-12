@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Society Poems - Read</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+</head>
+
+<body data-theme="night">
+  <header>
+    <nav class="navbar section-content">
+      <a href="index.html" class="nav-logo">
+        <h2 class="logo-text">📖 Society Poems</h2>
+      </a>
+      <ul class="nav-menu">
+        <button id="menu-close-button">✕</button>
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="read.html" class="nav-link">Read</a>
+        </li>
+        <li class="nav-item">
+          <a href="upload.html" class="nav-link">Upload</a>
+        </li>
+        <li class="nav-item">
+          <button id="logoutBtn" class="logout-btn">Sign Out</button>
+        </li>
+        <li class="nav-item">
+          <button id="toggleTheme" class="theme-toggle">🎨 Theme</button>
+        </li>
+      </ul>
+      <button id="menu-open-button">☰</button>
+    </nav>
+  </header>
+
+  <main class="read-main" id="entriesContainer">
+    <p class="loading-text">Loading submissions...</p>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Society Poems</p>
+  </footer>
+
+  <script src="scripts.js"></script>
+  <script src="theme-toggle.js"></script>
+  <script src="read.js"></script>
+</body>
+</html>
