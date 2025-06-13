@@ -1,105 +1,418 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload - Society Poems</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Society Poems - Upload</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="images/Untitled1.png">
+
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <script>
+    // Initialize Firebase with your project's config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+        authDomain: "society-poems-97f4d.firebaseapp.com",
+        databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+        projectId: "society-poems-97f4d",
+        storageBucket: "society-poems-97f4d.firebasestorage.app",
+        messagingSenderId: "723670230106",
+        appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Function to check if a user is logged in or not
+    function checkAuthState() {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          // User is not signed in, redirect to the login page
+          window.location.href = "login.html";
+        }
+      });
+    }
+
+    // Function to log out the user
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html"; // Redirect to login page
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+    // Attach logout function to the button
+    window.onload = function () {
+      checkAuthState();
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+      }
+    }
+  </script>
+  
+  <style>
+    /* Theme Variables */
+    html, body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    [data-theme="day"] {
+      --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
+      --form-bg: #fff;
+      --text-primary: var(--black-color);
+      --preview-bg: #f9f9f9;
+      --input-bg: #fff;
+      --input-border: #ccc;
+    }
+
+    [data-theme="night"] {
+      --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
+      --form-bg: var(--dark-color);
+      --text-primary: var(--secondary-color);
+      --preview-bg: #2a2a2a;
+      --input-bg: var(--black-color);
+      --input-border: #555;
+    }
+
+    body[data-theme="night"] {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    main.upload-section {
+      background: var(--bg-primary, linear-gradient(to bottom, var(--secondary-color), white));
+      padding: 60px 20px;
+      min-height: 100vh;
+      transition: background 0.3s ease;
+    }
+
+    .upload-header {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+    }
+
+    .upload-header a {
+      font-size: var(--font-size-x1);
+      font-weight: var(--font-weight-bold);
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .upload-header a:hover {
+      color: var(--primary-color-400);
+    }
+
+    #toggleTheme {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      border: none;
+      padding: 10px 15px;
+      border-radius: var(--border-radius-s);
+      font-size: var(--font-size-m);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #toggleTheme:hover {
+      background: var(--primary-color-400);
+    }
+
+    .upload-form {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--form-bg, #fff);
+      padding: 40px;
+      border-radius: var(--border-radius-m);
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .upload-form h1 {
+      text-align: center;
+      font-size: var(--font-size-x1);
+      color: var(--text-primary, var(--primary-color));
+      margin-bottom: 30px;
+      transition: color 0.3s ease;
+    }
+
+    .upload-form label {
+      display: block;
+      margin-bottom: 15px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary, var(--black-color));
+      transition: color 0.3s ease;
+    }
+
+    .upload-form select,
+    .upload-form input,
+    .upload-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border-radius: var(--border-radius-s);
+      border: 1px solid var(--input-border, #ccc);
+      font-size: var(--font-size-n);
+      background: var(--input-bg, #fff);
+      color: var(--text-primary, var(--black-color));
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .char-count {
+      font-size: var(--font-size-s);
+      color: var(--gray-color);
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .upload-form button[type="submit"],
+    .upload-form button#clearDraft {
+      padding: 12px 24px;
+      border-radius: var(--border-radius-s);
+      font-size: var(--font-size-n);
+      font-weight: var(--font-weight-medium);
+      border: none;
+      transition: background 0.3s ease;
+    }
+
+    .upload-form button[type="submit"] {
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+      margin-right: 10px;
+    }
+
+    .upload-form button#clearDraft {
+      background-color: var(--dark-color);
+      color: white;
+    }
+
+    .upload-form button[type="submit"]:hover,
+    .upload-form button#clearDraft:hover {
+      background-color: var(--primary-color-400);
+      cursor: pointer;
+    }
+
+    .preview-box {
+      border: 1px solid var(--input-border, #ccc);
+      padding: 20px;
+      border-radius: var(--border-radius-s);
+      margin-top: 30px;
+      background: var(--preview-bg, #f9f9f9);
+      color: var(--text-primary, var(--black-color));
+      white-space: pre-wrap;
+      position: relative;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .preview-author {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: var(--font-size-s);
+      font-style: italic;
+      color: var(--gray-color);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--form-bg, white);
+      padding: 30px;
+      border-radius: var(--border-radius-s);
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 15px;
+      color: var(--text-primary, var(--primary-color));
+      transition: color 0.3s ease;
+    }
+
+    .modal-content p {
+      color: var(--text-primary, var(--black-color));
+      transition: color 0.3s ease;
+    }
+
+    @media screen and (max-width: 640px) {
+      .upload-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+  
 </head>
+
+
 <body data-theme="night">
-    <!-- Header -->
-    <header>
-        <nav class="navbar section-content">
-            <a href="index.html" class="nav-logo">
-                <h2 class="logo-text">📖 Society Poems</h2>
-            </a>
-            <ul class="nav-menu">
-                <button id="menu-close-button">✕</button>
-                <li class="nav-item">
-                    <a href="index.html" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="read.html" class="nav-link">Read</a>
-                </li>
-                <li class="nav-item">
-                    <a href="upload.html" class="nav-link">Upload</a>
-                </li>
-                <li class="nav-item">
-                    <button id="logoutBtn" class="logout-btn">Sign Out</button>
-                </li>
-                <li class="nav-item">
-                    <button id="toggleTheme" class="theme-toggle">🎨 Theme</button>
-                </li>
-            </ul>
-            <button id="menu-open-button">☰</button>
-        </nav>
-    </header>
+  <main class="upload-section">
 
-    <main class="upload-main">
-        <form id="uploadForm" class="upload-form">
-            <h1>✍️ Upload Your Writing</h1>
-            
-            <div class="form-group">
-                <label for="privacy">Choose Privacy:</label>
-                <select id="privacy" required>
-                    <option value="" disabled selected>-Select Privacy-</option>
-                    <option value="anonymous">Anonymous</option>
-                    <option value="named">Named</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="nameField" style="display: none;">
-                <label for="username">Your Name: <span id="charLimit">(0/15)</span></label>
-                <input type="text" id="username" maxlength="15" placeholder="e.g. Maya Angelou">
-            </div>
-
-            <div class="form-group">
-                <label for="genre">Category:</label>
-                <select id="genre" required>
-                    <option value="" disabled selected>-Select Category-</option>
-                    <option value="poem">Poem</option>
-                    <option value="story">Story</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="content">Your Writing:</label>
-                <textarea id="content" rows="10" placeholder="Write your thoughts here..." required></textarea>
-                <div class="char-count" id="charCount">0 characters</div>
-            </div>
-
-            <div class="form-buttons">
-                <button type="submit" class="submit-button">Submit</button>
-                <button type="button" id="clearDraft" class="clear-button">Clear Draft</button>
-            </div>
-
-            <div class="preview-box" id="previewBox">
-                <div class="preview-content">Your writing preview will appear here...</div>
-                <div class="preview-author" id="previewAuthor"></div>
-            </div>
-        </form>
-    </main>
-
-    <!-- Success Modal -->
-    <div class="modal" id="successModal" style="display: none;">
-        <div class="modal-content">
-            <h2>✅ Upload Successful!</h2>
-            <p>Thank you for sharing your words with Society Poems.</p>
-            <button class="modal-close" onclick="closeModal()">Close</button>
-        </div>
+    <div class="upload-header">
+      <button id="logoutBtn" class="nav-link" style="background:none; border:none; cursor:pointer;">Logout</button>
+      <a href="https://societypoems.com">Society Poems</a>
+      <button id="toggleTheme" aria-label="Toggle Theme">🌙</button>
     </div>
+    <form id="uploadForm" class="upload-form">
+      <h1>✍️ Upload Your Writing</h1>
 
-    <footer>
-        <div class="footer">
-            <p class="footer-text">© 2025 Society Poems</p>
-        </div>
-    </footer>
+      <label for="privacy">Choose Privacy:</label>
+      <select id="privacy">
+        <option value="" disabled hidden selected>-Select Privacy-</option>
+        <option value="anonymous">Anonymous</option>
+        <option value="named">Named</option>
+      </select>
 
-    <script src="scripts.js"></script>
-    <script src="theme-toggle.js"></script>
-    <script src="upload.js"></script>
+      <div id="nameField" style="display:none;">
+        <label for="username">Your Name: <span id="nameLimit">(0/15)</span></label>
+        <input type="text" id="username" maxlength="15" placeholder="e.g. Maya Angelou" />
+      </div>
+
+      <label for="genre">Category:</label>
+      <select id="genre">
+        <option value="" disabled hidden selected>-Select Category-</option>
+        <option value="poem">Poem</option>
+        <option value="story">Story</option>
+      </select>
+
+      <label for="content">Your Writing:</label>
+      <textarea id="content" rows="10" placeholder="Write your thoughts here..."></textarea>
+      <div class="char-count" id="charCount">0 characters</div>
+
+
+      <button type="submit">Submit</button>
+      <button type="button" id="clearDraft">Clear Draft</button>
+
+      <div class="preview-box" id="previewBox">
+        Your writing preview will appear here...
+        <div class="preview-author" id="previewAuthor"></div>
+      </div>
+    </form>
+  </main>
+
+  <div class="modal" id="successModal">
+    <div class="modal-content">
+      <h2>✅ Upload Successful!</h2>
+      <p>Thank you for sharing your words with Society Poems.</p>
+      <button onclick="document.getElementById('successModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <script type="module">
+
+    
+
+    
+    const db = getDatabase(app);
+
+    const form = document.getElementById('uploadForm');
+    const privacy = document.getElementById('privacy');
+    const nameField = document.getElementById('nameField');
+    const username = document.getElementById('username');
+    const nameLimit = document.getElementById('nameLimit');
+    const content = document.getElementById('content');
+    const charCount = document.getElementById('charCount');
+    const previewBox = document.getElementById('previewBox');
+    const previewAuthor = document.getElementById('previewAuthor');
+    const modal = document.getElementById('successModal');
+    const clearBtn = document.getElementById('clearDraft');
+
+    privacy.addEventListener('change', () => {
+      nameField.style.display = privacy.value === 'named' ? 'block' : 'none';
+      updatePreviewAuthor();
+    });
+
+    username.addEventListener('input', () => {
+      nameLimit.textContent = `(${username.value.length}/15)`;
+      updatePreviewAuthor();
+    });
+
+    content.addEventListener('input', () => {
+      charCount.textContent = `${content.value.length} characters`;
+      previewBox.firstChild.textContent = content.value.trim() || "Your writing preview will appear here...";
+      localStorage.setItem("draftContent", content.value);
+    });
+
+    function updatePreviewAuthor() {
+      if (privacy.value === 'anonymous') {
+        previewAuthor.textContent = "- Anonymous";
+      } else if (privacy.value === 'named') {
+        previewAuthor.textContent = username.value.trim() ? `- ${username.value.trim()}` : "";
+      } else {
+        previewAuthor.textContent = "";
+      }
+    }
+
+    // Load draft
+    window.addEventListener('load', () => {
+      const savedDraft = localStorage.getItem("draftContent");
+      if (savedDraft) {
+        content.value = savedDraft;
+        charCount.textContent = `${savedDraft.length} characters`;
+        previewBox.firstChild.textContent = savedDraft;
+      }
+      updatePreviewAuthor();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      content.value = "";
+      localStorage.removeItem("draftContent");
+      charCount.textContent = "0 characters";
+      previewBox.firstChild.textContent = "Your writing preview will appear here...";
+      previewAuthor.textContent = "";
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const isAnonymous = privacy.value === 'anonymous';
+      const name = isAnonymous ? "Anonymous" : username.value.trim();
+      const genre = document.getElementById('genre').value;
+      const contentValue = content.value.trim();
+      const timestamp = new Date().toLocaleString('en-US', { hour12: false });
+
+      if (contentValue === '' || (!isAnonymous && name === '')) {
+        alert("Please fill out all required fields.");
+        return;
+      }
+
+      const newEntry = { name, genre, content: contentValue, timestamp };
+      await push(ref(db, 'uploads'), newEntry);
+
+      localStorage.removeItem("draftContent");
+      form.reset();
+      nameField.style.display = 'none';
+      charCount.textContent = '0 characters';
+      previewBox.firstChild.textContent = "Your writing preview will appear here...";
+      previewAuthor.textContent = "";
+      modal.style.display = 'flex';
+    });
+  </script>
+
+  <script src="theme-toggle.js"></script>
+  <script src="updateDB.js"></script>
 </body>
 </html>

@@ -62,7 +62,7 @@ body {
 [data-theme="night"] {
   --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
   --bg-secondary: var(--dark-color);
-  --text-primary: var(--secondary-color);
+  --text-primary: var(--primary-color);
   --text-secondary: #ccc;
   --border-color: #555;
 }
@@ -207,6 +207,8 @@ footer p {
 [data-theme="night"] #toggleTheme:hover {
   background: var(--primary-color-400);
 }
+
+
 
 /* Responsive Design */
 @media screen and (max-width: 900px) {

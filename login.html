@@ -1,41 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Society Poems</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <title>Login Page</title>
+  <!-- FB SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <link rel="stylesheet" href="login.css">
+  <link rel="icon" href="images/Untitled1.png">
+
+  <script>
+    // Init FB w/project config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+      authDomain: "society-poems-97f4d.firebaseapp.com",
+      databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+      projectId: "society-poems-97f4d",
+      storageBucket: "society-poems-97f4d.firebasestorage.app",
+      messagingSenderId: "723670230106",
+      appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+  </script>
+
+  <script>
+    // Function to check if a user is logged in or not
+    function checkAuthState() {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in, proceed to the website
+          window.location.href = "index.html";
+        } else {
+          // No user is signed in, stay on the login page
+        }
+      });
+    }
+
+    // Function to handle the login form submission
+    function login() {
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(function() {
+          // Login successful, redirect to the homepage
+          window.location.href = "index.html";
+        })
+        .catch(function(error) {
+          // Handle errors
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log("Login error:", errorCode, errorMessage);
+        });
+    }
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      display: inline-block;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    
+    /* Theme Variables */
+    html, body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    [data-theme="day"] {
+      --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
+      --form-bg: #fff;
+      --text-primary: var(--black-color);
+      --preview-bg: #f9f9f9;
+      --input-bg: #fff;
+      --input-border: #ccc;
+    }
+
+    [data-theme="night"] {
+      --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
+      --form-bg: var(--dark-color);
+      --text-primary: var(--secondary-color);
+      --preview-bg: #2a2a2a;
+      --input-bg: var(--black-color);
+      --input-border: #555;
+    }
+
+    body[data-theme="night"] {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+  </style>
 </head>
-<body class="login-page" data-theme="night">
-    <header class="login-header">
-        <div class="header-content">
-            <a href="index.html" class="home-link">
-                <h2 class="logo-text">📖 Society Poems</h2>
-            </a>
-            <button id="toggleTheme" class="theme-toggle">🌙 Theme</button>
-        </div>
-    </header>
 
-    <main class="login-main">
-        <div class="login-container">
-            <h1>Login</h1>
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="login-button">Login</button>
-            </form>
-        </div>
-    </main>
+<body onload="checkAuthState()", data-theme="night">
+  <h1>Login</h1>
+  <form>
+    <label for="email">Email:</label>
+    <input type="email" id="email" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required><br><br>
+    <button type="button" id="enterBTN" onclick="login()">Login</button>
+  </form>
+  
 
-    <script src="theme-toggle.js"></script>
-    <script src="login.js"></script>
+  <script>
+  document.getElementById("username").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent form-like behavior
+      document.getElementById("enterBTN").click();
+    }
+  });
+
+  document.getElementById("enterBTN").addEventListener("click", function() {
+    login();
+    alert("Button clicked via Enter or mouse!");
+  });
+  </script>
 </body>
 </html>
+
