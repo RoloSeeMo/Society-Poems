@@ -1,10 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society Poems</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
 </head>
-<body>
-    This is a functionality test.
+
+<body data-theme="night">
+    <!-- Header / Navigation -->
+    <header>
+        <nav class="navbar section-content">
+            <a href="index.html" class="nav-logo">
+                <h2 class="logo-text">📖 Society Poems</h2>
+            </a>
+            <ul class="nav-menu">
+                <button id="menu-close-button">✕</button>
+
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="read.html" class="nav-link">Read</a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">Upload</a>
+                </li>
+                <li class="nav-item">
+                    <button id="logoutBtn" class="logout-btn">Sign Out</button>
+                </li>
+                <li class="nav-item">
+                    <button id="toggleTheme" class="theme-toggle">🎨 Theme</button>
+                </li>
+            </ul>
+
+            <button id="menu-open-button">☰</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="poem-section">
+            <div class="section-content">
+                <div class="poem-details">
+                    <h2 class="title">Society Poems</h2>
+                    <h3 class="subtitle">A space for all to read and write.</h3>
+                    <p class="description">Where every page tells a story.</p>
+                    <div class="buttons">
+                        <a href="read.html" class="button read-here">READ</a>
+                        <a href="upload.html" class="button upload-here">UPLOAD</a>
+                    </div>
+                </div>
+                <div class="poem-image-wrapper">
+                    <img src="https://via.placeholder.com/500x500/6b4226/f2e8d5?text=Society+Poems" alt="" class="poem-image">
+                </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section class="about-section" id="about">
+            <div class="section-content">
+                <div class="about-image-wrapper">
+                    <img src="https://via.placeholder.com/400x400/f2e8d5/6b4226?text=About" style="border-radius: var(--border-radius-circle)" alt="About" class="about-image">
+                </div>
+                <div class="about-details">
+                    <h2 class="section-title">About</h2>
+                    <p class="text">Society Poems is just getting started.</p>
+                    <p class="text">Upload to share with others.</p>
+                    <p class="text">Choose to be anonymous, or named.</p>
+                    <div class="social-link-list">
+                        <a href="https://www.instagram.com/officialsocietypoems/" target="_blank" rel="noopener noreferrer" class="social-link">📷</a>
+                        <a href="https://x.com/offSocietyPoems" target="_blank" rel="noopener noreferrer" class="social-link">🐦</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Read Section -->
+        <section class="read-section">
+            <h2 class="section-title" id="read">Note from the Author</h2>
+            <div class="section-content">
+                <h2>Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback.html">receive your feedback!</a></h2>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer">
+            <p class="footer-text">© 2025 Society Poems</p>
+        </div>
+    </footer>
+    
+    <script src="scripts.js"></script>
+    <script src="theme-toggle.js"></script>
+    <script src="firebase-config.js"></script>
 </body>
 </html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - Society Poems</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+</head>
+<body data-theme="night">
+    <!-- Header -->
+    <header>
+        <nav class="navbar section-content">
+            <a href="index.html" class="nav-logo">
+                <h2 class="logo-text">📖 Society Poems</h2>
+            </a>
+            <ul class="nav-menu">
+                <button id="menu-close-button">✕</button>
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="read.html" class="nav-link">Read</a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">Upload</a>
+                </li>
+                <li class="nav-item">
+                    <button id="logoutBtn" class="logout-btn">Sign Out</button>
+                </li>
+                <li class="nav-item">
+                    <button id="toggleTheme" class="theme-toggle">🎨 Theme</button>
+                </li>
+            </ul>
+            <button id="menu-open-button">☰</button>
+        </nav>
+    </header>
+
+    <main class="upload-main">
+        <form id="uploadForm" class="upload-form">
+            <h1>✍️ Upload Your Writing</h1>
+            
+            <div class="form-group">
+                <label for="privacy">Choose Privacy:</label>
+                <select id="privacy" required>
+                    <option value="" disabled selected>-Select Privacy-</option>
+                    <option value="anonymous">Anonymous</option>
+                    <option value="named">Named</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="nameField" style="display: none;">
+                <label for="username">Your Name: <span id="charLimit">(0/15)</span></label>
+                <input type="text" id="username" maxlength="15" placeholder="e.g. Maya Angelou">
+            </div>
+
+            <div class="form-group">
+                <label for="genre">Category:</label>
+                <select id="genre" required>
+                    <option value="" disabled selected>-Select Category-</option>
+                    <option value="poem">Poem</option>
+                    <option value="story">Story</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Your Writing:</label>
+                <textarea id="content" rows="10" placeholder="Write your thoughts here..." required></textarea>
+                <div class="char-count" id="charCount">0 characters</div>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="submit-button">Submit</button>
+                <button type="button" id="clearDraft" class="clear-button">Clear Draft</button>
+            </div>
+
+            <div class="preview-box" id="previewBox">
+                <div class="preview-content">Your writing preview will appear here...</div>
+                <div class="preview-author" id="previewAuthor"></div>
+            </div>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal" style="display: none;">
+        <div class="modal-content">
+            <h2>✅ Upload Successful!</h2>
+            <p>Thank you for sharing your words with Society Poems.</p>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer">
+            <p class="footer-text">© 2025 Society Poems</p>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script src="theme-toggle.js"></script>
+    <script src="upload.js"></script>
+</body>
+</html>
