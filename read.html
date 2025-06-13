@@ -30,20 +30,46 @@
 
 
 <body data-theme="night">
+  <body data-theme="night">
   <header>
-    <div class="header-content">
-      <h1>📖 Read Submissions</h1>
-      <button id="toggleTheme" aria-label="Toggle Theme">🎨 Theme</button>
-    </div>
+    <nav class="navbar section-content">
+      <a href="index.html" class="nav-logo">
+        <h2 class="logo-text">📖 Society Poems</h2>
+      </a>
+      <ul class="nav-menu">
+        <button id="menu-close-button">✕</button>
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="read.html" class="nav-link">Read</a>
+        </li>
+        <li class="nav-item">
+          <a href="upload.html" class="nav-link">Upload</a>
+        </li>
+        <li class="nav-item">
+          <button id="logoutBtn" class="logout-btn">Sign Out</button>
+        </li>
+        <li class="nav-item">
+          <button id="toggleTheme" class="theme-toggle">🎨 Theme</button>
+        </li>
+      </ul>
+      <button id="menu-open-button">☰</button>
+    </nav>
   </header>
 
-  <main id="entriesContainer">
-    <p>Loading submissions...</p>
+  <main class="read-main" id="entriesContainer">
+    <p class="loading-text">Loading submissions...</p>
   </main>
 
   <footer>
     <p>&copy; 2025 Society Poems</p>
   </footer>
+
+  <script src="scripts.js"></script>
+  <script src="theme-toggle.js"></script>
+  <script src="read.js"></script>
+</body>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
