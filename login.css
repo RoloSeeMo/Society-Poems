@@ -102,7 +102,7 @@ header {
   justify-content: center;
   margin: auto;
   width: 100%;
-  max-width: 400px;
+  max-width: 450px; /* Increased from 400px */
   min-height: 100vh;
   min-height: -webkit-fill-available; /* iPhone Safari fix */
   padding: 20px;
@@ -257,9 +257,9 @@ input, button, select, textarea {
 /* Login Form Specific Styles for iPhone */
 .login_form {
   width: 100%;
-  max-width: 350px;
+  max-width: 400px; /* Increased from 350px */
   background: var(--bg-secondary, #fff);
-  padding: 30px;
+  padding: 40px 35px; /* Increased padding from 30px */
   border-radius: var(--border-radius-m);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
@@ -270,8 +270,8 @@ input, button, select, textarea {
 .login_form input[type="email"],
 .login_form input[type="password"] {
   width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 15px;
+  padding: 16px 18px; /* Increased padding from 12px 16px */
+  margin-bottom: 20px; /* Increased from 15px */
   border: 2px solid var(--border-color, #ccc);
   border-radius: var(--border-radius-s);
   background: var(--bg-secondary, #fff);
@@ -296,8 +296,8 @@ input, button, select, textarea {
 
 .login_form button {
   width: 100%;
-  padding: 14px 16px;
-  margin: 10px 0;
+  padding: 16px 18px; /* Increased padding from 14px 16px */
+  margin: 12px 0; /* Increased from 10px */
   border: none;
   border-radius: var(--border-radius-s);
   cursor: pointer;
@@ -309,13 +309,22 @@ input, button, select, textarea {
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 44px; /* Apple's recommended minimum touch target */
+  min-height: 50px; /* Increased from 44px */
   position: relative;
   overflow: hidden;
 }
 
 .login_form button:active {
   transform: scale(0.98);
+}
+
+.login_form label {
+  display: block;
+  text-align: left;
+  margin-bottom: 10px; /* Increased from 8px */
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-size: var(--font-size-n);
 }
 
 /* Responsive Design - iPhone Specific */
@@ -355,15 +364,16 @@ input, button, select, textarea {
 /* iPhone Specific Media Queries */
 @media screen and (max-width: 640px) {
   .loginformcontainer {
-    padding: 15px;
+    padding: 20px; /* Increased from 15px */
     width: 100%;
+    max-width: 95%; /* Allow more width on small screens */
     /* iPhone specific adjustments */
     min-height: 100vh;
     min-height: -webkit-fill-available;
   }
 
   .login_form {
-    padding: 25px 20px;
+    padding: 35px 30px; /* Increased from 25px 20px */
     margin: 0;
     width: 100%;
     max-width: none;
@@ -387,43 +397,47 @@ input, button, select, textarea {
   /* iPhone specific input adjustments */
   .login_form input[type="email"],
   .login_form input[type="password"] {
-    padding: 14px 16px;
+    padding: 16px 18px; /* Increased padding */
     font-size: 16px;
     border-width: 2px;
+    margin-bottom: 18px;
   }
 
   .login_form button {
-    padding: 16px;
+    padding: 18px; /* Increased from 16px */
     font-size: 16px;
-    min-height: 48px;
+    min-height: 52px; /* Increased from 48px */
   }
 }
 
 /* iPhone X and newer with notch */
 @media screen and (max-width: 414px) and (max-height: 896px) {
   .loginformcontainer {
-    padding: max(15px, env(safe-area-inset-top)) 15px max(15px, env(safe-area-inset-bottom)) 15px;
+    padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)) 20px;
+    max-width: 90%; /* More generous width */
   }
 }
 
 /* iPhone SE and smaller screens */
 @media screen and (max-width: 375px) {
   .loginformcontainer {
-    padding: 10px;
+    padding: 15px;
+    max-width: 95%;
   }
 
   .login_form {
-    padding: 20px 15px;
+    padding: 30px 25px; /* Increased from 20px 15px */
   }
 
   .login_form input[type="email"],
   .login_form input[type="password"] {
-    padding: 12px 14px;
+    padding: 14px 16px; /* Slightly increased */
+    margin-bottom: 16px;
   }
 
   .login_form button {
-    padding: 14px;
-    min-height: 44px;
+    padding: 16px; /* Increased from 14px */
+    min-height: 48px; /* Increased from 44px */
   }
 }
 
