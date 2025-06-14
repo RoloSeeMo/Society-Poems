@@ -280,8 +280,7 @@
 
     // Function to set loading state
     function setLoading(isLoading, buttonId = null) {
-      const buttons = buttonId ? [document.getElementById(buttonId)] : 
-                     [document.getElementById('enterBTN'), document.getElementById('google-signin-btn')];
+      const buttons = buttonId ? [document.getElementById(buttonId)] : [document.getElementById('enterBTN'), document.getElementById('google-signin-btn')];
       
       buttons.forEach(button => {
         if (button) {
@@ -440,7 +439,7 @@
           // If popup fails, suggest trying redirect method
           if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
             setTimeout(() => {
-              if (confirm("Pop-up sign-in failed. Would you like to try redirect sign-in instead?")) {
+              if (confirm("Pop-up sign-in failed. Try redirect sign-in instead?")) {
                 auth.signInWithRedirect(provider);
               }
             }, 2000);
