@@ -251,6 +251,7 @@ header .navbar{
 
 /* About Style */
 .about-section{
+    padding: 0;
     display: flex;
     gap: 50px;
     width: 100%;
@@ -263,10 +264,11 @@ header .navbar{
 
 .about-section .section-content{
     display: flex;
+    width: 100%;
     gap: 50px;
     justify-content: space-between;
     align-items: center;
-    padding: 5vh 0vw;
+    padding: 5vh 10vw;
     background: -webkit-linear-gradient(top, var(--primary-color), var(--secondary-color));
 }
 
