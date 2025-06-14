@@ -42,12 +42,25 @@
 /* General Site's Style */
 html {
   scroll-behavior: smooth;
+  /* iPhone specific fixes */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
   background: linear-gradient(to bottom, var(--secondary-color), white);
   min-height: 100vh;
   color: var(--black-color);
+  /* iPhone specific fixes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll on iPhone */
+  width: 100%;
+  /* Fix for iPhone Safari address bar */
+  min-height: -webkit-fill-available;
 }
 
 /* Theme Variables */
@@ -82,15 +95,22 @@ header {
   z-index: 100;
 }
 
-
-.loginformcontainer{
+.loginformcontainer {
   display: flex;
   flex-direction: column;
-  align-items: center;       /* Center horizontally */
+  align-items: center;
+  justify-content: center;
   margin: auto;
-  width: 30%;
-  height: 100vh;             /* Take full screen height */
-  }
+  width: 100%;
+  max-width: 400px;
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iPhone Safari fix */
+  padding: 20px;
+  box-sizing: border-box;
+  /* iPhone specific improvements */
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
 
 .header-content {
   max-width: var(--site-max-width);
@@ -116,6 +136,9 @@ header {
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.3s ease;
+  /* iPhone touch improvements */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #toggleTheme:hover {
@@ -218,9 +241,84 @@ footer p {
   background: var(--primary-color-400);
 }
 
+/* iPhone Specific Input and Button Styles */
+input, button, select, textarea {
+  /* Remove default iOS styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* Improve touch targets */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* Prevent zoom on focus */
+  font-size: 16px;
+}
 
+/* Login Form Specific Styles for iPhone */
+.login_form {
+  width: 100%;
+  max-width: 350px;
+  background: var(--bg-secondary, #fff);
+  padding: 30px;
+  border-radius: var(--border-radius-m);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  /* iPhone specific */
+  -webkit-overflow-scrolling: touch;
+}
 
-/* Responsive Design */
+.login_form input[type="email"],
+.login_form input[type="password"] {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  border: 2px solid var(--border-color, #ccc);
+  border-radius: var(--border-radius-s);
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary);
+  font-size: 16px; /* Prevent zoom on iPhone */
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  /* iPhone specific improvements */
+  -webkit-appearance: none;
+  -webkit-border-radius: var(--border-radius-s);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login_form input[type="email"]:focus,
+.login_form input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.1);
+  /* iPhone specific focus improvements */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login_form button {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 10px 0;
+  border: none;
+  border-radius: var(--border-radius-s);
+  cursor: pointer;
+  font-size: 16px; /* Prevent zoom on iPhone */
+  font-weight: var(--font-weight-medium);
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+  /* iPhone specific button improvements */
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px; /* Apple's recommended minimum touch target */
+  position: relative;
+  overflow: hidden;
+}
+
+.login_form button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive Design - iPhone Specific */
 @media screen and (max-width: 900px) {
   :root {
     --font-size-s: 1rem;
@@ -254,7 +352,23 @@ footer p {
   }
 }
 
+/* iPhone Specific Media Queries */
 @media screen and (max-width: 640px) {
+  .loginformcontainer {
+    padding: 15px;
+    width: 100%;
+    /* iPhone specific adjustments */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  .login_form {
+    padding: 25px 20px;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+  }
+
   .header-content h1 {
     font-size: var(--font-size-m);
   }
@@ -265,8 +379,51 @@ footer p {
   }
 
   #toggleTheme {
-    padding: 8px 16px;
+    padding: 10px 18px;
     font-size: var(--font-size-s);
+    min-height: 44px;
+  }
+
+  /* iPhone specific input adjustments */
+  .login_form input[type="email"],
+  .login_form input[type="password"] {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-width: 2px;
+  }
+
+  .login_form button {
+    padding: 16px;
+    font-size: 16px;
+    min-height: 48px;
+  }
+}
+
+/* iPhone X and newer with notch */
+@media screen and (max-width: 414px) and (max-height: 896px) {
+  .loginformcontainer {
+    padding: max(15px, env(safe-area-inset-top)) 15px max(15px, env(safe-area-inset-bottom)) 15px;
+  }
+}
+
+/* iPhone SE and smaller screens */
+@media screen and (max-width: 375px) {
+  .loginformcontainer {
+    padding: 10px;
+  }
+
+  .login_form {
+    padding: 20px 15px;
+  }
+
+  .login_form input[type="email"],
+  .login_form input[type="password"] {
+    padding: 12px 14px;
+  }
+
+  .login_form button {
+    padding: 14px;
+    min-height: 44px;
   }
 }
 
@@ -301,4 +458,37 @@ footer p {
 }
 .entry:nth-child(5) {
   animation-delay: 0.5s;
+}
+
+/* iPhone Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .loginformcontainer {
+    min-height: -webkit-fill-available;
+  }
+  
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Prevent text selection on buttons for better mobile experience */
+.login_form button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Improve scrolling on iPhone */
+.loginformcontainer {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Fix for iPhone keyboard pushing content up */
+@media screen and (max-height: 600px) {
+  .loginformcontainer {
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
 }
