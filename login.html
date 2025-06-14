@@ -304,7 +304,7 @@
           console.log("User is signed in:", user.email);
           showSuccess("Login successful! Redirecting...");
           setTimeout(() => {
-            window.location.href = "societypoems.com";
+            window.location.href = "";
           }, 1500);
         } else {
           console.log("No user signed in");
@@ -331,7 +331,7 @@
           console.log("Login successful:", userCredential.user.email);
           showSuccess("Login successful! Redirecting...");
           setTimeout(() => {
-            window.location.href = "societypoems.com";
+            window.location.href = "";
           }, 1500);
         })
         .catch(function(error) {
@@ -399,7 +399,7 @@
           
           showSuccess(`Welcome ${user.displayName}! Redirecting...`);
           setTimeout(() => {
-            window.location.href = "societypoems.com";
+            window.location.href = "";
           }, 1500);
         })
         .catch((error) => {
@@ -453,7 +453,7 @@
         console.log("Google redirect sign-in successful:", result.user.displayName);
         showSuccess(`Welcome ${result.user.displayName}! Redirecting...`);
         setTimeout(() => {
-          window.location.href = "societypoems.com";
+          window.location.href = "";
         }, 1500);
       }
     }).catch((error) => {
