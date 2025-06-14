@@ -349,14 +349,30 @@
             case 'auth/invalid-email':
               errorMessage = "Invalid email address.";
               break;
+            case 'auth/invalid-login-credentials':
+            case 'auth/invalid-credential':
+              errorMessage = "Invalid email or password. Please check your credentials and try again.";
+              break;
             case 'auth/too-many-requests':
               errorMessage = "Too many failed attempts. Please try again later.";
               break;
             case 'auth/user-disabled':
               errorMessage = "This account has been disabled.";
               break;
+            case 'auth/network-request-failed':
+              errorMessage = "Network error. Please check your internet connection.";
+              break;
+            case 'auth/internal-error':
+              errorMessage = "An internal error occurred. Please try again.";
+              break;
             default:
-              errorMessage = `Login error: ${error.message}`;
+              // Only show the technical error in development, user-friendly message in production
+              if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                errorMessage = `Login error: ${error.message}`;
+              } else {
+                errorMessage = "Login failed. Please check your credentials and try again.";
+              }
+              console.error("Unhandled login error:", error.code, error.message);
           }
           
           showError(errorMessage);
