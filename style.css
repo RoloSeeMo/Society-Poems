@@ -266,7 +266,7 @@ header .navbar{
     gap: 50px;
     justify-content: space-between;
     align-items: center;
-    padding: 5vh 10vw;
+    padding: 5vh 0vw;
     background: -webkit-linear-gradient(top, var(--primary-color), var(--secondary-color));
 }
 
