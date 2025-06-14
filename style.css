@@ -252,7 +252,7 @@ header .navbar{
 /* About Style */
 .about-section{
     display: flex;
-    padding-top: 70px;
+    padding-top: 150px;
     gap: 50px;
     width: 100%;
     min-height: 50vh;
