@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 
 // Import the Firebase configuration and initialize the app
+
 const firebaseConfig = {
     apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
     authDomain: "society-poems-97f4d.firebaseapp.com",
