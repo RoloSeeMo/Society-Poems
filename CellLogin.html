@@ -222,14 +222,12 @@
     <form class="login_form">
       <div id="error-container" class="error-message"></div>
       <div id="success-container" class="success-message"></div>
-      
-      <label for="email">Email:</label>
+
+      <label for="email" style="align-items: center;">Email:</label>
       <input style="color:white" type="email" id="email" required>
+
       
-      <label for="password">Password:</label>
-      <input style="color:white" type="password" id="password" required>
-      
-      <button type="button" id="enterBTN" onclick="login()">Login</button>
+      <button type="button" id="enterBTN" onclick="login()">Continue</button>
 
       <button type="button" id="google-signin-btn">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
@@ -322,16 +320,9 @@
       hideMessages();
       setLoading(true, 'enterBTN');
       
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+      const code = document.getElementById("code").value.trim();
 
-      if (!email || !password) {
-        showError("Please fill in all fields.");
-        setLoading(false, 'enterBTN');
-        return;
-      }
-
-      firebase.auth().signInWithEmailAndPassword(email, password)
+      firebase.auth().signInWithPhone(code)
         .then(function(userCredential) {
           console.log("Login successful:", userCredential.user.email);
           showSuccess("Login successful! Redirecting...");
