@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
   <script src="auth_phone_recaptcha_verifier_invisible.js"></script>
   <script src="auth__set_language_code.js"></script>
-  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="phoneLogin.css">
   <link rel="icon" href="images/Untitled1.png">
 
   <script>
@@ -25,7 +25,7 @@
   </script>
 
   <style>
-    /* Additional styles to complement your existing CSS and ensure proper centering */
+    /* Additional styles */
     .loginformcontainer {
       display: flex;
       flex-direction: column;
@@ -224,9 +224,34 @@
       <div id="success-container" class="success-message"></div>
       <label for="email">Phone Number:</label>
 
-      <input name="code-input" id="code-input" class="code-input border--is-interactive " inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" data-lpignore="true" value>
+      <input name="code-input" id="code-input" class="code-input border--is-interactive " inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" data-lpignore="true" value>
 
-      <button type="button" id="enterBTN" onclick="login()">Continue</button>
+      <script>
+        const input = document.getElementById('code-input');
+          input.addEventListener('input', function (e) {
+            // Strip all non-digit characters (including hyphens)
+            let digits = e.target.value.replace(/\D/g, '');
+
+            // Limit to 10 digits
+            if (digits.length > 10) digits = digits.slice(0, 10);
+
+            // Format as XXX-XXX-XXXX
+            let formatted = '';
+            if (digits.length > 6) {
+              formatted = `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
+            } else if (digits.length > 3) {
+              formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
+            } else {
+              formatted = digits;
+            }
+
+            e.target.value = formatted;
+            });
+      </script>
+
+
+      <button type="button" id="enterBTN" onclick="loginWithPhone()">Send One-Time Code</button>
+      <button type="button" id="backBTN" onclick='window.location.href= "https://societypoems.com/login.html"'></button>
     </form>
   </div>
 
