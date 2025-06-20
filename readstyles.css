@@ -998,3 +998,50 @@ body[data-theme="night"] {
     padding: 20px;
   }
 }
+
+/* Logout Button Styles for Read Page */
+.logout-btn {
+  background: #dc3545 !important;
+  color: white !important;
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-m);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.logout-btn:hover {
+  background: #c82333 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.logout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Mobile logout button adjustments */
+@media screen and (max-width: 900px) {
+  .logout-btn {
+    color: white !important;
+    background: #dc3545 !important;
+    margin-top: 17px;
+    font-size: var(--font-size-1);
+    justify-content: center;
+    width: 200px;
+  }
+
+  .logout-btn:hover {
+    background: #c82333 !important;
+    color: white !important;
+  }
+}
