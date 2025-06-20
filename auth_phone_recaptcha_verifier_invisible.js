@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Auth object at RecaptchaVerifier initialization attempt (inside grecaptcha.ready):", auth); 
     // --- END CONSOLE.LOG ---
 
-    // Introduce a small delay to give the Firebase Auth instance more time to fully settle internally.
-    setTimeout(() => { // Added setTimeout here
+    // Introduce a longer delay to give the Firebase Auth instance more time to fully settle internally.
+    setTimeout(() => { // Increased setTimeout delay here
       try {
         // Corrected: Pass the actual DOM element (enterBTNElement)
         // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
@@ -55,6 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
         }
       }
-    }, 100); // 100ms delay: This is a common sweet spot for such timing issues. You can adjust if needed.
+    }, 300); // Increased from 100ms to 300ms delay. Adjust if needed.
   }); // End of grecaptcha.ready()
 });
