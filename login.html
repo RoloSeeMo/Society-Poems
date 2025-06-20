@@ -5,9 +5,8 @@
   <link rel="stylesheet" href="login.css">
   <link rel="icon" href="images/Untitled1.png">
   <script type="module" src="firebase-config.js"></script>
-  <script type="module" src="auth_phone_recaptcha_verifier_invisible.js"></script>
-  <script type="module" src="auth__set_language_code.js"></script>
-  
+  <script type="module" src="auth_phone_recaptcha_verifier_invisible.js"></script> <script type="module" src="auth__set_language_code.js"></script>
+
   <style>
     /* Additional styles to complement your existing CSS and ensure proper centering */
     .loginformcontainer {
@@ -200,8 +199,7 @@
   </style>
 </head>
 
-<body onload="checkAuthState()" data-theme="night">
-  <div class="loginformcontainer">
+<body data-theme="night"> <div class="loginformcontainer">
     <h1>Login</h1>
     
     <form class="login_form">
@@ -294,9 +292,9 @@
       });
     }
 
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
-      onAuthStateChanged(auth, (user) => { // Use imported onAuthStateChanged
+    // Function to check if a user is logged in or not (made global)
+    window.checkAuthState = function() { // Made global by attaching to window
+      onAuthStateChanged(auth, (user) => {
         if (user) {
           console.log("User is signed in:", user.email);
           showSuccess("Login successful! Redirecting...");
@@ -443,7 +441,7 @@
     });
 
     // Handle redirect result (in case redirect method was used)
-    getRedirectResult(auth).then((result) => { // Use imported getRedirectResult
+    getRedirectResult(auth).then((result) => {
       if (result && result.user) { // Check if result and user exist
         console.log("Google redirect sign-in successful:", result.user.displayName);
         showSuccess(`Welcome ${result.user.displayName}! Redirecting...`);
@@ -479,19 +477,17 @@
       }
     });
 
-    // Debug function to check Firebase configuration - updated for v9
+    // Debug function to check Firebase configuration
     function debugFirebaseConfig() {
-      // Firebase v9 does not expose 'firebase.apps' or 'firebase.auth()' in the same way globally
-      // You'd typically check if 'auth' object is initialized
       console.log("Auth instance available:", !!auth);
       console.log("Current domain:", window.location.hostname);
-      // Accessing authDomain from firebaseConfig via an exported app or a known configuration object
-      // For this setup, firebaseConfig is not directly available here unless imported or passed
-      // console.log("Auth domain:", firebaseConfig.authDomain); // Would need to import firebaseConfig or pass it
     }
 
-    // Call debug function on load
-    window.addEventListener('load', debugFirebaseConfig);
+    // Call debug function and checkAuthState on DOM content loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        debugFirebaseConfig();
+        window.checkAuthState(); // Call the now global checkAuthState
+    });
   </script>
 </body>
 </html>
