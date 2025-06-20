@@ -1,23 +1,51 @@
 // auth_phone_recaptcha_verifier_invisible.js
-import { auth } from './firebase-config.js';
+import { auth } from './firebase-config.js'; // Import auth from centralized config
 import { RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
-// The reCAPTCHA verifier should be attached to a button that triggers the phone sign-in process.
-// In CellLogin.html, 'enterBTN' (Send One-Time Code) is a good candidate.
-window.recaptchaVerifier = new RecaptchaVerifier(auth, 'enterBTN', {
-  'size': 'invisible', // Use 'invisible' to not show the widget immediately
-  'callback': (response) => {
-    // reCAPTCHA solved, this is automatically triggered for invisible reCAPTCHA on interaction
-    // The `sendOtp()` function in CellLogin.html will handle the next step.
-    console.log("reCAPTCHA invisible callback triggered.");
-  },
-  'error-callback': (error) => {
-    // Handle reCAPTCHA error
-    console.error("reCAPTCHA error:", error);
-    // You might want to show an error message to the user here
+document.addEventListener('DOMContentLoaded', () => {
+  const enterBTNElement = document.getElementById('enterBTN'); 
+  
+  if (!enterBTNElement) {
+    console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
+    return; 
   }
-});
 
-// For invisible reCAPTCHA, you typically don't call onSignInSubmit() here.
-// Instead, the button that triggers the phone number submission should be the reCAPTCHA container,
-// and its click handler should then proceed with signInWithPhoneNumber.
+  const initializeRecaptchaVerifier = () => {
+    // --- ADD THIS CONSOLE.LOG HERE ---
+    console.log("Auth object at RecaptchaVerifier initialization attempt:", auth); 
+    // --- END ADDITION ---
+
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+      try {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
+          'size': 'invisible', 
+          'callback': (response) => {
+            console.log("reCAPTCHA invisible callback triggered.");
+          },
+          'error-callback': (error) => {
+            console.error("reCAPTCHA error:", error);
+            const button = document.getElementById('enterBTN');
+            if (button) {
+              button.disabled = false;
+              button.textContent = 'Send One-Time Code';
+            }
+            if (typeof window.showError === 'function') {
+                window.showError("reCAPTCHA verification failed. Please try again.");
+            }
+          }
+        });
+        console.log("reCAPTCHA verifier initialized successfully.");
+      } catch (e) {
+        console.error("Failed to create RecaptchaVerifier:", e);
+        if (typeof window.showError === 'function') {
+            window.showError("Failed to load reCAPTCHA. Please check your internet connection and try again.");
+        }
+      }
+    } else {
+      console.warn("grecaptcha not available yet. Retrying reCAPTCHA initialization...");
+      setTimeout(initializeRecaptchaVerifier, 200); 
+    }
+  };
+
+  initializeRecaptchaVerifier();
+});
