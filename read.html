@@ -1,36 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-    <script>
-    // Initialize Firebase with your project's config
-    
-    firebase.initializeApp(firebaseConfig);
-
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (!user) {
-          // User is not signed in, redirect to the login page
-          window.location.href = "login.html";
-        }
-      });
-    }
-    
-  </script>
-
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Society Poems</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="readstyles.css"/>
+  <link rel="icon" href="images/Untitled1.png">
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+    // Function to check if a user is logged in or not
+    function checkAuthState() {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is not signed in, redirect to the login page
+          console.log("No user found, redirecting to login");
+          window.location.href = "login.html";
+        } else {
+          // User is signed in, show the page
+          console.log("User is signed in:", user.email);
+          document.body.style.display = 'block'; // Make body visible after auth check
+        }
+      });
+    }
+
+    // Function to log out the user
+    window.logout = function() { // Made global for onclick
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState();
+      
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", window.logout);
+      }
+    });
+
+  </script>
 </head>
 
-
-<body data-theme="night">
-  <body data-theme="night">
-  <header>
+<body data-theme="night" style="display:none;"> <header>
     <nav class="navbar section-content">
       <a href="index.html" class="nav-logo">
         <h2 class="logo-text">📖 Society Poems</h2>
@@ -50,7 +70,7 @@
           <a id="logoutBtn" class="nav-link">Logout</a>
         </li>
         <li class="nav-item">
-          <a id="toggleTheme" class="nav-link">🎨 Theme</a>
+          <button id="toggleTheme" class="nav-link" aria-label="Toggle Theme">🎨 Theme</button>
         </li>
       </ul>
       <button id="menu-open-button">☰</button>
@@ -67,24 +87,10 @@
 
   <script src="scripts.js"></script>
   <script src="theme-toggle.js"></script>
-  <script src="read.js"></script>
-</body>
-
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { db } from './firebase-config.js'; // Import db from centralized config
+    import { ref, onValue } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
 
-    const firebaseConfig = {
-    apiKey: "AIzaSyBDbJeNC663MJR1td2xcpfSLoAgj8eijZE",
-    authDomain: "society-poems.firebaseapp.com",
-    projectId: "society-poems",
-    storageBucket: "society-poems.firebasestorage.app",
-    messagingSenderId: "774942255629",
-    appId: "1:774942255629:web:387605f02620c80ec10344"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
     const entriesRef = ref(db, 'uploads');
     const container = document.getElementById('entriesContainer');
 
@@ -92,7 +98,7 @@
       container.innerHTML = '';
       const data = snapshot.val();
       if (!data) {
-        container.innerHTML = '<p>No entries yet. Be the first to upload!</p>';
+        container.innerHTML = '<p class="empty-text">No entries yet. Be the first to upload!</p>';
         return;
       }
 
@@ -101,14 +107,15 @@
         const div = document.createElement('div');
         div.className = 'entry';
         div.innerHTML = `
-          <p>${entry.content.replace(/\\n/g, '<br/>')}</p>
+          <p class="entry-content">${entry.content.replace(/\\n/g, '<br/>')}</p>
           <div class="entry-meta">— <strong>${entry.name}</strong>, <em>${entry.timestamp}</em></div>
         `;
         container.appendChild(div);
       });
+    }, (error) => {
+        console.error("Failed to load entries:", error);
+        container.innerHTML = '<p class="error-text">Failed to load entries. Please try again later.</p>';
     });
   </script>
-
-  <script src="theme-toggle.js"></script>
 </body>
 </html>
