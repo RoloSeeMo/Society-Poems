@@ -229,6 +229,7 @@
         RecaptchaVerifier, 
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
+    import './auth_phone_recaptcha_verifier_invisible.js'; // Import reCAPTCHA initialization
 
     let confirmationResult; // To store the confirmation result for OTP verification
 
@@ -291,66 +292,6 @@
       });
     }
 
-    // Initialize reCAPTCHA Verifier
-    // This part has been moved here from auth_phone_recaptcha_verifier_invisible.js
-    // to simplify module loading and ensure direct access to auth and DOM elements.
-    document.addEventListener('DOMContentLoaded', () => {
-      const enterBTNElement = document.getElementById('enterBTN');
-      
-      if (!enterBTNElement) {
-        console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
-        return; // Exit if the element isn't there
-      }
-
-      // Use grecaptcha.ready() for the most reliable initialization point
-      // This callback executes when the grecaptcha API is fully loaded and available.
-      grecaptcha.ready(function() {
-        // --- CONSOLE.LOG KEPT FOR DIAGNOSIS ---
-        console.log("Auth object at RecaptchaVerifier initialization attempt (inside grecaptcha.ready):", auth);
-        // --- END CONSOLE.LOG ---
-
-        // Introduce a longer delay to give the Firebase Auth instance more time to fully settle internally.
-        setTimeout(() => { // Increased setTimeout delay here
-          try {
-            // Corrected: Pass the actual DOM element (enterBTNElement)
-            // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
-            // By wrapping it in grecaptcha.ready AND a setTimeout, we give Firebase Auth
-            // even more time to fully initialize all internal properties required by RecaptchaVerifier.
-            window.recaptchaVerifier = RecaptchaVerifier(auth, enterBTNElement, {
-              'size': 'invisible', // Invisible reCAPTCHA
-              'callback': (response) => {
-                // This callback is for reCAPTCHA success.
-                console.log("reCAPTCHA invisible callback triggered. Response:", response);
-                // The sendOtp() function is called directly by the button's onclick.
-                // No need to call it here.
-              },
-              'error-callback': (error) => {
-                // This callback is for reCAPTCHA errors (e.g., network issues, configuration problems)
-                console.error("reCAPTCHA error:", error);
-                // Re-enable the button and show an error message to the user
-                const button = document.getElementById('enterBTN');
-                if (button) {
-                  button.disabled = false;
-                  button.textContent = 'Send One-Time Code';
-                }
-                if (typeof window.showError === 'function') {
-                    window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
-                }
-              }
-            });
-            console.log("reCAPTCHA verifier initialized successfully.");
-          } catch (e) {
-            // This catch block will now capture errors during RecaptchaVerifier construction
-            console.error("Failed to create RecaptchaVerifier:", e);
-            if (typeof window.showError === 'function') {
-                window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
-            }
-          }
-        }, 300); // 300ms delay. Adjust if needed.
-      }); // End of grecaptcha.ready()
-    });
-
-
     // Function to handle sending the OTP 
     window.sendOtp = async function() { 
         hideMessages(); 
@@ -366,7 +307,14 @@
             return; 
         }
 
+        // Ensure recaptchaVerifier is available
         const appVerifier = window.recaptchaVerifier; 
+        if (!appVerifier) {
+            showError("reCAPTCHA is not ready. Please try again or refresh the page.");
+            setLoading(false, 'enterBTN');
+            console.error("reCAPTCHA verifier is undefined when sendOtp was called.");
+            return;
+        }
 
         try { 
             confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 

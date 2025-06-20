@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (!enterBTNElement) {
     console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
+    // Optionally, if the button is critical for reCAPTCHA, you might disable sendOtp
+    // or provide an alternative path here.
     return; // Exit if the element isn't there
   }
 
@@ -19,11 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- END CONSOLE.LOG ---
 
     // Introduce a longer delay to give the Firebase Auth instance more time to fully settle internally.
-    setTimeout(() => { // Increased setTimeout delay here
+    setTimeout(() => { // Increased setTimeout delay here for more robustness
       try {
         // Corrected: Pass the actual DOM element (enterBTNElement)
-        // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
-        // By wrapping it in grecaptcha.ready AND a setTimeout, we give Firebase Auth
+        // By wrapping it in grecaptcha.ready AND a a slightly longer setTimeout, we give Firebase Auth
         // even more time to fully initialize all internal properties required by RecaptchaVerifier.
         window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
           'size': 'invisible', // Invisible reCAPTCHA
@@ -55,6 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
         }
       }
-    }, 100); // Increased from 100ms to 300ms delay. Adjust if needed.
+    }, 300); // Consistent 300ms delay.
   }); // End of grecaptcha.ready()
 });
