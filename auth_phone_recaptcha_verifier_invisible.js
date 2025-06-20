@@ -1,33 +1,29 @@
 // auth_phone_recaptcha_verifier_invisible.js
-import { auth } from './firebase-config.js';
+import { auth } from './firebase-config.js'; // Import auth from centralized config
 import { RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Ensure the button element is retrieved *inside* the DOMContentLoaded listener
-  // to guarantee it exists in the DOM.
   const enterBTNElement = document.getElementById('enterBTN'); 
   
   if (!enterBTNElement) {
-    console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA. Please ensure the button exists in CellLogin.html.");
-    return; // Stop execution if the element isn't found
+    console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
+    return; 
   }
 
-  // Function to encapsulate reCAPTCHA initialization logic
   const initializeRecaptchaVerifier = () => {
-    // Check if the global grecaptcha object and its render method are available
+    // --- ADD THIS CONSOLE.LOG HERE ---
+    console.log("Auth object at RecaptchaVerifier initialization attempt:", auth); 
+    // --- END ADDITION ---
+
     if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
       try {
-        // Corrected: Pass the actual DOM element (enterBTNElement)
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
-          'size': 'invisible', // Invisible reCAPTCHA
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
+          'size': 'invisible', 
           'callback': (response) => {
             console.log("reCAPTCHA invisible callback triggered.");
-            // This callback is for reCAPTCHA success. The sendOtp() function
-            // is called by the button's onclick directly.
           },
           'error-callback': (error) => {
             console.error("reCAPTCHA error:", error);
-            // Re-enable the button and show an error message to the user
             const button = document.getElementById('enterBTN');
             if (button) {
               button.disabled = false;
@@ -47,11 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       console.warn("grecaptcha not available yet. Retrying reCAPTCHA initialization...");
-      // If grecaptcha isn't ready, retry after a short delay
-      setTimeout(initializeRecaptchaVerifier, 200); // Retry every 200ms
+      setTimeout(initializeRecaptchaVerifier, 200); 
     }
   };
 
-  // Start the reCAPTCHA initialization process
   initializeRecaptchaVerifier();
 });
