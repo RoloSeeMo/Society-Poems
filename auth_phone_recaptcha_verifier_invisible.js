@@ -1,5 +1,5 @@
 // auth_phone_recaptcha_verifier_invisible.js
-import { auth } from './firebase-config.js'; // Import auth from centralized config
+import { auth } from './firebase-config.js';
 import { RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
 // The reCAPTCHA verifier should be attached to a button that triggers the phone sign-in process.
