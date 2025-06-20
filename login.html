@@ -2,28 +2,12 @@
 <html>
 <head>
   <title>Login Page</title>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-  <script src="auth_phone_recaptcha_verifier_invisible.js"></script>
-  <script src="auth__set_language_code.js"></script>
   <link rel="stylesheet" href="login.css">
   <link rel="icon" href="images/Untitled1.png">
-
-  <script>
-    // Initialize Firebase with project config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-      authDomain: "society-poems-97f4d.firebaseapp.com",
-      databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-      projectId: "society-poems-97f4d",
-      storageBucket: "society-poems-97f4d.firebasestorage.app",
-      messagingSenderId: "723670230106",
-      appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="auth_phone_recaptcha_verifier_invisible.js"></script>
+  <script type="module" src="auth__set_language_code.js"></script>
+  
   <style>
     /* Additional styles to complement your existing CSS and ensure proper centering */
     .loginformcontainer {
@@ -234,7 +218,7 @@
 
       <button type="button" id="google-signin-btn">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        <span id="google-btn-text">Sign in/up via Google</span>
+        <span id="google-btn-text">Sign in/up with Google</span>
       </button>
       <button type="button" id="UsePhoneNum" onclick="window.location.href='CellLogin.html'">
         <span id="phone-btn-text">Sign in/up via Phone Number</span>
@@ -242,11 +226,18 @@
     </form>
   </div>
 
-  <script>
-    const auth = firebase.auth();
-    
+  <script type="module">
+    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    import { 
+        GoogleAuthProvider, 
+        signInWithEmailAndPassword, 
+        signInWithPopup, 
+        onAuthStateChanged,
+        getRedirectResult 
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
+
     // Configure Google provider with additional scopes and custom parameters
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new GoogleAuthProvider(); // Use imported GoogleAuthProvider
     provider.addScope('email');
     provider.addScope('profile');
     provider.setCustomParameters({
@@ -294,7 +285,7 @@
           if (button.id === 'google-signin-btn') {
             const text = button.querySelector('#google-btn-text');
             if (text) {
-              text.textContent = isLoading ? 'Signing in...' : 'Sign in with Google';
+              text.textContent = isLoading ? 'Signing in...' : 'Sign in/up with Google'; // Corrected text
             }
           } else if (button.id === 'enterBTN') {
             button.textContent = isLoading ? 'Logging in...' : 'Login';
@@ -305,7 +296,7 @@
 
     // Function to check if a user is logged in or not
     function checkAuthState() {
-      firebase.auth().onAuthStateChanged(function(user) {
+      onAuthStateChanged(auth, (user) => { // Use imported onAuthStateChanged
         if (user) {
           console.log("User is signed in:", user.email);
           showSuccess("Login successful! Redirecting...");
@@ -319,7 +310,7 @@
     }
 
     // Function to handle the login form submission
-    function login() {
+    window.login = async function() { // Made global for onclick and async for await
       hideMessages();
       setLoading(true, 'enterBTN');
       
@@ -332,130 +323,128 @@
         return;
       }
 
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(function(userCredential) {
-          console.log("Login successful:", userCredential.user.email);
-          showSuccess("Login successful! Redirecting...");
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-        })
-        .catch(function(error) {
-          setLoading(false, 'enterBTN');
-          let errorMessage = "Login failed. Please try again.";
-          
-          switch(error.code) {
-            case 'auth/user-not-found':
-              errorMessage = "No account found with this email address.";
-              break;
-            case 'auth/wrong-password':
-              errorMessage = "Incorrect password.";
-              break;
-            case 'auth/invalid-email':
-              errorMessage = "Invalid email address.";
-              break;
-            case 'auth/invalid-login-credentials':
-            case 'auth/invalid-credential':
-              errorMessage = "Invalid email or password. Please check your credentials and try again.";
-              break;
-            case 'auth/too-many-requests':
-              errorMessage = "Too many failed attempts. Please try again later.";
-              break;
-            case 'auth/user-disabled':
-              errorMessage = "This account has been disabled.";
-              break;
-            case 'auth/network-request-failed':
-              errorMessage = "Network error. Please check your internet connection.";
-              break;
-            case 'auth/internal-error':
-              errorMessage = "Account not found/Credentials Invalid. Please try again or sign up";
-              break;
-            default:
-              // Only show the technical error in development, user-friendly message in production
-              if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                errorMessage = `Login error: ${error.message}`;
-              } else {
-                errorMessage = "Login failed. Please check your credentials and try again.";
-              }
-              console.error("Unhandled login error:", error.code, error.message);
-          }
-          
-          showError(errorMessage);
-          console.error("Login error:", error.code, error.message);
-        });
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password); // Use imported signInWithEmailAndPassword
+        console.log("Login successful:", userCredential.user.email);
+        showSuccess("Login successful! Redirecting...");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+      } catch (error) {
+        setLoading(false, 'enterBTN');
+        let errorMessage = "Login failed. Please try again.";
+        
+        switch(error.code) {
+          case 'auth/user-not-found':
+            errorMessage = "No account found with this email address.";
+            break;
+          case 'auth/wrong-password':
+            errorMessage = "Incorrect password.";
+            break;
+          case 'auth/invalid-email':
+            errorMessage = "Invalid email address.";
+            break;
+          case 'auth/invalid-login-credentials':
+          case 'auth/invalid-credential':
+            errorMessage = "Invalid email or password. Please check your credentials and try again.";
+            break;
+          case 'auth/too-many-requests':
+            errorMessage = "Too many failed attempts. Please try again later.";
+            break;
+          case 'auth/user-disabled':
+            errorMessage = "This account has been disabled.";
+            break;
+          case 'auth/network-request-failed':
+            errorMessage = "Network error. Please check your internet connection.";
+            break;
+          case 'auth/internal-error':
+            errorMessage = "Account not found/Credentials Invalid. Please try again or sign up";
+            break;
+          default:
+            // Only show the technical error in development, user-friendly message in production
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+              errorMessage = `Login error: ${error.message}`;
+            } else {
+              errorMessage = "Login failed. Please check your credentials and try again.";
+            }
+            console.error("Unhandled login error:", error.code, error.message);
+        }
+        
+        showError(errorMessage);
+        console.error("Login error:", error.code, error.message);
+      }
     }
 
     // Google Sign-in functionality with better error handling
-    document.getElementById('google-signin-btn').addEventListener('click', function() {
+    document.getElementById('google-signin-btn').addEventListener('click', async function() { // Made async
       hideMessages();
       setLoading(true, 'google-signin-btn');
       
       console.log("Attempting Google sign-in...");
       
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          const user = result.user;
-          const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-          
-          console.log("Google sign-in successful:", {
-            name: user.displayName,
-            email: user.email,
-            uid: user.uid
-          });
-          
-          showSuccess(`Welcome ${user.displayName}! Redirecting...`);
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-        })
-        .catch((error) => {
-          setLoading(false, 'google-signin-btn');
-          console.error("Google sign-in error:", error);
-          
-          let errorMessage = "Google sign-in failed. ";
-          
-          switch(error.code) {
-            case 'auth/popup-closed-by-user':
-              errorMessage += "Sign-in was cancelled.";
-              break;
-            case 'auth/popup-blocked':
-              errorMessage += "Pop-up was blocked. Please allow pop-ups and try again.";
-              break;
-            case 'auth/cancelled-popup-request':
-              errorMessage += "Another sign-in popup is already open.";
-              break;
-            case 'auth/operation-not-allowed':
-              errorMessage += "Google sign-in is not enabled. Please contact support.";
-              break;
-            case 'auth/invalid-api-key':
-              errorMessage += "Invalid API key configuration.";
-              break;
-            case 'auth/network-request-failed':
-              errorMessage += "Network error. Please check your connection.";
-              break;
-            case 'auth/too-many-requests':
-              errorMessage += "Too many requests. Please try again later.";
-              break;
-            default:
-              errorMessage += `Error: ${error.message}`;
-          }
-          
-          showError(errorMessage);
-          
-          // If popup fails, suggest trying redirect method
-          if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-            setTimeout(() => {
-              if (confirm("Pop-up sign-in failed. Try redirect sign-in instead?")) {
-                auth.signInWithRedirect(provider);
-              }
-            }, 2000);
-          }
+      try {
+        const result = await signInWithPopup(auth, provider); // Use imported signInWithPopup
+        const user = result.user;
+        // const credential = GoogleAuthProvider.credentialFromResult(result); // Credential is not directly used here but kept for reference
+        
+        console.log("Google sign-in successful:", {
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid
         });
+        
+        showSuccess(`Welcome ${user.displayName}! Redirecting...`);
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+      } catch (error) {
+        setLoading(false, 'google-signin-btn');
+        console.error("Google sign-in error:", error);
+        
+        let errorMessage = "Google sign-in failed. ";
+        
+        switch(error.code) {
+          case 'auth/popup-closed-by-user':
+            errorMessage += "Sign-in was cancelled.";
+            break;
+          case 'auth/popup-blocked':
+            errorMessage += "Pop-up was blocked. Please allow pop-ups and try again.";
+            break;
+          case 'auth/cancelled-popup-request':
+            errorMessage += "Another sign-in popup is already open.";
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage += "Google sign-in is not enabled. Please contact support.";
+            break;
+          case 'auth/invalid-api-key':
+            errorMessage += "Invalid API key configuration.";
+            break;
+          case 'auth/network-request-failed':
+            errorMessage += "Network error. Please check your connection.";
+            break;
+          case 'auth/too-many-requests':
+            errorMessage += "Too many requests. Please try again later.";
+            break;
+          default:
+            errorMessage += `Error: ${error.message}`;
+        }
+        
+        showError(errorMessage);
+        
+        // If popup fails, suggest trying redirect method
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+          setTimeout(() => {
+            if (confirm("Pop-up sign-in failed. Try redirect sign-in instead?")) {
+              auth.signInWithRedirect(provider);
+            }
+          }, 2000);
+        }
+      }
     });
 
     // Handle redirect result (in case redirect method was used)
-    auth.getRedirectResult().then((result) => {
-      if (result.user) {
+    getRedirectResult(auth).then((result) => { // Use imported getRedirectResult
+      if (result && result.user) { // Check if result and user exist
         console.log("Google redirect sign-in successful:", result.user.displayName);
         showSuccess(`Welcome ${result.user.displayName}! Redirecting...`);
         setTimeout(() => {
@@ -490,12 +479,15 @@
       }
     });
 
-    // Debug function to check Firebase configuration
+    // Debug function to check Firebase configuration - updated for v9
     function debugFirebaseConfig() {
-      console.log("Firebase app initialized:", firebase.apps.length > 0);
-      console.log("Auth instance:", !!firebase.auth());
+      // Firebase v9 does not expose 'firebase.apps' or 'firebase.auth()' in the same way globally
+      // You'd typically check if 'auth' object is initialized
+      console.log("Auth instance available:", !!auth);
       console.log("Current domain:", window.location.hostname);
-      console.log("Auth domain:", firebaseConfig.authDomain);
+      // Accessing authDomain from firebaseConfig via an exported app or a known configuration object
+      // For this setup, firebaseConfig is not directly available here unless imported or passed
+      // console.log("Auth domain:", firebaseConfig.authDomain); // Would need to import firebaseConfig or pass it
     }
 
     // Call debug function on load
