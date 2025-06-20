@@ -55,6 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
         }
       }
-    }, 300); // Increased from 100ms to 300ms delay. Adjust if needed.
+    }, 100); // Increased from 100ms to 300ms delay. Adjust if needed.
   }); // End of grecaptcha.ready()
 });
