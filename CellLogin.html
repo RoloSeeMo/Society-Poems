@@ -4,11 +4,14 @@
   <title>Login Page</title>
   <link rel="stylesheet" href="phoneLogin.css">
   <link rel="icon" href="images/Untitled1.png">
-  <script type="module" src="firebase-config.js"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="auth_phone_recaptcha_verifier_invisible.js"></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ"></script>
   <script type="module" src="auth__set_language_code.js"></script>
 
   <style>
+    /* ... (Your existing CSS styles for CellLogin.html) ... */
     /* Additional styles */
     .loginformcontainer {
       display: flex;
@@ -179,8 +182,7 @@
   </style>
 </head>
 
-<body data-theme="night">
-  <div class="loginformcontainer">
+<body data-theme="night"> <div class="loginformcontainer">
     <h1>Login</h1>
     <form class="login_form">
       <div id="error-container" class="error-message"></div>
@@ -212,7 +214,7 @@
             });
       </script>
 
-      <button type="button" id="enterBTN" onclick="sendOtp()">Send One-Time Code</button>
+      <button type="button" id="enterBTN" class="g-recaptcha" data-sitekey="6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ" data-callback='onSubmit' data-action='submit' onclick="sendOtp()">Send One-Time Code</button>
       
       <label for="otp-input" style="display:none;" id="otp-label">Verification Code:</label>
       <input type="text" id="otp-input" style="display:none; color:white;" placeholder="Enter OTP" required>
@@ -291,190 +293,130 @@
       });
     }
 
-    // Initialize reCAPTCHA Verifier
-    // This part has been moved here from auth_phone_recaptcha_verifier_invisible.js
-    // to simplify module loading and ensure direct access to auth and DOM elements.
-    document.addEventListener('DOMContentLoaded', () => {
-      const enterBTNElement = document.getElementById('enterBTN'); 
-      
-      if (!enterBTNElement) {
-        console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
-        return; // Exit if the element isn't there
-      }
-
-      // Use grecaptcha.ready() for the most reliable initialization point
-      // This callback executes when the grecaptcha API is fully loaded and available.
-      grecaptcha.ready(function() {
-        // --- CONSOLE.LOG KEPT FOR DIAGNOSIS ---
-        console.log("Auth object at RecaptchaVerifier initialization attempt (inside grecaptcha.ready):", auth); 
-        // --- END CONSOLE.LOG ---
-
-        // Introduce a longer delay to give the Firebase Auth instance more time to fully settle internally.
-        setTimeout(() => { 
-          try {
-            // Corrected: Pass the actual DOM element (enterBTNElement)
-            // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
-            // By wrapping it in grecaptcha.ready AND a setTimeout, we give Firebase Auth
-            // even more time to fully initialize all internal properties required by RecaptchaVerifier.
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
-              'size': 'invisible', // Invisible reCAPTCHA
-              'callback': (response) => {
-                // This callback is for reCAPTCHA success.
-                console.log("reCAPTCHA invisible callback triggered. Response:", response);
-                // The sendOtp() function is called directly by the button's onclick.
-                // No need to call it here.
-              },
-              'error-callback': (error) => {
-                // This callback is for reCAPTCHA errors (e.g., network issues, configuration problems)
-                console.error("reCAPTCHA error:", error);
-                // Re-enable the button and show an error message to the user
-                const button = document.getElementById('enterBTN');
-                if (button) {
-                  button.disabled = false;
-                  button.textContent = 'Send One-Time Code';
-                }
-                if (typeof window.showError === 'function') {
-                    window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
-                }
-              }
-            });
-            console.log("reCAPTCHA verifier initialized successfully.");
-          } catch (e) {
-            // This catch block will now capture errors during RecaptchaVerifier construction
-            console.error("Failed to create RecaptchaVerifier:", e);
-            if (typeof window.showError === 'function') {
-                window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
-            }
-          }
-        }, 300); // 300ms delay. Adjust if needed.
-      }); // End of grecaptcha.ready()
-    });
-
-
-    // Function to handle sending the OTP 
-    window.sendOtp = async function() { 
-        hideMessages(); 
-        setLoading(true, 'enterBTN'); 
+    // Function to handle sending the OTP
+    window.sendOtp = async function() {
+        hideMessages();
+        setLoading(true, 'enterBTN');
         
-        const phoneNumberInput = document.getElementById("code-input").value.trim(); 
-        // Assuming US numbers for +1. Adjust this if you need international numbers. 
-        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; 
+        const phoneNumberInput = document.getElementById("code-input").value.trim();
+        // Assuming US numbers for +1. Adjust this if you need international numbers.
+        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`;
 
-        if (!phoneNumberInput) { 
-            showError("Please enter your phone number."); 
-            setLoading(false, 'enterBTN'); 
-            return; 
+        if (!phoneNumberInput) {
+            showError("Please enter your phone number.");
+            setLoading(false, 'enterBTN');
+            return;
         }
 
-        const appVerifier = window.recaptchaVerifier; 
+        const appVerifier = window.recaptchaVerifier;
 
-        try { 
-            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 
-            showSuccess("OTP sent successfully! Please check your phone."); 
-            // Show OTP input and verify button 
-            document.getElementById('otp-label').style.display = 'block'; 
-            document.getElementById('otp-input').style.display = 'block'; 
-            document.getElementById('verifyOTPBtn').style.display = 'block'; 
-            document.getElementById('enterBTN').style.display = 'none'; // Hide send OTP button 
-            document.getElementById('code-input').disabled = true; // Disable phone input after sending OTP 
+        try {
+            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            showSuccess("OTP sent successfully! Please check your phone.");
+            // Show OTP input and verify button
+            document.getElementById('otp-label').style.display = 'block';
+            document.getElementById('otp-input').style.display = 'block';
+            document.getElementById('verifyOTPBtn').style.display = 'block';
+            document.getElementById('enterBTN').style.display = 'none'; // Hide send OTP button
+            document.getElementById('code-input').disabled = true; // Disable phone input after sending OTP
 
-        } catch (error) { 
-            setLoading(false, 'enterBTN'); 
-            let errorMessage = "Failed to send OTP. Please try again."; 
-            console.error("Error sending OTP:", error); 
-            switch(error.code) { 
-                case 'auth/invalid-phone-number': 
-                    errorMessage = "The phone number entered is invalid."; 
-                    break; 
-                case 'auth/too-many-requests': 
-                    errorMessage = "Too many requests. Please try again later."; 
-                    break; 
-                case 'auth/network-request-failed': 
-                    errorMessage = "Network error. Please check your internet connection."; 
-                    break; 
-                default: 
-                    errorMessage = `Error: ${error.message}`; 
+        } catch (error) {
+            setLoading(false, 'enterBTN');
+            let errorMessage = "Failed to send OTP. Please try again.";
+            console.error("Error sending OTP:", error);
+            switch(error.code) {
+                case 'auth/invalid-phone-number':
+                    errorMessage = "The phone number entered is invalid.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Too many requests. Please try again later.";
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = "Network error. Please check your internet connection.";
+                    break;
+                default:
+                    errorMessage = `Error: ${error.message}`;
             }
-            showError(errorMessage); 
+            showError(errorMessage);
         }
     };
 
-    // Function to handle OTP verification 
-    window.verifyOtp = async function() { 
-        hideMessages(); 
-        setLoading(true, 'verifyOTPBtn'); 
+    // Function to handle OTP verification
+    window.verifyOtp = async function() {
+        hideMessages();
+        setLoading(true, 'verifyOTPBtn');
 
-        const otpCode = document.getElementById("otp-input").value.trim(); 
+        const otpCode = document.getElementById("otp-input").value.trim();
 
-        if (!otpCode) { 
-            showError("Please enter the verification code."); 
-            setLoading(false, 'verifyOTPBtn'); 
-            return; 
+        if (!otpCode) {
+            showError("Please enter the verification code.");
+            setLoading(false, 'verifyOTPBtn');
+            return;
         }
 
-        if (!confirmationResult) { 
-            showError("No verification code was sent. Please send OTP first."); 
-            setLoading(false, 'verifyOTPBtn'); 
-            return; 
+        if (!confirmationResult) {
+            showError("No verification code was sent. Please send OTP first.");
+            setLoading(false, 'verifyOTPBtn');
+            return;
         }
 
-        try { 
-            const userCredential = await confirmationResult.confirm(otpCode); 
-            console.log("Phone login successful:", userCredential.user.phoneNumber); 
-            showSuccess("Login successful! Redirecting..."); 
-            setTimeout(() => { 
-                window.location.href = "index.html"; 
-            }, 1500); 
-        } catch (error) { 
-            setLoading(false, 'verifyOTPBtn'); 
-            let errorMessage = "Invalid verification code. Please try again."; 
-            console.error("Error verifying OTP:", error); 
-            switch(error.code) { 
-                case 'auth/invalid-verification-code': 
-                    errorMessage = "The verification code is invalid."; 
-                    break; 
-                case 'auth/code-expired': 
-                    errorMessage = "The verification code has expired."; 
-                    break; 
-                case 'auth/too-many-requests': 
-                    errorMessage = "Too many attempts. Please try again later."; 
-                    break; 
-                case 'auth/network-request-failed': 
-                    errorMessage = "Network error. Please check your internet connection."; 
-                    break; 
-                default: 
-                    errorMessage = `Error: ${error.message}`; 
+        try {
+            const userCredential = await confirmationResult.confirm(otpCode);
+            console.log("Phone login successful:", userCredential.user.phoneNumber);
+            showSuccess("Login successful! Redirecting...");
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1500);
+        } catch (error) {
+            setLoading(false, 'verifyOTPBtn');
+            let errorMessage = "Invalid verification code. Please try again.";
+            console.error("Error verifying OTP:", error);
+            switch(error.code) {
+                case 'auth/invalid-verification-code':
+                    errorMessage = "The verification code is invalid.";
+                    break;
+                case 'auth/code-expired':
+                    errorMessage = "The verification code has expired.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Too many attempts. Please try again later.";
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = "Network error. Please check your internet connection.";
+                    break;
+                default:
+                    errorMessage = `Error: ${error.message}`;
             }
-            showError(errorMessage); 
+            showError(errorMessage);
         }
     };
 
-    // Trigger sendOtp on Enter key press in phone input 
-    document.getElementById("code-input").addEventListener("keydown", function(event) { 
-        if (event.key === "Enter") { 
-            event.preventDefault(); 
-            sendOtp(); 
+    // Trigger sendOtp on Enter key press in phone input
+    document.getElementById("code-input").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendOtp();
         }
     });
 
-    // Trigger verifyOtp on Enter key press in OTP input 
-    document.getElementById("otp-input").addEventListener("keydown", function(event) { 
-        if (event.key === "Enter") { 
-            event.preventDefault(); 
-            verifyOtp(); 
+    // Trigger verifyOtp on Enter key press in OTP input
+    document.getElementById("otp-input").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyOtp();
         }
     });
 
-    // Debug function (updated for v9) 
-    function debugFirebaseConfig() { 
-      console.log("Auth instance available:", !!auth); 
-      console.log("Current domain:", window.location.hostname); 
+    // Debug function (updated for v9)
+    function debugFirebaseConfig() {
+      console.log("Auth instance available:", !!auth);
+      console.log("Current domain:", window.location.hostname);
     }
 
-    // Call debug function and checkAuthState on DOM content loaded 
-    document.addEventListener('DOMContentLoaded', () => { 
+    // Call debug function and checkAuthState on DOM content loaded
+    document.addEventListener('DOMContentLoaded', () => {
         debugFirebaseConfig();
-        window.checkAuthState(); 
+        window.checkAuthState(); // Call the now global checkAuthState
     });
   </script>
 </body>
