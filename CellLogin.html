@@ -10,6 +10,7 @@
   <script type="module" src="auth__set_language_code.js"></script>
 
   <style>
+    /* ... (Your existing CSS styles for CellLogin.html) ... */
     /* Additional styles */
     .loginformcontainer {
       display: flex;
@@ -180,8 +181,7 @@
   </style>
 </head>
 
-<body onload="checkAuthState()" data-theme="night">
-  <div class="loginformcontainer">
+<body data-theme="night"> <div class="loginformcontainer">
     <h1>Login</h1>
     <form class="login_form">
       <div id="error-container" class="error-message"></div>
@@ -277,8 +277,8 @@
       }
     }
 
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
+    // Function to check if a user is logged in or not (made global)
+    window.checkAuthState = function() { // Made global by attaching to window
       onAuthStateChanged(auth, (user) => {
         if (user) {
           console.log("User is signed in:", user.phoneNumber || user.email); // User might have phone or email
@@ -292,21 +292,6 @@
       });
     }
 
-    // Initialize reCAPTCHA Verifier
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'enterBTN', { // 'enterBTN' is used as the container for invisible reCAPTCHA
-      'size': 'invisible', // Use 'invisible' to not show the widget immediately
-      'callback': (response) => {
-        // reCAPTCHA solved, this is automatically triggered for invisible reCAPTCHA on interaction
-        // with the button it's attached to.
-        console.log("reCAPTCHA solved.");
-      },
-      'error-callback': (error) => {
-        console.error("reCAPTCHA error:", error);
-        showError("reCAPTCHA verification failed. Please try again.");
-        setLoading(false, 'enterBTN');
-      }
-    });
-
     // Function to handle sending the OTP
     window.sendOtp = async function() {
         hideMessages();
@@ -314,7 +299,7 @@
         
         const phoneNumberInput = document.getElementById("code-input").value.trim();
         // Assuming US numbers for +1. Adjust this if you need international numbers.
-        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; 
+        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`;
 
         if (!phoneNumberInput) {
             showError("Please enter your phone number.");
@@ -427,8 +412,11 @@
       console.log("Current domain:", window.location.hostname);
     }
 
-    // Call debug function on load
-    window.addEventListener('load', debugFirebaseConfig);
+    // Call debug function and checkAuthState on DOM content loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        debugFirebaseConfig();
+        window.checkAuthState(); // Call the now global checkAuthState
+    });
   </script>
 </body>
 </html>
