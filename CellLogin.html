@@ -293,10 +293,10 @@
 
     // Initialize reCAPTCHA Verifier
     window.recaptchaVerifier = new RecaptchaVerifier(auth, 'enterBTN', { // 'enterBTN' is used as the container for invisible reCAPTCHA
-      'size': 'invisible',
+      'size': 'invisible', // Use 'invisible' to not show the widget immediately
       'callback': (response) => {
         // reCAPTCHA solved, this callback is typically triggered automatically for invisible reCAPTCHA
-        // You might want to call sendOtp() from here if 'enterBTN' triggers reCAPTCHA directly
+        // on interaction with the button it's attached to.
         console.log("reCAPTCHA solved.");
       },
       'error-callback': (error) => {
@@ -312,7 +312,8 @@
         setLoading(true, 'enterBTN');
         
         const phoneNumberInput = document.getElementById("code-input").value.trim();
-        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; // Assuming US numbers and formatting
+        // Assuming US numbers for +1. Adjust this if you need international numbers.
+        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; 
 
         if (!phoneNumberInput) {
             showError("Please enter your phone number.");
