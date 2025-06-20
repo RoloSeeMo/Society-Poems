@@ -18,40 +18,43 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Auth object at RecaptchaVerifier initialization attempt (inside grecaptcha.ready):", auth); 
     // --- END CONSOLE.LOG ---
 
-    try {
-      // Corrected: Pass the actual DOM element (enterBTNElement)
-      // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
-      // By wrapping it in grecaptcha.ready, we give Firebase Auth more time to fully initialize
-      // all internal properties required by RecaptchaVerifier.
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
-        'size': 'invisible', // Invisible reCAPTCHA
-        'callback': (response) => {
-          // This callback is for reCAPTCHA success.
-          console.log("reCAPTCHA invisible callback triggered. Response:", response);
-          // The sendOtp() function is called directly by the button's onclick.
-          // No need to call it here.
-        },
-        'error-callback': (error) => {
-          // This callback is for reCAPTCHA errors (e.g., network issues, configuration problems)
-          console.error("reCAPTCHA error:", error);
-          // Re-enable the button and show an error message to the user
-          const button = document.getElementById('enterBTN');
-          if (button) {
-            button.disabled = false;
-            button.textContent = 'Send One-Time Code';
+    // Introduce a small delay to give the Firebase Auth instance more time to fully settle internally.
+    setTimeout(() => { // Added setTimeout here
+      try {
+        // Corrected: Pass the actual DOM element (enterBTNElement)
+        // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
+        // By wrapping it in grecaptcha.ready AND a setTimeout, we give Firebase Auth
+        // even more time to fully initialize all internal properties required by RecaptchaVerifier.
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
+          'size': 'invisible', // Invisible reCAPTCHA
+          'callback': (response) => {
+            // This callback is for reCAPTCHA success.
+            console.log("reCAPTCHA invisible callback triggered. Response:", response);
+            // The sendOtp() function is called directly by the button's onclick.
+            // No need to call it here.
+          },
+          'error-callback': (error) => {
+            // This callback is for reCAPTCHA errors (e.g., network issues, configuration problems)
+            console.error("reCAPTCHA error:", error);
+            // Re-enable the button and show an error message to the user
+            const button = document.getElementById('enterBTN');
+            if (button) {
+              button.disabled = false;
+              button.textContent = 'Send One-Time Code';
+            }
+            if (typeof window.showError === 'function') {
+                window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
+            }
           }
-          if (typeof window.showError === 'function') {
-              window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
-          }
+        });
+        console.log("reCAPTCHA verifier initialized successfully.");
+      } catch (e) {
+        // This catch block will now capture errors during RecaptchaVerifier construction
+        console.error("Failed to create RecaptchaVerifier:", e);
+        if (typeof window.showError === 'function') {
+            window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
         }
-      });
-      console.log("reCAPTCHA verifier initialized successfully.");
-    } catch (e) {
-      // This catch block will now capture errors during RecaptchaVerifier construction
-      console.error("Failed to create RecaptchaVerifier:", e);
-      if (typeof window.showError === 'function') {
-          window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
       }
-    }
+    }, 100); // 100ms delay: This is a common sweet spot for such timing issues. You can adjust if needed.
   }); // End of grecaptcha.ready()
 });
