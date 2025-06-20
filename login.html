@@ -5,8 +5,6 @@
   <link rel="stylesheet" href="login.css">
   <link rel="icon" href="images/Untitled1.png">
   <script type="module" src="firebase-config.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <script type="module" src="auth_phone_recaptcha_verifier_invisible.js"></script>
   <script type="module" src="auth__set_language_code.js"></script>
 
   <style>
@@ -201,7 +199,8 @@
   </style>
 </head>
 
-<body data-theme="night"> <div class="loginformcontainer">
+<body data-theme="night">
+  <div class="loginformcontainer">
     <h1>Login</h1>
     
     <form class="login_form">
@@ -285,7 +284,7 @@
           if (button.id === 'google-signin-btn') {
             const text = button.querySelector('#google-btn-text');
             if (text) {
-              text.textContent = isLoading ? 'Signing in...' : 'Sign in/up with Google'; // Corrected text
+              text.textContent = isLoading ? 'Signing in...' : 'Sign in/up with Google';
             }
           } else if (button.id === 'enterBTN') {
             button.textContent = isLoading ? 'Logging in...' : 'Login';
@@ -426,19 +425,17 @@
             errorMessage += "Too many requests. Please try again later.";
             break;
           default:
-            errorMessage += `Error: ${error.message}`;
+            // Only show the technical error in development, user-friendly message in production
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+              errorMessage = `Login error: ${error.message}`;
+            } else {
+              errorMessage = "Login failed. Please check your credentials and try again.";
+            }
+            console.error("Unhandled login error:", error.code, error.message);
         }
         
         showError(errorMessage);
-        
-        // If popup fails, suggest trying redirect method
-        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-          setTimeout(() => {
-            if (confirm("Pop-up sign-in failed. Try redirect sign-in instead?")) {
-              auth.signInWithRedirect(provider);
-            }
-          }, 2000);
-        }
+        console.error("Login error:", error.code, error.message);
       }
     });
 
