@@ -8,9 +8,40 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/Untitled1.png">
 
-  <!-- Firebase and Auth Protection -->
   <script type="module" src="firebase-config.js"></script>
-  <script type="module" src="auth-check.js"></script>
+  <script type="module">
+    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+    // Function to check if a user is logged in or not
+    function checkAuthState() {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is not signed in, redirect to the login page
+          window.location.href = "login.html";
+        }
+      });
+    }
+
+    // Function to log out the user
+    window.logout = function () { // Made global for onclick
+      auth.signOut().then(() => {
+        window.location.href = "login.html"; // Redirect to login page
+      }).catch((error) => {
+        console.error("Logout Error:", error);
+      });
+    }
+
+    // Attach logout function to the button and check auth state on load
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuthState();
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", window.logout);
+      }
+    });
+  </script>
   
   <style>
     /* Theme Variables */
@@ -56,10 +87,6 @@
       align-items: center;
       max-width: 800px;
       margin: 0 auto 20px auto;
-      padding: 20px;
-      background: var(--form-bg, #fff);
-      border-radius: var(--border-radius-m);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .upload-header a {
@@ -74,54 +101,19 @@
       color: var(--primary-color-400);
     }
 
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: var(--border-radius-s);
-      font-size: var(--font-size-n);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .logout-btn:hover {
-      background: #c82333;
-      transform: translateY(-1px);
-    }
-
-    .logout-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     #toggleTheme {
       background: var(--primary-color);
       color: var(--secondary-color);
       border: none;
       padding: 10px 15px;
       border-radius: var(--border-radius-s);
-      font-size: var(--font-size-n);
+      font-size: var(--font-size-m);
       cursor: pointer;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
 
     #toggleTheme:hover {
       background: var(--primary-color-400);
-      transform: translateY(-1px);
     }
 
     .upload-form {
@@ -259,28 +251,19 @@
         flex-direction: column;
         gap: 15px;
       }
-      
-      .header-buttons {
-        flex-direction: row;
-        width: 100%;
-        justify-content: center;
-      }
     }
   </style>
+  
 </head>
+
 
 <body data-theme="night">
   <main class="upload-section">
+
     <div class="upload-header">
-      <a href="https://societypoems.com">📖 Society Poems</a>
-      <div class="header-buttons">
-        <button id="logoutBtn" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-        <button id="toggleTheme" aria-label="Toggle Theme">
-          <i class="fas fa-palette"></i> Theme
-        </button>
-      </div>
+      <a href="https://societypoems.com">Society Poems</a>
+      <a id="logoutBtn" class="logoutBtn" style="background:none; border:none; cursor:pointer;">Logout</a>
+      <button id="toggleTheme" aria-label="Toggle Theme">🌙</button>
     </div>
     
     <form id="uploadForm" class="upload-form">
@@ -309,6 +292,7 @@
       <textarea id="content" rows="10" placeholder="Write your thoughts here..."></textarea>
       <div class="char-count" id="charCount">0 characters</div>
 
+
       <button type="submit">Submit</button>
       <button type="button" id="clearDraft">Clear Draft</button>
 
@@ -329,32 +313,5 @@
 
   <script type="module" src="updateDB.js"></script>
   <script src="theme-toggle.js"></script>
-  <script type="module">
-    import { auth } from './firebase-config.js';
-    
-    // Logout functionality with confirmation
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      if (confirm('Are you sure you want to logout?')) {
-        try {
-          // Show loading state
-          const logoutBtn = document.getElementById('logoutBtn');
-          const originalText = logoutBtn.innerHTML;
-          logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
-          logoutBtn.disabled = true;
-          
-          await auth.signOut();
-          window.location.href = 'login.html';
-        } catch (error) {
-          console.error('Logout error:', error);
-          alert('Error logging out. Please try again.');
-          
-          // Reset button state
-          const logoutBtn = document.getElementById('logoutBtn');
-          logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-          logoutBtn.disabled = false;
-        }
-      }
-    });
-  </script>
 </body>
 </html>

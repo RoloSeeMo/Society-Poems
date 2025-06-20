@@ -1,62 +1,6 @@
-import firebase from 'firebase/app';
-import 'firebase/database';
-
-// Import the Firebase configuration and initialize the app
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-    authDomain: "society-poems-97f4d.firebaseapp.com",
-    databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-    projectId: "society-poems-97f4d",
-    storageBucket: "society-poems-97f4d.firebasestorage.app",
-    messagingSenderId: "723670230106",
-    appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-  };
-
-firebase.initializeApp(firebaseConfig);
-
-
-
-var dbUpload = firebase.database().ref("uploadForm");
-document.getElementById("uploadForm").addEventListener("submit", submitForm);
-
-function submitForm(e){
-    e.preventDefault(); 
-    if (document.getElementById("privacy").value !== "anonymous"){
-            var name = (document.getElementById("nameFeild").getElementById("username"));
-        }else{
-            var name = (document.getElementById("privacy").value);
-        }
-        // var name = document.getElementById("name").value;
-    var category = document.getElementById("genre").value;
-    var writing = document.getElementById("content").value;
-            
-    console.log(name, category, writing);
-
-    // Validate form values
-    if (name === "" || category === "" || writing === "") {
-        alert("Please fill in all fields.");
-        return;
-    }
-
-    // Create a new entry in the database
-    dbUpload.push({
-        name: name,
-        category: category,
-        writing: writing
-    }).then(() => {
-        alert("Poem submitted successfully!");
-        document.getElementById("uploadForm").reset(); // Reset the form
-    }).catch((error) => {
-        console.error("Error uploading poem:", error);
-        alert("There was an error submitting your poem. Please try again later.");
-    });
-}
-
-
-    
-
-const db = getDatabase(app);
+// updateDB.js
+import { db } from './firebase-config.js'; // Import db from centralized config
+import { ref, push } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
 
 const form = document.getElementById('uploadForm');
 const privacy = document.getElementById('privacy');
@@ -72,18 +16,18 @@ const clearBtn = document.getElementById('clearDraft');
 
 privacy.addEventListener('change', () => {
     nameField.style.display = privacy.value === 'named' ? 'block' : 'none';
-        updatePreviewAuthor();
+    updatePreviewAuthor();
 });
 
 username.addEventListener('input', () => {
     nameLimit.textContent = `(${username.value.length}/15)`;
-        updatePreviewAuthor();
+    updatePreviewAuthor();
 });
 
 content.addEventListener('input', () => {
     charCount.textContent = `${content.value.length} characters`;
     previewBox.firstChild.textContent = content.value.trim() || "Your writing preview will appear here...";
-      localStorage.setItem("draftContent", content.value);
+    localStorage.setItem("draftContent", content.value);
 });
 
 function updatePreviewAuthor() {
@@ -96,7 +40,7 @@ function updatePreviewAuthor() {
     }
 }
 
-    // Load draft
+// Load draft
 window.addEventListener('load', () => {
     const savedDraft = localStorage.getItem("draftContent");
     if (savedDraft) {
@@ -128,14 +72,17 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-      const newEntry = { name, genre, content: contentValue, timestamp };
-      await push(ref(db, 'uploads'), newEntry);
-
-      localStorage.removeItem("draftContent");
-      form.reset();
-      nameField.style.display = 'none';
-      charCount.textContent = '0 characters';
-      previewBox.firstChild.textContent = "Your writing preview will appear here...";
-      previewAuthor.textContent = "";
-      modal.style.display = 'flex';
+    try {
+        await push(ref(db, 'uploads'), { name, genre, content: contentValue, timestamp }); // Use imported push and ref
+        localStorage.removeItem("draftContent");
+        form.reset();
+        nameField.style.display = 'none';
+        charCount.textContent = '0 characters';
+        previewBox.firstChild.textContent = "Your writing preview will appear here...";
+        previewAuthor.textContent = "";
+        modal.style.display = 'flex';
+    } catch (error) {
+        console.error("Error uploading poem:", error);
+        alert("There was an error submitting your poem. Please try again later.");
+    }
 });
