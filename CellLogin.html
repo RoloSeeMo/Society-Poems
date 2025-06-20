@@ -316,7 +316,7 @@
             // This line previously caused a TypeError related to 'appVerificationDisabledForTesting'
             // By wrapping it in grecaptcha.ready AND a setTimeout, we give Firebase Auth
             // even more time to fully initialize all internal properties required by RecaptchaVerifier.
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
+            window.recaptchaVerifier = RecaptchaVerifier(auth, enterBTNElement, {
               'size': 'invisible', // Invisible reCAPTCHA
               'callback': (response) => {
                 // This callback is for reCAPTCHA success.
