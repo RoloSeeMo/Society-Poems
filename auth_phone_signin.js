@@ -1,4 +1,4 @@
-import { getAuth, signInWithPhoneNumber } from "/firebase/auth";
+import { getAuth, signInWithPhoneNumber } from "../firebase/auth";
 
 const phoneNumber = getPhoneNumberFromUserInput();
 const appVerifier = window.recaptchaVerifier;
