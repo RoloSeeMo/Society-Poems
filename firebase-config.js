@@ -38,20 +38,53 @@ document.addEventListener("DOMContentLoaded", () => {
         'size': 'invisible'
     });
 
+    // ==================== MODIFIED SECTION START ====================
+    // This logic now formats the phone number as XXX-XXX-XXXX while the user types.
+    // This formatting is based on the script from your original CellLogin.html.
+    phoneInput.addEventListener('input', (e) => {
+        // Get the raw digits by removing all non-numeric characters
+        let digits = e.target.value.replace(/\D/g, '');
+
+        // Limit the number of digits to 10
+        if (digits.length > 10) {
+            digits = digits.slice(0, 10);
+        }
+
+        // Apply formatting with hyphens
+        let formattedInput = '';
+        if (digits.length > 6) {
+            formattedInput = `${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
+        } else if (digits.length > 3) {
+            formattedInput = `${digits.substring(0, 3)}-${digits.substring(3, 6)}`;
+        } else {
+            formattedInput = digits;
+        }
+
+        e.target.value = formattedInput;
+    });
+    // ==================== MODIFIED SECTION END ====================
+
+
     // Event listener to handle the "Send Code" button click
     phoneLoginForm.addEventListener('submit', (e) => {
         e.preventDefault(); // Prevent the form from submitting the traditional way
         hideError();
         hideSuccess();
 
-        let phoneNumber = phoneInput.value.replace(/\D/g, ''); // Remove non-numeric characters
-        if (!phoneNumber.startsWith('1')) {
-           phoneNumber = '1' + phoneNumber; // Ensure US country code is present
-        }
+        // Get just the digits from the input to prepare for Firebase
+        const digits = phoneInput.value.replace(/\D/g, '');
 
+        // Check if the number is a valid 10-digit number
+        if (digits.length !== 10) {
+            showError("Please enter a valid 10-digit phone number.");
+            return;
+        }
+        
+        // Format the number to E.164 format (+1XXXXXXXXXX) for Firebase
+        const phoneNumberE164 = `+1${digits}`;
         const appVerifier = window.recaptchaVerifier;
 
-        signInWithPhoneNumber(auth, `+${phoneNumber}`, appVerifier)
+        signInWithPhoneNumber(auth, phoneNumberE164, appVerifier)
             .then((confirmationResult) => {
                 window.confirmationResult = confirmationResult; // Store for later use
                 showSuccess('A verification code has been sent to your phone.');
