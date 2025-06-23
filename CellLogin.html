@@ -8,7 +8,6 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   
   <style>
-    /* Additional styles */
     .loginformcontainer {
       display: flex;
       flex-direction: column;
@@ -230,12 +229,15 @@
         RecaptchaVerifier, 
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
-    import './auth_phone_recaptcha_verifier_invisible.js'; // Import reCAPTCHA initialization.
+    
+    // We will no longer import the separate recaptcha file.
 
     let confirmationResult; // To store the confirmation result for OTP verification
 
     // Function to show error messages
     function showError(message) {
+    // Make showError and showSuccess globally available so reCAPTCHA callbacks can use them
+    window.showError = function(message) {
       const errorContainer = document.getElementById('error-container');
       const successContainer = document.getElementById('success-container');
       
@@ -293,25 +295,22 @@
       });
     }
 
-    // Function to handle sending the OTP 
     window.sendOtp = async function() { 
         hideMessages(); 
         setLoading(true, 'enterBTN'); 
         
         const phoneNumberInput = document.getElementById("code-input").value.trim(); 
-        // Assuming US numbers for +1. Adjust this if you need international numbers. 
         const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; 
 
         if (!phoneNumberInput) { 
-            showError("Please enter your phone number."); 
+            window.showError("Please enter your phone number."); 
             setLoading(false, 'enterBTN'); 
             return; 
         }
 
-        // Ensure recaptchaVerifier is available
         const appVerifier = window.recaptchaVerifier; 
         if (!appVerifier) {
-            showError("reCAPTCHA is not ready. Please try again or refresh the page.");
+            window.showError("reCAPTCHA is not ready. Please try again or refresh the page.");
             setLoading(false, 'enterBTN');
             console.error("reCAPTCHA verifier is undefined when sendOtp was called.");
             return;
@@ -320,12 +319,11 @@
         try { 
             confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 
             showSuccess("OTP sent successfully! Please check your phone."); 
-            // Show OTP input and verify button 
             document.getElementById('otp-label').style.display = 'block'; 
             document.getElementById('otp-input').style.display = 'block'; 
             document.getElementById('verifyOTPBtn').style.display = 'block'; 
-            document.getElementById('enterBTN').style.display = 'none'; // Hide send OTP button 
-            document.getElementById('code-input').disabled = true; // Disable phone input after sending OTP 
+            document.getElementById('enterBTN').style.display = 'none'; 
+            document.getElementById('code-input').disabled = true;
 
         } catch (error) { 
             setLoading(false, 'enterBTN'); 
@@ -344,11 +342,10 @@
                 default: 
                     errorMessage = `Error: ${error.message}`; 
             }
-            showError(errorMessage); 
+            window.showError(errorMessage); 
         }
     };
 
-    // Function to handle OTP verification 
     window.verifyOtp = async function() { 
         hideMessages(); 
         setLoading(true, 'verifyOTPBtn'); 
@@ -356,13 +353,13 @@
         const otpCode = document.getElementById("otp-input").value.trim(); 
 
         if (!otpCode) { 
-            showError("Please enter the verification code."); 
+            window.showError("Please enter the verification code."); 
             setLoading(false, 'verifyOTPBtn'); 
             return; 
         }
 
         if (!confirmationResult) { 
-            showError("No verification code was sent. Please send OTP first."); 
+            window.showError("No verification code was sent. Please send OTP first."); 
             setLoading(false, 'verifyOTPBtn'); 
             return; 
         }
@@ -394,11 +391,10 @@
                 default: 
                     errorMessage = `Error: ${error.message}`; 
             }
-            showError(errorMessage); 
+            window.showError(errorMessage); 
         }
     };
 
-    // Trigger sendOtp on Enter key press in phone input 
     document.getElementById("code-input").addEventListener("keydown", function(event) { 
         if (event.key === "Enter") { 
             event.preventDefault(); 
@@ -406,7 +402,6 @@
         }
     });
 
-    // Trigger verifyOtp on Enter key press in OTP input 
     document.getElementById("otp-input").addEventListener("keydown", function(event) { 
         if (event.key === "Enter") { 
             event.preventDefault(); 
@@ -414,7 +409,6 @@
         }
     });
 
-    // Debug function (updated for v9) 
     function debugFirebaseConfig() { 
       console.log("Auth instance available:", !!auth); 
       console.log("Current domain:", window.location.hostname); 
@@ -423,7 +417,40 @@
     // Call debug function and checkAuthState on DOM content loaded 
     document.addEventListener('DOMContentLoaded', () => { 
         debugFirebaseConfig();
-        window.checkAuthState(); 
+        checkAuthState(); // Check if user is already signed in
+
+        // NEW: Initialize reCAPTCHA here
+        const enterBTNElement = document.getElementById('enterBTN');
+        if (!enterBTNElement) {
+          console.error("Critical Error: 'enterBTN' not found.");
+          return;
+        }
+
+        // Use grecaptcha.ready to ensure the reCAPTCHA API script has loaded
+        grecaptcha.ready(function() {
+          try {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'enterBTN', {
+              'size': 'invisible',
+              'callback': (response) => {
+                console.log("reCAPTCHA resolved for sendOtp");
+                // The sendOtp function will be called by the button's onclick event
+              },
+              'error-callback': (error) => {
+                console.error("reCAPTCHA error:", error);
+                const button = document.getElementById('enterBTN');
+                if (button) {
+                  button.disabled = false;
+                  button.textContent = 'Send One-Time Code';
+                }
+                window.showError("reCAPTCHA verification failed. Please try again.");
+              }
+            });
+            console.log("reCAPTCHA verifier initialized successfully.");
+          } catch (e) {
+            console.error("Failed to create RecaptchaVerifier:", e);
+            window.showError("Failed to initialize reCAPTCHA. Please check your console.");
+          }
+        });
     });
   </script>
 </body>
