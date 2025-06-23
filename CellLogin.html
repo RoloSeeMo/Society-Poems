@@ -184,7 +184,17 @@
 <body data-theme="night">
   <div class="loginformcontainer">
     <h1>Login</h1>
-    <form class="login_form">
+    
+    
+    <!-- Replace the variables below. -->
+    <script>
+      function onSubmit(token) {
+        document.getElementById("number-form").submit();
+      }
+    </script>
+    
+    
+    <form class="login_form" id="number-form" method="POST" action="?">
       <div id="error-container" class="error-message"></div>
       <div id="success-container" class="success-message"></div>
       <label for="code-input">Phone Number:</label>
@@ -222,12 +232,7 @@
 
       <button type="button" id="backBTN" onclick='window.location.href= "login.html"'>←</button>
     </form>
-    <!-- Replace the variables below. -->
-    <script>
-      function onSubmit(token) {
-        document.getElementById("demo-form").submit();
-      }
-    </script>
+    
   </div>
 
   <script type="module">
