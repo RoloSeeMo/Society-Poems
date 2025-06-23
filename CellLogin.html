@@ -223,16 +223,18 @@
   </div>
 
   <script type="module">
-    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    // FIX: Import the firebase `app` from your config, and `getAuth` from the SDK
+    import { app, auth as initialAuth } from './firebase-config.js'; 
     import { 
+        getAuth,
         signInWithPhoneNumber, 
         RecaptchaVerifier, 
         onAuthStateChanged 
-    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
-    let confirmationResult; // To store the confirmation result for OTP verification
+    let confirmationResult;
 
-    // --- UTILITY FUNCTIONS (Unchanged) ---
+    // --- UTILITY FUNCTIONS ---
     window.showError = function(message) {
       const errorContainer = document.getElementById('error-container');
       const successContainer = document.getElementById('success-container');
@@ -271,7 +273,7 @@
       }
     }
 
-    // --- PHONE AUTH LOGIC (Unchanged, but now global) ---
+    // --- PHONE AUTH LOGIC ---
     window.sendOtp = async function() { 
         hideMessages(); 
         setLoading(true, 'enterBTN'); 
@@ -289,24 +291,21 @@
         if (!appVerifier) {
             window.showError("reCAPTCHA is not ready. Please try again or refresh the page.");
             setLoading(false, 'enterBTN');
-            console.error("reCAPTCHA verifier is undefined when sendOtp was called.");
             return;
         }
 
         try { 
-            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 
+            // Use the initially imported auth object for operations
+            confirmationResult = await signInWithPhoneNumber(initialAuth, phoneNumber, appVerifier); 
             showSuccess("OTP sent successfully! Please check your phone."); 
             document.getElementById('otp-label').style.display = 'block'; 
             document.getElementById('otp-input').style.display = 'block'; 
             document.getElementById('verifyOTPBtn').style.display = 'block'; 
             document.getElementById('enterBTN').style.display = 'none'; 
             document.getElementById('code-input').disabled = true;
-
         } catch (error) { 
             setLoading(false, 'enterBTN'); 
             let errorMessage = "Failed to send OTP. Please try again."; 
-            console.error("Error sending OTP:", error); 
-            // Simplified error handling for brevity
             if(error.code) errorMessage = `Error: ${error.code}`;
             window.showError(errorMessage); 
         }
@@ -327,56 +326,47 @@
             return; 
         }
         try { 
-            await confirmationResult.confirm(otpCode); 
-            // onAuthStateChanged will handle the successful redirect
+            await confirmationResult.confirm(otpCode);
         } catch (error) { 
             setLoading(false, 'verifyOTPBtn'); 
             let errorMessage = "Invalid verification code. Please try again."; 
-            console.error("Error verifying OTP:", error); 
             if(error.code) errorMessage = `Error: ${error.code}`;
             window.showError(errorMessage); 
         }
     };
 
-    // --- EVENT LISTENERS (Unchanged) ---
+    // --- EVENT LISTENERS ---
     document.getElementById("code-input").addEventListener("keydown", (event) => { 
         if (event.key === "Enter") { event.preventDefault(); window.sendOtp(); }
     });
-
     document.getElementById("otp-input").addEventListener("keydown", (event) => { 
         if (event.key === "Enter") { event.preventDefault(); window.verifyOtp(); }
     });
 
-    // --- *** NEW INITIALIZATION LOGIC *** ---
+    // --- ROBUST INITIALIZATION LOGIC ---
     document.addEventListener('DOMContentLoaded', () => { 
         console.log("DOM content loaded. Waiting for Firebase Auth and reCAPTCHA.");
         
-        // This is the key: onAuthStateChanged fires when the auth service is ready.
-        // It also handles user state, so we can combine our logic.
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(initialAuth, (user) => {
             console.log("Firebase Auth service is ready.");
-            
-            // This whole block should only run ONCE to set up reCAPTCHA.
-            // After the first run, we unsubscribe to prevent re-initializing.
             unsubscribe();
 
             const enterBTNElement = document.getElementById('enterBTN');
             if (enterBTNElement) {
-                // Now that Auth is ready, wait for grecaptcha to be ready.
                 grecaptcha.ready(function() {
                     try {
-                        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
+                        // FIX: Get a fresh, guaranteed-initialized auth instance right before use.
+                        const currentAuth = getAuth(app); 
+                        
+                        window.recaptchaVerifier = new RecaptchaVerifier(currentAuth, enterBTNElement, {
                             'size': 'invisible',
-                            'callback': (response) => {
-                                console.log("reCAPTCHA resolved (invisible).");
-                            },
+                            'callback': (response) => { },
                             'error-callback': (error) => {
-                                console.error("reCAPTCHA error:", error);
-                                setLoading(false, 'enterBTN'); // Reset button
+                                setLoading(false, 'enterBTN');
                                 window.showError("reCAPTCHA verification failed. Please try again.");
                             }
                         });
-                        console.log("reCAPTCHA verifier initialized successfully.");
+                        console.log("reCAPTCHA verifier initialized successfully with fresh auth instance.");
                     } catch (e) {
                         console.error("Failed to create RecaptchaVerifier:", e);
                         window.showError("Failed to initialize reCAPTCHA. Check console.");
@@ -386,7 +376,6 @@
                  console.error("Critical Error: 'enterBTN' not found.");
             }
 
-            // After setup, check if the user is already signed in from a previous session.
             if (user) {
                 console.log("User is already signed in:", user.phoneNumber);
                 showSuccess("Login successful! Redirecting...");
