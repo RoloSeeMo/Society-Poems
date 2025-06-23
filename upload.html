@@ -8,26 +8,14 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/Untitled1.png">
 
-
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-  <script>
-    // Initialize Firebase with your project's config
-    const firebaseConfig = {
-        apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-        authDomain: "society-poems-97f4d.firebaseapp.com",
-        databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-        projectId: "society-poems-97f4d",
-        storageBucket: "society-poems-97f4d.firebasestorage.app",
-        messagingSenderId: "723670230106",
-        appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-    };
-
-    firebase.initializeApp(firebaseConfig);
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
     // Function to check if a user is logged in or not
     function checkAuthState() {
-      firebase.auth().onAuthStateChanged(function(user) {
+      onAuthStateChanged(auth, (user) => {
         if (!user) {
           // User is not signed in, redirect to the login page
           window.location.href = "login.html";
@@ -36,23 +24,23 @@
     }
 
     // Function to log out the user
-    function logout() {
-      firebase.auth().signOut().then(() => {
+    window.logout = function () { // Made global for onclick
+      auth.signOut().then(() => {
         window.location.href = "login.html"; // Redirect to login page
       }).catch((error) => {
         console.error("Logout Error:", error);
       });
     }
 
-    // Attach logout function to the button
-    window.onload = function () {
+    // Attach logout function to the button and check auth state on load
+    document.addEventListener('DOMContentLoaded', function () {
       checkAuthState();
 
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
+        logoutBtn.addEventListener("click", window.logout);
       }
-    }
+    });
   </script>
   
   <style>
@@ -323,97 +311,7 @@
     </div>
   </div>
 
-  <script type="module">
-
-    
-
-    
-    const db = getDatabase(app);
-
-    const form = document.getElementById('uploadForm');
-    const privacy = document.getElementById('privacy');
-    const nameField = document.getElementById('nameField');
-    const username = document.getElementById('username');
-    const nameLimit = document.getElementById('nameLimit');
-    const content = document.getElementById('content');
-    const charCount = document.getElementById('charCount');
-    const previewBox = document.getElementById('previewBox');
-    const previewAuthor = document.getElementById('previewAuthor');
-    const modal = document.getElementById('successModal');
-    const clearBtn = document.getElementById('clearDraft');
-
-    privacy.addEventListener('change', () => {
-      nameField.style.display = privacy.value === 'named' ? 'block' : 'none';
-      updatePreviewAuthor();
-    });
-
-    username.addEventListener('input', () => {
-      nameLimit.textContent = `(${username.value.length}/15)`;
-      updatePreviewAuthor();
-    });
-
-    content.addEventListener('input', () => {
-      charCount.textContent = `${content.value.length} characters`;
-      previewBox.firstChild.textContent = content.value.trim() || "Your writing preview will appear here...";
-      localStorage.setItem("draftContent", content.value);
-    });
-
-    function updatePreviewAuthor() {
-      if (privacy.value === 'anonymous') {
-        previewAuthor.textContent = "- Anonymous";
-      } else if (privacy.value === 'named') {
-        previewAuthor.textContent = username.value.trim() ? `- ${username.value.trim()}` : "";
-      } else {
-        previewAuthor.textContent = "";
-      }
-    }
-
-    // Load draft
-    window.addEventListener('load', () => {
-      const savedDraft = localStorage.getItem("draftContent");
-      if (savedDraft) {
-        content.value = savedDraft;
-        charCount.textContent = `${savedDraft.length} characters`;
-        previewBox.firstChild.textContent = savedDraft;
-      }
-      updatePreviewAuthor();
-    });
-
-    clearBtn.addEventListener('click', () => {
-      content.value = "";
-      localStorage.removeItem("draftContent");
-      charCount.textContent = "0 characters";
-      previewBox.firstChild.textContent = "Your writing preview will appear here...";
-      previewAuthor.textContent = "";
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const isAnonymous = privacy.value === 'anonymous';
-      const name = isAnonymous ? "Anonymous" : username.value.trim();
-      const genre = document.getElementById('genre').value;
-      const contentValue = content.value.trim();
-      const timestamp = new Date().toLocaleString('en-US', { hour12: false });
-
-      if (contentValue === '' || (!isAnonymous && name === '')) {
-        alert("Please fill out all required fields.");
-        return;
-      }
-
-      const newEntry = { name, genre, content: contentValue, timestamp };
-      await push(ref(db, 'uploads'), newEntry);
-
-      localStorage.removeItem("draftContent");
-      form.reset();
-      nameField.style.display = 'none';
-      charCount.textContent = '0 characters';
-      previewBox.firstChild.textContent = "Your writing preview will appear here...";
-      previewAuthor.textContent = "";
-      modal.style.display = 'flex';
-    });
-  </script>
-
+  <script type="module" src="updateDB.js"></script>
   <script src="theme-toggle.js"></script>
-  <script src="updateDB.js"></script>
 </body>
 </html>
