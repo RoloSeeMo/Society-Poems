@@ -223,14 +223,19 @@
   </div>
 
   <script type="module">
-    // FIX: Import the firebase `app` from your config, and `getAuth` from the SDK
-    import { app, auth as initialAuth } from './firebase-config.js'; 
+
+    //APP from config
+    import { app } from './firebase-config.js'; 
+    // Import all firebase functions here
     import { 
         getAuth,
         signInWithPhoneNumber, 
         RecaptchaVerifier, 
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+    const auth = getAuth(app);
+    auth.languageCode = 'it';
 
     let confirmationResult;
 
@@ -355,10 +360,8 @@
             if (enterBTNElement) {
                 grecaptcha.ready(function() {
                     try {
-                        // FIX: Get a fresh, guaranteed-initialized auth instance right before use.
-                        const currentAuth = getAuth(app); 
                         
-                        window.recaptchaVerifier = new RecaptchaVerifier(currentAuth, enterBTNElement, {
+                        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
                             'size': 'invisible',
                             'callback': (response) => { },
                             'error-callback': (error) => {
