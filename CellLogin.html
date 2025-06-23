@@ -2,27 +2,13 @@
 <html>
 <head>
   <title>Login Page</title>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-  <script src="auth_phone_recaptcha_verifier_invisible.js"></script>
-  <script src="auth__set_language_code.js"></script>
   <link rel="stylesheet" href="phoneLogin.css">
   <link rel="icon" href="images/Untitled1.png">
-
-  <script>
-    // Initialize Firebase with project config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-      authDomain: "society-poems-97f4d.firebaseapp.com",
-      databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-      projectId: "society-poems-97f4d",
-      storageBucket: "society-poems-97f4d.firebasestorage.app",
-      messagingSenderId: "723670230106",
-      appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
+  <script type="module" src="firebase-config.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script type="module" src="auth__set_language_code.js"></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ"></script>
+  <script src="captcha.js"></script> 
 
   <style>
     /* Additional styles */
@@ -108,24 +94,7 @@
       transform: translateY(-2px);
     }
     
-    #google-signin-btn {
-      background-color: #4285f4;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    
-    #google-signin-btn:hover:not(:disabled) {
-      background-color: #357ae8;
-      transform: translateY(-2px);
-    }
-    
-    #google-signin-btn img {
-      height: 20px;
-      width: 20px;
-    }
+    /* Removed Google Sign-in button styles as it's no longer in this file */
     
     button:disabled {
       opacity: 0.6;
@@ -142,8 +111,7 @@
       font-size: var(--font-size-n);
     }
     
-    .login_form input[type="email"],
-    .login_form input[type="password"] {
+    .login_form input { /* Adjusted to target all inputs if needed */
       width: 100%;
       padding: 12px;
       margin-bottom: 15px;
@@ -156,8 +124,7 @@
       font-family: "Poppins", sans-serif;
     }
 
-    .login_form input[type="email"]:focus,
-    .login_form input[type="password"]:focus {
+    .login_form input:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 2px rgba(107, 66, 38, 0.2);
@@ -185,15 +152,13 @@
       color: #75b798;
     }
 
-    [data-theme="night"] .login_form input[type="email"],
-    [data-theme="night"] .login_form input[type="password"] {
+    [data-theme="night"] .login_form input {
       background: var(--bg-secondary);
       border-color: var(--border-color);
       color: var(--text-primary);
     }
 
-    [data-theme="night"] .login_form input[type="email"]:focus,
-    [data-theme="night"] .login_form input[type="password"]:focus {
+    [data-theme="night"] .login_form input:focus {
       border-color: var(--primary-color-200);
       box-shadow: 0 0 0 2px rgba(201, 123, 99, 0.2);
     }
@@ -216,15 +181,15 @@
   </style>
 </head>
 
-<body onload="checkAuthState()" data-theme="night">
+<body data-theme="night">
   <div class="loginformcontainer">
     <h1>Login</h1>
     <form class="login_form">
       <div id="error-container" class="error-message"></div>
       <div id="success-container" class="success-message"></div>
-      <label for="email">Phone Number:</label>
+      <label for="code-input">Phone Number:</label>
 
-      <input name="code-input" id="code-input" class="code-input border--is-interactive " inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" data-lpignore="true" value>
+      <input name="code-input" id="code-input" class="code-input border--is-interactive" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" data-lpignore="true" value placeholder="XXX-XXX-XXXX" required>
 
       <script>
         const input = document.getElementById('code-input');
@@ -249,22 +214,32 @@
             });
       </script>
 
+      <button type="button" id="enterBTN" onclick="sendOtp()" class="g-recaptcha" data-sitekey="6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ" data-callback='onSubmit' data-action='submit'>Send One-Time Code</button>
+      
+      <label for="otp-input" style="display:none;" id="otp-label">Verification Code:</label>
+      <input type="text" id="otp-input" style="display:none; color:white;" placeholder="Enter OTP" required>
+      <button type="button" id="verifyOTPBtn" onclick="verifyOtp()" style="display:none;">Verify Code</button>
 
-      <button type="button" id="enterBTN" onclick="loginWithPhone()">Send One-Time Code</button>
-      <button type="button" id="backBTN" onclick='window.location.href= "https://societypoems.com/login.html"'>←</button>
+      <button type="button" id="backBTN" onclick='window.location.href= "login.html"'>←</button>
     </form>
+    <!-- Replace the variables below. -->
+    <script>
+      function onSubmit(token) {
+        document.getElementById("demo-form").submit();
+      }
+    </script>
   </div>
 
-  <script>
-    const auth = firebase.auth();
-    
-    // Configure Google provider with additional scopes and custom parameters
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('email');
-    provider.addScope('profile');
-    provider.setCustomParameters({
-      'prompt': 'select_account'
-    });
+  <script type="module">
+    import { auth } from './firebase-config.js'; // Import auth from centralized config
+    import { 
+        signInWithPhoneNumber, 
+        RecaptchaVerifier, 
+        onAuthStateChanged 
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
+    import './auth_phone_recaptcha_verifier_invisible.js'; // Import reCAPTCHA initialization
+
+    let confirmationResult; // To store the confirmation result for OTP verification
 
     // Function to show error messages
     function showError(message) {
@@ -299,28 +274,22 @@
 
     // Function to set loading state
     function setLoading(isLoading, buttonId = null) {
-      const buttons = buttonId ? [document.getElementById(buttonId)] : [document.getElementById('enterBTN'), document.getElementById('google-signin-btn')];
-      
-      buttons.forEach(button => {
-        if (button) {
+      const button = document.getElementById(buttonId);
+      if (button) {
           button.disabled = isLoading;
-          if (button.id === 'google-signin-btn') {
-            const text = button.querySelector('#google-btn-text');
-            if (text) {
-              text.textContent = isLoading ? 'Signing in...' : 'Sign in with Google';
-            }
-          } else if (button.id === 'enterBTN') {
-            button.textContent = isLoading ? 'Logging in...' : 'Login';
+          if (button.id === 'enterBTN') {
+              button.textContent = isLoading ? 'Sending...' : 'Send One-Time Code';
+          } else if (button.id === 'verifyOTPBtn') {
+              button.textContent = isLoading ? 'Verifying...' : 'Verify Code';
           }
-        }
-      });
+      }
     }
 
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
-      firebase.auth().onAuthStateChanged(function(user) {
+    // Function to check if a user is logged in or not (made global)
+    window.checkAuthState = function() { // Made global by attaching to window
+      onAuthStateChanged(auth, (user) => {
         if (user) {
-          console.log("User is signed in:", user.email);
+          console.log("User is signed in:", user.phoneNumber || user.email); // User might have phone or email
           showSuccess("Login successful! Redirecting...");
           setTimeout(() => {
             window.location.href = "index.html";
@@ -331,181 +300,138 @@
       });
     }
 
-    // Function to handle the login form submission
-    function login() {
-      hideMessages();
-      setLoading(true, 'enterBTN');
-      
-      const code = document.getElementById("code").value.trim();
+    // Function to handle sending the OTP 
+    window.sendOtp = async function() { 
+        hideMessages(); 
+        setLoading(true, 'enterBTN'); 
+        
+        const phoneNumberInput = document.getElementById("code-input").value.trim(); 
+        // Assuming US numbers for +1. Adjust this if you need international numbers. 
+        const phoneNumber = `+1${phoneNumberInput.replace(/\D/g, '')}`; 
 
-      firebase.auth().signInWithPhone(code)
-        .then(function(userCredential) {
-          console.log("Login successful:", userCredential.user.email);
-          showSuccess("Login successful! Redirecting...");
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-        })
-        .catch(function(error) {
-          setLoading(false, 'enterBTN');
-          let errorMessage = "Login failed. Please try again.";
-          
-          switch(error.code) {
-            case 'auth/user-not-found':
-              errorMessage = "No account found with this email address.";
-              break;
-            case 'auth/wrong-password':
-              errorMessage = "Incorrect password.";
-              break;
-            case 'auth/invalid-email':
-              errorMessage = "Invalid email address.";
-              break;
-            case 'auth/invalid-login-credentials':
-            case 'auth/invalid-credential':
-              errorMessage = "Invalid email or password. Please check your credentials and try again.";
-              break;
-            case 'auth/too-many-requests':
-              errorMessage = "Too many failed attempts. Please try again later.";
-              break;
-            case 'auth/user-disabled':
-              errorMessage = "This account has been disabled.";
-              break;
-            case 'auth/network-request-failed':
-              errorMessage = "Network error. Please check your internet connection.";
-              break;
-            case 'auth/internal-error':
-              errorMessage = "Account not found/Credentials Invalid. Please try again or sign up";
-              break;
-            default:
-              // Only show the technical error in development, user-friendly message in production
-              if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                errorMessage = `Login error: ${error.message}`;
-              } else {
-                errorMessage = "Login failed. Please check your credentials and try again.";
-              }
-              console.error("Unhandled login error:", error.code, error.message);
-          }
-          
-          showError(errorMessage);
-          console.error("Login error:", error.code, error.message);
-        });
+        if (!phoneNumberInput) { 
+            showError("Please enter your phone number."); 
+            setLoading(false, 'enterBTN'); 
+            return; 
+        }
+
+        // Ensure recaptchaVerifier is available
+        const appVerifier = window.recaptchaVerifier; 
+        if (!appVerifier) {
+            showError("reCAPTCHA is not ready. Please try again or refresh the page.");
+            setLoading(false, 'enterBTN');
+            console.error("reCAPTCHA verifier is undefined when sendOtp was called.");
+            return;
+        }
+
+        try { 
+            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 
+            showSuccess("OTP sent successfully! Please check your phone."); 
+            // Show OTP input and verify button 
+            document.getElementById('otp-label').style.display = 'block'; 
+            document.getElementById('otp-input').style.display = 'block'; 
+            document.getElementById('verifyOTPBtn').style.display = 'block'; 
+            document.getElementById('enterBTN').style.display = 'none'; // Hide send OTP button 
+            document.getElementById('code-input').disabled = true; // Disable phone input after sending OTP 
+
+        } catch (error) { 
+            setLoading(false, 'enterBTN'); 
+            let errorMessage = "Failed to send OTP. Please try again."; 
+            console.error("Error sending OTP:", error); 
+            switch(error.code) { 
+                case 'auth/invalid-phone-number': 
+                    errorMessage = "The phone number entered is invalid."; 
+                    break; 
+                case 'auth/too-many-requests': 
+                    errorMessage = "Too many requests. Please try again later."; 
+                    break; 
+                case 'auth/network-request-failed': 
+                    errorMessage = "Network error. Please check your internet connection."; 
+                    break; 
+                default: 
+                    errorMessage = `Error: ${error.message}`; 
+            }
+            showError(errorMessage); 
+        }
+    };
+
+    // Function to handle OTP verification 
+    window.verifyOtp = async function() { 
+        hideMessages(); 
+        setLoading(true, 'verifyOTPBtn'); 
+
+        const otpCode = document.getElementById("otp-input").value.trim(); 
+
+        if (!otpCode) { 
+            showError("Please enter the verification code."); 
+            setLoading(false, 'verifyOTPBtn'); 
+            return; 
+        }
+
+        if (!confirmationResult) { 
+            showError("No verification code was sent. Please send OTP first."); 
+            setLoading(false, 'verifyOTPBtn'); 
+            return; 
+        }
+
+        try { 
+            const userCredential = await confirmationResult.confirm(otpCode); 
+            console.log("Phone login successful:", userCredential.user.phoneNumber); 
+            showSuccess("Login successful! Redirecting..."); 
+            setTimeout(() => { 
+                window.location.href = "index.html"; 
+            }, 1500); 
+        } catch (error) { 
+            setLoading(false, 'verifyOTPBtn'); 
+            let errorMessage = "Invalid verification code. Please try again."; 
+            console.error("Error verifying OTP:", error); 
+            switch(error.code) { 
+                case 'auth/invalid-verification-code': 
+                    errorMessage = "The verification code is invalid."; 
+                    break; 
+                case 'auth/code-expired': 
+                    errorMessage = "The verification code has expired."; 
+                    break; 
+                case 'auth/too-many-requests': 
+                    errorMessage = "Too many attempts. Please try again later."; 
+                    break; 
+                case 'auth/network-request-failed': 
+                    errorMessage = "Network error. Please check your internet connection."; 
+                    break; 
+                default: 
+                    errorMessage = `Error: ${error.message}`; 
+            }
+            showError(errorMessage); 
+        }
+    };
+
+    // Trigger sendOtp on Enter key press in phone input 
+    document.getElementById("code-input").addEventListener("keydown", function(event) { 
+        if (event.key === "Enter") { 
+            event.preventDefault(); 
+            sendOtp(); 
+        }
+    });
+
+    // Trigger verifyOtp on Enter key press in OTP input 
+    document.getElementById("otp-input").addEventListener("keydown", function(event) { 
+        if (event.key === "Enter") { 
+            event.preventDefault(); 
+            verifyOtp(); 
+        }
+    });
+
+    // Debug function (updated for v9) 
+    function debugFirebaseConfig() { 
+      console.log("Auth instance available:", !!auth); 
+      console.log("Current domain:", window.location.hostname); 
     }
 
-    // Google Sign-in functionality with better error handling
-    document.getElementById('google-signin-btn').addEventListener('click', function() {
-      hideMessages();
-      setLoading(true, 'google-signin-btn');
-      
-      console.log("Attempting Google sign-in...");
-      
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          const user = result.user;
-          const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-          
-          console.log("Google sign-in successful:", {
-            name: user.displayName,
-            email: user.email,
-            uid: user.uid
-          });
-          
-          showSuccess(`Welcome ${user.displayName}! Redirecting...`);
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-        })
-        .catch((error) => {
-          setLoading(false, 'google-signin-btn');
-          console.error("Google sign-in error:", error);
-          
-          let errorMessage = "Google sign-in failed. ";
-          
-          switch(error.code) {
-            case 'auth/popup-closed-by-user':
-              errorMessage += "Sign-in was cancelled.";
-              break;
-            case 'auth/popup-blocked':
-              errorMessage += "Pop-up was blocked. Please allow pop-ups and try again.";
-              break;
-            case 'auth/cancelled-popup-request':
-              errorMessage += "Another sign-in popup is already open.";
-              break;
-            case 'auth/operation-not-allowed':
-              errorMessage += "Google sign-in is not enabled. Please contact support.";
-              break;
-            case 'auth/invalid-api-key':
-              errorMessage += "Invalid API key configuration.";
-              break;
-            case 'auth/network-request-failed':
-              errorMessage += "Network error. Please check your connection.";
-              break;
-            case 'auth/too-many-requests':
-              errorMessage += "Too many requests. Please try again later.";
-              break;
-            default:
-              errorMessage += `Error: ${error.message}`;
-          }
-          
-          showError(errorMessage);
-          
-          // If popup fails, suggest trying redirect method
-          if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-            setTimeout(() => {
-              if (confirm("Pop-up sign-in failed. Try redirect sign-in instead?")) {
-                auth.signInWithRedirect(provider);
-              }
-            }, 2000);
-          }
-        });
+    // Call debug function and checkAuthState on DOM content loaded 
+    document.addEventListener('DOMContentLoaded', () => { 
+        debugFirebaseConfig();
+        window.checkAuthState(); 
     });
-
-    // Handle redirect result (in case redirect method was used)
-    auth.getRedirectResult().then((result) => {
-      if (result.user) {
-        console.log("Google redirect sign-in successful:", result.user.displayName);
-        showSuccess(`Welcome ${result.user.displayName}! Redirecting...`);
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
-      }
-    }).catch((error) => {
-      console.error("Google redirect sign-in error:", error);
-      showError(`Redirect sign-in failed: ${error.message}`);
-    });
-
-    // Trigger login on Enter key press
-    document.querySelector('.login_form').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        login();
-      }
-    });
-
-    // Individual input field Enter key handling
-    document.getElementById("email").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        document.getElementById("password").focus();
-      }
-    });
-
-    document.getElementById("password").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        login();
-      }
-    });
-
-    // Debug function to check Firebase configuration
-    function debugFirebaseConfig() {
-      console.log("Firebase app initialized:", firebase.apps.length > 0);
-      console.log("Auth instance:", !!firebase.auth());
-      console.log("Current domain:", window.location.hostname);
-      console.log("Auth domain:", firebaseConfig.authDomain);
-    }
-
-    // Call debug function on load
-    window.addEventListener('load', debugFirebaseConfig);
   </script>
 </body>
 </html>
