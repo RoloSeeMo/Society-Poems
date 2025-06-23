@@ -351,7 +351,7 @@
     // --- ROBUST INITIALIZATION LOGIC ---
     document.addEventListener('DOMContentLoaded', () => { 
         console.log("DOM content loaded. Waiting for Firebase Auth and reCAPTCHA.");
-        
+        const initialAuth = getAuth(app); // Use the initial auth instance
         const unsubscribe = onAuthStateChanged(initialAuth, (user) => {
             console.log("Firebase Auth service is ready.");
             unsubscribe();
