@@ -34,11 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const successContainer = document.getElementById('success-container');
 
     // ==================== CORRECTED LINE START ====================
-    // The fix is to pass the button element (enterBtn) directly,
-    // not its ID string ('enterBTN'). This resolves the TypeError.
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBtn, {
+    // The new error suggests the constructor expects arguments in a different
+    // order: (container, parameters, auth). We have adjusted to match.
+    window.recaptchaVerifier = new RecaptchaVerifier(enterBtn, {
         'size': 'invisible'
-    });
+    }, auth);
     // ==================== CORRECTED LINE END ====================
 
     // This logic formats the phone number as XXX-XXX-XXXX while the user types.
