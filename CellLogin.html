@@ -230,13 +230,9 @@
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
 
-
-
     let confirmationResult; // To store the confirmation result for OTP verification
 
-    // Function to show error messages
-    function showError(message) {
-    // Make showError and showSuccess globally available so reCAPTCHA callbacks can use them
+    // FIX #1: Correctly define window.showError by removing the unnecessary outer function wrapper.
     window.showError = function(message) {
       const errorContainer = document.getElementById('error-container');
       const successContainer = document.getElementById('success-container');
@@ -249,7 +245,7 @@
       setTimeout(() => {
         errorContainer.style.display = 'none';
       }, 10000);
-    }}
+    }
 
     // Function to show success messages
     function showSuccess(message) {
@@ -419,21 +415,19 @@
         debugFirebaseConfig();
         checkAuthState(); // Check if user is already signed in
 
-        // NEW: Initialize reCAPTCHA here
         const enterBTNElement = document.getElementById('enterBTN');
         if (!enterBTNElement) {
           console.error("Critical Error: 'enterBTN' not found.");
           return;
         }
 
-        // Use grecaptcha.ready to ensure the reCAPTCHA API script has loaded
         grecaptcha.ready(function() {
           try {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'enterBTN', {
+            // FIX #2: Pass the button element object (enterBTNElement), not its string ID.
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
               'size': 'invisible',
               'callback': (response) => {
                 console.log("reCAPTCHA resolved for sendOtp");
-                // The sendOtp function will be called by the button's onclick event
               },
               'error-callback': (error) => {
                 console.error("reCAPTCHA error:", error);
@@ -452,6 +446,6 @@
           }
         });
     });
-  </script>
+</script>
 </body>
 </html>
