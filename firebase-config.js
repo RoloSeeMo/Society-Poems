@@ -20,5 +20,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// Set the language code here directly.
+auth.languageCode = 'it';
+
 // Export the instances
 export { app, auth, db };
