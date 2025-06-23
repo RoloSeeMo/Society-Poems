@@ -1,4 +1,4 @@
-// phoneAuth.js
+// firebase-config.js
 
 // Import the necessary functions from the Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
