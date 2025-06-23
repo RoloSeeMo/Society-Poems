@@ -1,6 +1,6 @@
 // firebase-config.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+// We no longer need getAuth here
 import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
 const firebaseConfig = {
@@ -15,13 +15,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Get service instances
-const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Set the language code here directly.
-auth.languageCode = 'it';
-
-// Export the instances
-export { app, auth, db };
+// NOTE: We no longer create or export 'auth' from this file.
+// We also remove the languageCode setting from here.
+export { app, db };
