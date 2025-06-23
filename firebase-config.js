@@ -1,6 +1,5 @@
 // firebase-config.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 // We no longer need getAuth here
 import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
