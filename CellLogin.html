@@ -223,8 +223,7 @@
   </div>
 
   <script type="module">
-
-    //APP from config
+    // Import `app` from your config
     import { app } from './firebase-config.js'; 
     // Import all firebase functions here
     import { 
@@ -234,6 +233,7 @@
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
+    // Create the auth instance locally and configure it
     const auth = getAuth(app);
     auth.languageCode = 'it';
 
@@ -300,8 +300,7 @@
         }
 
         try { 
-            // Use the initially imported auth object for operations
-            confirmationResult = await signInWithPhoneNumber(initialAuth, phoneNumber, appVerifier); 
+            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier); 
             showSuccess("OTP sent successfully! Please check your phone."); 
             document.getElementById('otp-label').style.display = 'block'; 
             document.getElementById('otp-input').style.display = 'block'; 
@@ -352,6 +351,7 @@
     document.addEventListener('DOMContentLoaded', () => { 
         console.log("DOM content loaded. Waiting for Firebase Auth and reCAPTCHA.");
         
+        // ** THIS IS THE CORRECTED LINE **
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             console.log("Firebase Auth service is ready.");
             unsubscribe();
@@ -360,7 +360,6 @@
             if (enterBTNElement) {
                 grecaptcha.ready(function() {
                     try {
-                        
                         window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, {
                             'size': 'invisible',
                             'callback': (response) => { },
@@ -369,7 +368,7 @@
                                 window.showError("reCAPTCHA verification failed. Please try again.");
                             }
                         });
-                        console.log("reCAPTCHA verifier initialized successfully with fresh auth instance.");
+                        console.log("reCAPTCHA verifier initialized successfully.");
                     } catch (e) {
                         console.error("Failed to create RecaptchaVerifier:", e);
                         window.showError("Failed to initialize reCAPTCHA. Check console.");
@@ -388,6 +387,6 @@
             }
         });
     });
-  </script>
+</script>
 </body>
 </html>
