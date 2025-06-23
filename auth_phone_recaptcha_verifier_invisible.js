@@ -8,54 +8,49 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (!enterBTNElement) {
     console.error("Error: 'enterBTN' element not found. Cannot initialize reCAPTCHA.");
-    // Optionally, if the button is critical for reCAPTCHA, you might disable sendOtp
-    // or provide an alternative path here.
-    return; // Exit if the element isn't there
+    return; 
   }
 
-  // Use grecaptcha.ready() for the most reliable initialization point
-  // This callback executes when the grecaptcha API is fully loaded and available.
   grecaptcha.ready(function() {
-    // --- CONSOLE.LOG KEPT FOR DIAGNOSIS ---
     console.log("Auth object at RecaptchaVerifier initialization attempt (inside grecaptcha.ready):", auth); 
-    // --- END CONSOLE.LOG ---
 
-    // Introduce a longer delay to give the Firebase Auth instance more time to fully settle internally.
-    setTimeout(() => { // Increased setTimeout delay here for more robustness
+    // Increased delay for robustness. This gives the Firebase Auth instance more time
+    // to fully settle internally and ensure all properties are defined.
+    setTimeout(() => { 
       try {
-        // Corrected: Pass the actual DOM element (enterBTNElement)
-        // By wrapping it in grecaptcha.ready AND a a slightly longer setTimeout, we give Firebase Auth
-        // even more time to fully initialize all internal properties required by RecaptchaVerifier.
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
-          'size': 'invisible', // Invisible reCAPTCHA
-          'callback': (response) => {
-            // This callback is for reCAPTCHA success.
-            console.log("reCAPTCHA invisible callback triggered. Response:", response);
-            // The sendOtp() function is called directly by the button's onclick.
-            // No need to call it here.
-          },
-          'error-callback': (error) => {
-            // This callback is for reCAPTCHA errors (e.g., network issues, configuration problems)
-            console.error("reCAPTCHA error:", error);
-            // Re-enable the button and show an error message to the user
-            const button = document.getElementById('enterBTN');
-            if (button) {
-              button.disabled = false;
-              button.textContent = 'Send One-Time Code';
+        // Check if auth object is not null/undefined and has expected properties
+        // This is a defensive check, though the increased timeout should help more.
+        if (auth && typeof auth.appVerificationDisabledForTesting !== 'undefined') {
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, enterBTNElement, { 
+            'size': 'invisible', 
+            'callback': (response) => {
+              console.log("reCAPTCHA invisible callback triggered. Response:", response);
+            },
+            'error-callback': (error) => {
+              console.error("reCAPTCHA error:", error);
+              const button = document.getElementById('enterBTN');
+              if (button) {
+                button.disabled = false;
+                button.textContent = 'Send One-Time Code';
+              }
+              if (typeof window.showError === 'function') {
+                  window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
+              }
             }
+          });
+          console.log("reCAPTCHA verifier initialized successfully.");
+        } else {
+            console.error("Firebase Auth object not fully ready or missing properties.");
             if (typeof window.showError === 'function') {
-                window.showError("reCAPTCHA verification failed. Please check your internet connection and try again.");
+                window.showError("Firebase Auth initialization issue. Please refresh the page.");
             }
-          }
-        });
-        console.log("reCAPTCHA verifier initialized successfully.");
+        }
       } catch (e) {
-        // This catch block will now capture errors during RecaptchaVerifier construction
         console.error("Failed to create RecaptchaVerifier:", e);
         if (typeof window.showError === 'function') {
             window.showError("Failed to initialize reCAPTCHA. Please check your console for details.");
         }
       }
-    }, 300); // Consistent 300ms delay.
-  }); // End of grecaptcha.ready()
+    }, 500); // Increased delay from 300ms to 500ms
+  }); 
 });
