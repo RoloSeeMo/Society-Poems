@@ -17,7 +17,7 @@ export const initializeFirebase = () => {
         projectId: "society-poems-97f4d",
         storageBucket: "society-poems-97f4d.firebasestorage.app",
         messagingSenderId: "723670230106",
-        appId: "1:723670230106:web:6d6dda4f8c46626c55a463",
+        appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
       }
 
       if (window.firebase && !window.firebase.apps.length) {
