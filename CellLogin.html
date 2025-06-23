@@ -7,9 +7,6 @@
   <script type="module" src="firebase-config.js"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script type="module" src="auth__set_language_code.js"></script>
-  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ"></script>
-  <script src="captcha.js"></script> 
-
   <style>
     /* Additional styles */
     .loginformcontainer {
@@ -185,15 +182,6 @@
   <div class="loginformcontainer">
     <h1>Login</h1>
     
-    
-    <!-- Replace the variables below. -->
-    <script>
-      function onSubmit(token) {
-        document.getElementById("number-form").submit();
-      }
-    </script>
-    
-    
     <form class="login_form" id="number-form" method="POST" action="?">
       <div id="error-container" class="error-message"></div>
       <div id="success-container" class="success-message"></div>
@@ -224,7 +212,7 @@
             });
       </script>
 
-      <button type="button" id="enterBTN" onclick="sendOtp()" class="g-recaptcha" data-sitekey="6Lee7mcrAAAAALPKMu60v_4VzA95d9SA7m1nfltQ" data-callback='onSubmit' data-action='submit'>Send One-Time Code</button>
+      <button type="button" id="enterBTN" onclick="sendOtp()">Send One-Time Code</button>
       
       <label for="otp-input" style="display:none;" id="otp-label">Verification Code:</label>
       <input type="text" id="otp-input" style="display:none; color:white;" placeholder="Enter OTP" required>
@@ -242,7 +230,7 @@
         RecaptchaVerifier, 
         onAuthStateChanged 
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; // Import specific auth functions
-    import './auth_phone_recaptcha_verifier_invisible.js'; // Import reCAPTCHA initialization
+    import './auth_phone_recaptcha_verifier_invisible.js'; // Import reCAPTCHA initialization.
 
     let confirmationResult; // To store the confirmation result for OTP verification
 
