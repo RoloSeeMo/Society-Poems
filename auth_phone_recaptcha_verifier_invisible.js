@@ -1,6 +1,6 @@
 // auth_phone_recaptcha_verifier_invisible.js
 import { auth } from './firebase-config.js'; // Import auth from centralized config
-import { RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+import { RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'; //
 
 // Ensure reCAPTCHA is initialized after the DOM is fully loaded AND grecaptcha API is ready.
 document.addEventListener('DOMContentLoaded', () => {
