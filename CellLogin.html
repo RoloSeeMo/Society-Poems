@@ -189,29 +189,33 @@
       <input style="color: white;" name="code-input" id="code-input" class="code-input border--is-interactive" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" data-lpignore="true" value placeholder="XXX-XXX-XXXX" required>
 
       <script>
-        const input = document.getElementById('code-input');
-          input.addEventListener('input', function (e) {
-            // Strip all non-digit characters (including hyphens)
-            let digits = e.target.value.replace(/\D/g, '');
+        function getPhoneNumberFromUserInput() {
+          const input = document.getElementById('code-input');
+            input.addEventListener('input', function (e) {
+              // Strip all non-digit characters (including hyphens)
+              let digits = e.target.value.replace(/\D/g, '');
 
-            // Limit to 10 digits
-            if (digits.length > 10) digits = digits.slice(0, 10);
+              // Limit to 10 digits
+              if (digits.length > 10) digits = digits.slice(0, 10);
 
-            // Format as XXX-XXX-XXXX
-            let formatted = '';
-            if (digits.length > 6) {
-              formatted = `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
-            } else if (digits.length > 3) {
-              formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
-            } else {
-              formatted = digits;
-            }
+              // Format as XXX-XXX-XXXX
+              let formatted = '';
+              if (digits.length > 6) {
+                formatted = `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
+              } else if (digits.length > 3) {
+                formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
+              } else {
+                formatted = digits;
+              }
 
-            e.target.value = formatted;
-            });
+              e.target.value = formatted;
+              return e.target.value;
+              console.log("Formatted phone number:", formatted);
+              });
+        }
       </script>
 
-      <button type="button" id="enterBTN" onclick="sendOtp()">Send One-Time Code</button>
+      <button type="button" id="enterBTN" onclick="<script>signInWithPhoneNumber(auth, formatted, appVerifier)</script>">Send One-Time Code</button>
       
       <label for="otp-input" style="display:none;" id="otp-label">Verification Code:</label>
       <input type="text" id="otp-input" style="display:none; color:white;" placeholder="Enter OTP" required>
@@ -222,7 +226,7 @@
     
   </div>
 
-  <script type="module">
+  <!-- <script type="module">
     // Import `app` from your config
     import { app } from './firebase-config.js'; 
     // Import all firebase functions here
@@ -387,6 +391,6 @@
             }
         });
     });
-</script>
+</script> -->
 </body>
 </html>
