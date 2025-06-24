@@ -4,129 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Society Poems</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="images/Untitled1.png">
-    
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module">
-        import { auth } from './firebase-config.js'; // Import auth from centralized config
-        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-        // Function to check if a user is logged in or not
-        function checkAuthState() {
-          // Show loading state initially
-          document.body.style.display = 'none';
-          
-          onAuthStateChanged(auth, (user) => {
-            if (!user) {
-              // User is not signed in, redirect to the login page
-              console.log("No user found, redirecting to login");
-              window.location.href = "login.html";
-            } else {
-              // User is signed in, show the page
-              console.log("User is signed in:", user.email);
-              document.body.style.display = 'block';
-            }
-          });
-        }
-        
-        // Function to log out the user
-        window.logout = function() { // Made global for onclick
-          auth.signOut().then(() => {
-            window.location.href = "login.html";
-          }).catch((error) => {
-            console.error("Logout Error:", error);
-          });
-        }
-
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-          checkAuthState();
-          
-          const logoutBtn = document.getElementById("logoutBtn");
-          if (logoutBtn) {
-            logoutBtn.addEventListener("click", window.logout);
-          }
-        });
-    </script>
+    <link rel="icon" href="/Images/Untitled1.png">
 </head>
+<body data-theme="night" style="visibility: hidden;">
 
-<body>
     <header>
-        
-        <nav class="navbar section-content">
-            <a href="https://societypoems.com/" class="nav-logo">
-                <h2 class="logo-text">📖 Society Poems</h2>
-            </a>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-
-                <li class="nav-item">
-                    <a href="https://societypoems.com/" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#about" class="nav-link">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="feedback.html" class="nav-link">Feedback</a>
-                </li>
-                <li class="nav-item">
-                    <a id="logoutBtn" class="nav-link">Logout</a>
-                </li>
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="read.html" class="nav-link">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="feedback.html" class="nav-link">Feedback</a></li>
+                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
             </ul>
-
-            <button id="menu-open-button" class="fas fa-bars"></button>
         </nav>
     </header>
 
     <main>
-        <section class="poem-section">
-            <div class="section-content">
-                <div class="poem-details">
-                    <h2 class="title">Society Poems</h2>
-                    <h3 class="subtitle">A space for all to read and write.</h3>
-                    <p class="description">Where every page tells a story.</p>
-                    <div class="buttons">
-                        <a href="read.html" class="button read-here">READ</a>
-                        <a href="upload.html" class="button upload-here">UPLOAD</a>
-                    </div>
-                </div>
-                <div class="poem-image-wrapper" >
-                    <img src="" alt="" class="poem-image">
-                </div>
-            </div>
-        </section >
-        <div id="about" style="display: none;"></div>
-        <section class="about-section" ><div class="section-content">
-                <div class="about-image-wrapper">
-                    <img src="images/Untitled1.png" style="border-radius: var(--border-radius-circle)" alt="About" class="about-image">
-                </div>
-                <div class="about-details">
-                    <h2 class="section-title">About</h2>
-                    <p class="text">Society Poems is a website dedicated to sharing the raw, authentic word from your soul. Speak your mind.</p><p class="text">Upload to share with others.</p>
-                    <p class="text">Choose to be anonymous, or named.</p>
-                    <div class="social-link-list">
-                        <a href="https://www.instagram.com/societypoemz/" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://x.com/SocietyPoemz" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
-                    </div>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="section-title">A space for all to read and write.</h1>
+                <p>Where every page tells a story from the soul.</p>
+                <div class="hero-buttons">
+                    <a href="read.html" class="button read-here">READ</a>
+                    <a href="upload.html" class="button upload-here">UPLOAD</a>
                 </div>
             </div>
         </section>
 
-        <section class="read-section">
-            <h2 class="section-title" id="read">Note from the Author</h2>
-            <div class="section-content">
-                <h2>Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback.html">receive your feedback!</a></h2>
-            </div>
+        <section id="about" class="section-content" style="padding: 40px 0;">
+            <h2 class="section-title">About</h2>
+            <p style="text-align:center; max-width: 700px; margin: auto; line-height: 1.6;">
+                Society Poems is a website dedicated to sharing the raw, authentic word from your soul. Speak your mind. Upload to share with others. Choose to be anonymous, or named.
+            </p>
+        </section>
+
+        <section class="read-section section-content" style="padding: 40px 0;">
+            <h2 class="section-title">Note from the Author</h2>
+            <p style="text-align:center;">
+                Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback.html" style="color: var(--primary-color);">receive your feedback!</a>
+            </p>
         </section>
     </main>
-    <footer>
-        <div class="footer">
-            <p class="footer-text">© 2025 Society Poems <span class="contact">Contact</span><span class="feedback">Feedback</span><p class="footer-text"></p>
-        </div>
-    </footer>
-    <script src="scripts.js"></script>
-</body>
 
+    <footer>
+        <p>&copy; 2025 Society Poems</p>
+    </footer>
+
+    <!-- Firebase SDKs (Compat versions for global access) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TODO: Replace with your project's actual Firebase configuration.
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            // Initialize Firebase
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+
+            // --- Shared Logic ---
+            const setupMobileMenu = () => {
+                const openBtn = document.getElementById('menu-open-button');
+                const closeBtn = document.getElementById('menu-close-button');
+                const navMenu = document.querySelector('.nav-menu');
+                if (openBtn && closeBtn && navMenu) {
+                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+                }
+            };
+
+            const handleLogout = () => {
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut().catch(error => console.error('Sign out error', error));
+                    });
+                }
+            };
+
+            const checkAuthState = () => {
+                auth.onAuthStateChanged(user => {
+                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+                    if (!user && !isAuthPage) {
+                        window.location.href = 'login.html';
+                    } else if (user && isAuthPage) {
+                        window.location.href = 'index.html';
+                    } else {
+                        document.body.style.visibility = 'visible';
+                    }
+                });
+            };
+
+            // Initialize page functions
+            setupMobileMenu();
+            handleLogout();
+            checkAuthState();
+        });
+    </script>
+</body>
 </html>

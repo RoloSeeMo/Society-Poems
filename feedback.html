@@ -3,32 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Feedback - Society Poems</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/Images/Untitled1.png">
 </head>
-<body>
+<body data-theme="night" style="visibility: hidden;">
+
     <header>
-        <h1>Feedback Form</h1>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <button id="menu-open-button" class="fas fa-bars"></button>
+            <ul class="nav-menu">
+                <button id="menu-close-button" class="fas fa-times"></button>
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="read.html" class="nav-link">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="feedback.html" class="nav-link active">Feedback</a></li>
+                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
-        <form id="feedbackForm" style="flex-direction: column; display: flex; max-width: 600px; margin: auto;">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="4" required></textarea>
-
-            <button type="submit">Submit Feedback</button>
-        </form>
+        <div class="form-container" style="margin: auto;">
+            <h1>Feedback Form</h1>
+            <div id="message-container"></div>
+            <form id="feedbackForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="message">Message:</label>
+                <textarea id="message" rows="5" required></textarea>
+                <button type="submit" class="form-button form-button-primary">Submit Feedback</button>
+            </form>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2025 Society Poems</p>
     </footer>
+    
+    <!-- Firebase SDKs (Compat versions for global access) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <script src="feedback.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TODO: Replace with your Firebase config.
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            // --- Shared Logic (implementation copied for self-containment) ---
+            const setupMobileMenu_impl = () => {
+                const openBtn = document.getElementById('menu-open-button');
+                const closeBtn = document.getElementById('menu-close-button');
+                const navMenu = document.querySelector('.nav-menu');
+                if (openBtn && closeBtn && navMenu) {
+                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+                }
+            };
+
+            const handleLogout_impl = () => {
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut().catch(error => console.error('Sign out error', error));
+                    });
+                }
+            };
+
+            const checkAuthState_impl = () => {
+                auth.onAuthStateChanged(user => {
+                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+                    if (!user && !isAuthPage) {
+                        window.location.href = 'login.html';
+                    } else if (user && isAuthPage) {
+                        window.location.href = 'index.html';
+                    } else {
+                        document.body.style.visibility = 'visible';
+                    }
+                });
+            };
+
+            // --- Feedback Page Specific Logic ---
+            const setupFeedbackForm = () => {
+                const feedbackForm = document.getElementById('feedbackForm');
+                const messageContainer = document.getElementById('message-container');
+
+                function showMessage(type, text) {
+                    if (!messageContainer) return;
+                    messageContainer.className = `message-container ${type}-message`;
+                    messageContainer.textContent = text;
+                    messageContainer.style.display = 'block';
+                }
+
+                feedbackForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const message = document.getElementById('message').value;
+                    const feedbackRef = db.ref('feedback');
+                    
+                    feedbackRef.push({
+                        name: name,
+                        email: email,
+                        message: message,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        showMessage('success', 'Thank you for your feedback!');
+                        feedbackForm.reset();
+                    }).catch(error => {
+                        showMessage('error', `Submission failed: ${error.message}`);
+                    });
+                });
+            };
+
+            // Initialize all page functions
+            setupMobileMenu_impl();
+            handleLogout_impl();
+            checkAuthState_impl();
+            setupFeedbackForm();
+        });
+    </script>
+</body>
 </html>

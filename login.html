@@ -1,491 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login Page</title>
-  <link rel="stylesheet" href="login.css">
-  <link rel="icon" href="images/Untitled1.png">
-  <script type="module" src="firebase-config.js"></script>
-  <script type="module" src="auth__set_language_code.js"></script>
-
-  <style>
-    /* Additional styles to complement your existing CSS and ensure proper centering */
-    .loginformcontainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center; /* Center vertically */
-      margin: auto;
-      width: 100%;
-      max-width: 400px;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .loginformcontainer h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: var(--text-primary);
-      font-size: var(--font-size-xx1);
-      font-weight: var(--font-weight-bold);
-    }
-
-    .error-message {
-      color: #dc3545;
-      background-color: #f8d7da;
-      border: 1px solid #f5c6cb;
-      padding: 15px;
-      border-radius: var(--border-radius-s);
-      margin-bottom: 20px;
-      display: none;
-      font-size: var(--font-size-s);
-      text-align: left;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    
-    .success-message {
-      color: #155724;
-      background-color: #d4edda;
-      border: 1px solid #c3e6cb;
-      padding: 15px;
-      border-radius: var(--border-radius-s);
-      margin-bottom: 20px;
-      display: none;
-      font-size: var(--font-size-s);
-      text-align: left;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .login_form {
-      width: 100%;
-      max-width: 350px;
-      background: var(--bg-secondary, #fff);
-      padding: 30px;
-      border-radius: var(--border-radius-m);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      box-sizing: border-box;
-    }
-
-    .login_form button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: var(--border-radius-s);
-      cursor: pointer;
-      font-size: var(--font-size-n);
-      font-weight: var(--font-weight-medium);
-      transition: all 0.3s ease;
-      font-family: "Poppins", sans-serif;
-    }
-    
-    #enterBTN {
-      background-color: var(--primary-color);
-      color: var(--secondary-color);
-    }
-    
-    #enterBTN:hover:not(:disabled) {
-      background-color: var(--primary-color-400);
-      transform: translateY(-2px);
-    }
-    
-    #google-signin-btn {
-      background-color: #4285f4;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    
-    #google-signin-btn:hover:not(:disabled) {
-      background-color: #357ae8;
-      transform: translateY(-2px);
-    }
-    
-    #google-signin-btn img {
-      height: 20px;
-      width: 20px;
-    }
-    
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    .login_form label {
-      display: block;
-      text-align: left;
-      margin-bottom: 8px;
-      font-weight: var(--font-weight-medium);
-      color: var(--text-primary);
-      font-size: var(--font-size-n);
-    }
-    
-    .login_form input[type="email"],
-    .login_form input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid var(--border-color, #ccc);
-      border-radius: var(--border-radius-s);
-      background: var(--bg-secondary, #fff);
-      color: var(--text-primary);
-      font-size: var(--font-size-n);
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
-
-    .login_form input[type="email"]:focus,
-    .login_form input[type="password"]:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(107, 66, 38, 0.2);
-    }
-
-    /* Night theme adjustments for new elements */
-    [data-theme="night"] .loginformcontainer h1 {
-      color: var(--text-primary);
-    }
-
-    [data-theme="night"] .login_form {
-      background: var(--bg-secondary);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    [data-theme="night"] .error-message {
-      background-color: #2d1b1e;
-      border-color: #842029;
-      color: #ea868f;
-    }
-    
-    [data-theme="night"] .success-message {
-      background-color: #0f2419;
-      border-color: #0a3622;
-      color: #75b798;
-    }
-
-    [data-theme="night"] .login_form input[type="email"],
-    [data-theme="night"] .login_form input[type="password"] {
-      background: var(--bg-secondary);
-      border-color: var(--border-color);
-      color: var(--text-primary);
-    }
-
-    [data-theme="night"] .login_form input[type="email"]:focus,
-    [data-theme="night"] .login_form input[type="password"]:focus {
-      border-color: var(--primary-color-200);
-      box-shadow: 0 0 0 2px rgba(201, 123, 99, 0.2);
-    }
-
-    /* Responsive adjustments */
-    @media screen and (max-width: 640px) {
-      .loginformcontainer {
-        padding: 15px;
-        width: 100%;
-      }
-      
-      .login_form {
-        padding: 20px;
-      }
-      
-      .loginformcontainer h1 {
-        font-size: var(--font-size-x1);
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Society Poems</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/Images/Untitled1.png">
 </head>
+<body data-theme="night" style="visibility: hidden;">
+    <div class="form-page-container">
+        <div class="form-container">
+            <h1>Login or Sign Up</h1>
+            <div id="message-container"></div>
+            
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit" id="loginBtn" class="form-button form-button-primary">Login / Sign Up with Email</button>
+            </form>
 
-<body data-theme="night">
-  <div class="loginformcontainer">
-    <h1>Login</h1>
+            <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
+            <button id="phone-signin-btn" class="form-button" style="background: #333; color: white;" onclick="window.location.href='cell-login.html'">Sign in with Phone</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Compat versions for global access) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
-    <form class="login_form">
-      <div id="error-container" class="error-message"></div>
-      <div id="success-container" class="success-message"></div>
-      
-      <label for="email">Email:</label>
-      <input style="color:white" type="email" id="email" required>
-      
-      <label for="password">Password:</label>
-      <input style="color:white" type="password" id="password" required>
-      
-      <button type="button" id="enterBTN" onclick="login()">Login</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TODO: Replace with your project's actual Firebase configuration.
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
 
-      <button type="button" id="google-signin-btn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        <span id="google-btn-text">Sign in/up with Google</span>
-      </button>
-      <button type="button" id="UsePhoneNum" onclick="window.location.href='CellLogin.html'">
-        <span id="phone-btn-text">Sign in/up via Phone Number</span>
-      </button>
-    </form>
-  </div>
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            
+            const messageContainer = document.getElementById('message-container');
 
-  <script type="module">
-    import { 
-        GoogleAuthProvider, 
-        signInWithEmailAndPassword, 
-        signInWithPopup, 
-        onAuthStateChanged,
-        getRedirectResult 
-    } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; // Import specific auth functions
-
-    // Configure Google provider with additional scopes and custom parameters
-    const provider = new GoogleAuthProvider(); // Use imported GoogleAuthProvider
-    provider.addScope('email');
-    provider.addScope('profile');
-    provider.setCustomParameters({
-      'prompt': 'select_account'
-    });
-
-    // Function to show error messages
-    function showError(message) {
-      const errorContainer = document.getElementById('error-container');
-      const successContainer = document.getElementById('success-container');
-      
-      successContainer.style.display = 'none';
-      errorContainer.textContent = message;
-      errorContainer.style.display = 'block';
-      
-      // Auto-hide error after 10 seconds
-      setTimeout(() => {
-        errorContainer.style.display = 'none';
-      }, 10000);
-    }
-
-    // Function to show success messages
-    function showSuccess(message) {
-      const errorContainer = document.getElementById('error-container');
-      const successContainer = document.getElementById('success-container');
-      
-      errorContainer.style.display = 'none';
-      successContainer.textContent = message;
-      successContainer.style.display = 'block';
-    }
-
-    // Function to hide all messages
-    function hideMessages() {
-      document.getElementById('error-container').style.display = 'none';
-      document.getElementById('success-container').style.display = 'none';
-    }
-
-    // Function to set loading state
-    function setLoading(isLoading, buttonId = null) {
-      const buttons = buttonId ? [document.getElementById(buttonId)] : [document.getElementById('enterBTN'), document.getElementById('google-signin-btn')];
-      
-      buttons.forEach(button => {
-        if (button) {
-          button.disabled = isLoading;
-          if (button.id === 'google-signin-btn') {
-            const text = button.querySelector('#google-btn-text');
-            if (text) {
-              text.textContent = isLoading ? 'Signing in...' : 'Sign in/up with Google';
+            function showMessage(type, text) {
+                if (!messageContainer) return;
+                messageContainer.className = `message-container ${type}-message`;
+                messageContainer.textContent = text;
+                messageContainer.style.display = 'block';
             }
-          } else if (button.id === 'enterBTN') {
-            button.textContent = isLoading ? 'Logging in...' : 'Login';
-          }
-        }
-      });
-    }
 
-    // Function to check if a user is logged in or not (made global)
-    window.checkAuthState = function() { // Made global by attaching to window
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          console.log("User is signed in:", user.email);
-          showSuccess("Login successful! Redirecting...");
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1000);
-        } else {
-          console.log("No user signed in");
-        }
-      });
-    }
+            // --- Auth Check for Login Page ---
+            auth.onAuthStateChanged(user => {
+                // If the user is already logged in, redirect them away from the login page.
+                if (user) {
+                    window.location.href = 'index.html';
+                } else {
+                    // If no user, make the login form visible.
+                    document.body.style.visibility = 'visible';
+                }
+            });
 
-    // Function to handle the login form submission
-    window.login = async function() { // Made global for onclick and async for await
-      hideMessages();
-      setLoading(true, 'enterBTN');
-      
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      if (!email || !password) {
-        showError("Please fill in all fields.");
-        setLoading(false, 'enterBTN');
-        return;
-      }
-
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password); // Use imported signInWithEmailAndPassword
-        console.log("Login successful:", userCredential.user.email);
-        showSuccess("Login successful! Redirecting...");
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
-      } catch (error) {
-        setLoading(false, 'enterBTN');
-        let errorMessage = "Login failed. Please try again.";
-        
-        switch(error.code) {
-          case 'auth/user-not-found':
-            errorMessage = "No account found with this email address.";
-            break;
-          case 'auth/wrong-password':
-            errorMessage = "Incorrect password.";
-            break;
-          case 'auth/invalid-email':
-            errorMessage = "Invalid email address.";
-            break;
-          case 'auth/invalid-login-credentials':
-          case 'auth/invalid-credential':
-            errorMessage = "Invalid email or password. Please check your credentials and try again.";
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = "Too many failed attempts. Please try again later.";
-            break;
-          case 'auth/user-disabled':
-            errorMessage = "This account has been disabled.";
-            break;
-          case 'auth/network-request-failed':
-            errorMessage = "Network error. Please check your internet connection.";
-            break;
-          case 'auth/internal-error':
-            errorMessage = "Account not found/Credentials Invalid. Please try again or sign up";
-            break;
-          default:
-            // Only show the technical error in development, user-friendly message in production
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-              errorMessage = `Login error: ${error.message}`;
-            } else {
-              errorMessage = "Login failed. Please check your credentials and try again.";
+            // --- Email/Password Login/Signup Logic ---
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    
+                    auth.signInWithEmailAndPassword(email, password)
+                        .catch(error => {
+                            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                                // If user doesn't exist, create an account.
+                                auth.createUserWithEmailAndPassword(email, password)
+                                    .catch(createError => {
+                                        showMessage('error', `Sign up failed: ${createError.message}`);
+                                    });
+                            } else {
+                                showMessage('error', `Login failed: ${error.message}`);
+                            }
+                        });
+                });
             }
-            console.error("Unhandled login error:", error.code, error.message);
-        }
-        
-        showError(errorMessage);
-        console.error("Login error:", error.code, error.message);
-      }
-    }
 
-    // Google Sign-in functionality with better error handling
-    document.getElementById('google-signin-btn').addEventListener('click', async function() { // Made async
-      hideMessages();
-      setLoading(true, 'google-signin-btn');
-      
-      console.log("Attempting Google sign-in...");
-      
-      try {
-        const result = await signInWithPopup(auth, provider); // Use imported signInWithPopup
-        const user = result.user;
-        // const credential = GoogleAuthProvider.credentialFromResult(result); // Credential is not directly used here but kept for reference
-        
-        console.log("Google sign-in successful:", {
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid
+            // --- Google Sign-in Logic ---
+            const googleBtn = document.getElementById('google-signin-btn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider).catch(error => {
+                        showMessage('error', `Google sign-in failed: ${error.message}`);
+                    });
+                });
+            }
         });
-        
-        showSuccess(`Welcome ${user.displayName}! Redirecting...`);
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
-      } catch (error) {
-        setLoading(false, 'google-signin-btn');
-        console.error("Google sign-in error:", error);
-        
-        let errorMessage = "Google sign-in failed. ";
-        
-        switch(error.code) {
-          case 'auth/popup-closed-by-user':
-            errorMessage += "Sign-in was cancelled.";
-            break;
-          case 'auth/popup-blocked':
-            errorMessage += "Pop-up was blocked. Please allow pop-ups and try again.";
-            break;
-          case 'auth/cancelled-popup-request':
-            errorMessage += "Another sign-in popup is already open.";
-            break;
-          case 'auth/operation-not-allowed':
-            errorMessage += "Google sign-in is not enabled. Please contact support.";
-            break;
-          case 'auth/invalid-api-key':
-            errorMessage += "Invalid API key configuration.";
-            break;
-          case 'auth/network-request-failed':
-            errorMessage += "Network error. Please check your connection.";
-            break;
-          case 'auth/too-many-requests':
-            errorMessage += "Too many requests. Please try again later.";
-            break;
-          default:
-            // Only show the technical error in development, user-friendly message in production
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-              errorMessage = `Login error: ${error.message}`;
-            } else {
-              errorMessage = "Login failed. Please check your credentials and try again.";
-            }
-            console.error("Unhandled login error:", error.code, error.message);
-        }
-        
-        showError(errorMessage);
-        console.error("Login error:", error.code, error.message);
-      }
-    });
-
-    // Handle redirect result (in case redirect method was used)
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) { // Check if result and user exist
-        console.log("Google redirect sign-in successful:", result.user.displayName);
-        showSuccess(`Welcome ${result.user.displayName}! Redirecting...`);
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
-      }
-    }).catch((error) => {
-      console.error("Google redirect sign-in error:", error);
-      showError(`Redirect sign-in failed: ${error.message}`);
-    });
-
-    // Trigger login on Enter key press
-    document.querySelector('.login_form').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        login();
-      }
-    });
-
-    // Individual input field Enter key handling
-    document.getElementById("email").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        document.getElementById("password").focus();
-      }
-    });
-
-    document.getElementById("password").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        login();
-      }
-    });
-
-    // Debug function to check Firebase configuration
-    function debugFirebaseConfig() {
-      console.log("Auth instance available:", !!auth);
-      console.log("Current domain:", window.location.hostname);
-    }
-
-    // Call debug function and checkAuthState on DOM content loaded
-    document.addEventListener('DOMContentLoaded', () => {
-        debugFirebaseConfig();
-        window.checkAuthState(); // Call the now global checkAuthState
-    });
-  </script>
+    </script>
 </body>
 </html>
