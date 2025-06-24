@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Read - Society Poems</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="/Images/Untitled1.png">
 </head>
 <body data-theme="night" style="visibility: hidden;">
 
@@ -58,42 +57,12 @@
             const auth = firebase.auth();
             const db = firebase.database();
 
-            // --- Shared Logic ---
-            const setupMobileMenu = () => { /* ... same as index.html ... */ };
-            const handleLogout = () => { /* ... same as index.html ... */ };
-            const checkAuthState = () => { /* ... same as index.html ... */ };
+            // --- NEW: Admin Configuration ---
+            // TODO: Add the Firebase UIDs of your admin users to this array.
+            const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
+            let currentUserIsAdmin = false;
 
-            // --- Read Page Specific Logic ---
-            const loadEntries = () => {
-                const entriesContainer = document.getElementById('entriesContainer');
-                const entriesRef = db.ref('uploads');
-
-                entriesRef.on('value', (snapshot) => {
-                    entriesContainer.innerHTML = '';
-                    const data = snapshot.val();
-                    if (!data) {
-                        entriesContainer.innerHTML = '<p>No entries yet. Be the first!</p>';
-                        return;
-                    }
-                    const entries = Object.values(data).reverse();
-                    entries.forEach(entry => {
-                        const div = document.createElement('div');
-                        div.className = 'entry';
-                        const content = document.createElement('p');
-                        content.className = 'entry-content';
-                        content.innerText = entry.content;
-                        const meta = document.createElement('div');
-                        meta.className = 'entry-meta';
-                        const date = new Date(entry.timestamp).toLocaleString();
-                        meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
-                        div.appendChild(content);
-                        div.appendChild(meta);
-                        entriesContainer.appendChild(div);
-                    });
-                });
-            };
-
-            // Re-pasting shared functions to avoid errors
+            // --- Shared Logic (implementation copied for self-containment) ---
             const setupMobileMenu_impl = () => {
                 const openBtn = document.getElementById('menu-open-button');
                 const closeBtn = document.getElementById('menu-close-button');
@@ -121,12 +90,84 @@
                     } else if (user && isAuthPage) {
                         window.location.href = 'index.html';
                     } else {
+                        // NEW: Check if the logged-in user is an admin
+                        if (user) {
+                            currentUserIsAdmin = adminUIDs.includes(user.uid);
+                        }
                         document.body.style.visibility = 'visible';
                     }
                 });
             };
 
-            // Initialize page
+            // --- Read Page Specific Logic ---
+            const loadEntries = () => {
+                const entriesContainer = document.getElementById('entriesContainer');
+                const entriesRef = db.ref('uploads');
+
+                entriesRef.on('value', (snapshot) => {
+                    entriesContainer.innerHTML = '';
+                    const data = snapshot.val();
+                    if (!data) {
+                        entriesContainer.innerHTML = '<p>No entries yet. Be the first!</p>';
+                        return;
+                    }
+
+                    // Iterate over object keys to preserve them for the delete function
+                    const entryKeys = Object.keys(data).reverse(); 
+                    
+                    entryKeys.forEach(key => {
+                        const entry = data[key];
+                        const div = document.createElement('div');
+                        div.className = 'entry';
+                        
+                        const content = document.createElement('p');
+                        content.className = 'entry-content';
+                        content.innerText = entry.content;
+                        
+                        const meta = document.createElement('div');
+                        meta.className = 'entry-meta';
+                        const date = new Date(entry.timestamp).toLocaleString();
+                        meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+                        
+                        // NEW: Add delete button IF the current user is an admin
+                        if (currentUserIsAdmin) {
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '&times;'; // A simple 'x' character
+                            deleteBtn.title = 'Delete this entry';
+                            deleteBtn.dataset.key = key; // Store the database key on the button
+                            div.appendChild(deleteBtn);
+                        }
+
+                        div.appendChild(content);
+                        div.appendChild(meta);
+                        entriesContainer.appendChild(div);
+                    });
+                });
+
+                // NEW: Add a single event listener to the container for deleting entries
+                entriesContainer.addEventListener('click', (e) => {
+                    // Check if a delete button was clicked
+                    if (e.target && e.target.classList.contains('delete-btn')) {
+                        const entryKey = e.target.dataset.key;
+                        // Ask for confirmation before deleting
+                        if (entryKey && confirm('Are you sure you want to permanently delete this entry?')) {
+                            const entryRef = db.ref('uploads/' + entryKey);
+                            entryRef.remove()
+                                .then(() => {
+                                    console.log("Entry deleted successfully.");
+                                    // The 'onValue' listener will automatically update the UI.
+                                })
+                                .catch((error) => {
+                                    console.error("Error deleting entry:", error);
+                                    alert("Failed to delete the entry. Check console for details.");
+                                });
+                        }
+                    }
+                });
+            };
+
+            // Initialize all page functions
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();

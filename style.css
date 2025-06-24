@@ -282,6 +282,7 @@ footer {
   border-radius: var(--border-radius-m);
   border-left: 5px solid var(--primary-color);
   animation: fadeInUp 0.5s ease-out;
+  position: relative; /* Needed for positioning the delete button */
 }
 
 .entry-content {
@@ -300,6 +301,38 @@ footer {
   padding-top: 15px;
   margin-top: 20px;
 }
+
+/* NEW: Admin Delete Button Style */
+.delete-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.3s ease;
+  opacity: 0.5; /* Slightly transparent by default */
+}
+
+.entry:hover .delete-btn {
+  opacity: 1; /* Fully visible on hover of the entry */
+}
+
+.delete-btn:hover {
+  background: #a80012; /* Darker red on hover */
+  transform: scale(1.1);
+}
+
 
 /* Home Page specific styles */
 .hero-section {
