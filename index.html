@@ -9,28 +9,15 @@
     <link rel="icon" href="images/Untitled1.png">
     
     <script type="module" src="firebase-config.js"></script>
+    
     <script type="module">
-        import { auth } from './.github/firebase-config.js'; // Import auth from centralized config
+        import { auth } from './firebase-config.js'; // Import auth from centralized config
         import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        // ... all the old inline script content ...
+    </script>
+    <script type="module" src="auth-guard.js"></script>
 
-        // Function to check if a user is logged in or not
-        function checkAuthState() {
-          // Show loading state initially
-          document.body.style.display = 'none';
-          
-          onAuthStateChanged(auth, (user) => {
-            if (!user) {
-              // User is not signed in, redirect to the login page
-              console.log("No user found, redirecting to login");
-              window.location.href = "login.html";
-            } else {
-              // User is signed in, show the page
-              console.log("User is signed in:", user.email);
-              document.body.style.display = 'block';
-            }
-          });
-        }
-        
+    <script>
         // Function to log out the user
         window.logout = function() { // Made global for onclick
           auth.signOut().then(() => {
