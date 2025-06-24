@@ -5,3 +5,9 @@ auth.languageCode = 'it';
 
 // To apply the default browser preference instead of explicitly setting it.
 // auth.useDeviceLanguage();
+
+auth.useDeviceLanguage().then(() => {
+  console.log("Language code set to Italian and device language preference applied.");
+}).catch((error) => {
+  console.error("Error setting language code:", error);
+});
