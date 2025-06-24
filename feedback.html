@@ -3,26 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback</title>
+    <title>Feedback - Society Poems</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="images/Untitled1.png">
+    
+    <!-- Add Firebase and Auth Protection -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth-check.js"></script>
+    
+    <style>
+        .feedback-header {
+            background: var(--primary-color);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: var(--site-max-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            color: var(--secondary-color);
+            font-size: var(--font-size-x1);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-s);
+            font-size: var(--font-size-n);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #toggleTheme {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-s);
+            font-size: var(--font-size-n);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #toggleTheme:hover {
+            background: var(--primary-color-200);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        main {
+            padding: 40px 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        @media screen and (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .header-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <h1>Feedback Form</h1>
+<body data-theme="night">
+    <header class="feedback-header">
+        <div class="header-content">
+            <h1>📖 Society Poems - Feedback</h1>
+            <div class="header-buttons">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <button id="toggleTheme">
+                    <i class="fas fa-palette"></i> Theme
+                </button>
+            </div>
+        </div>
     </header>
 
     <main>
-        <form id="feedbackForm" style="flex-direction: column; display: flex; max-width: 600px; margin: auto;">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+        <form id="feedbackForm" style="flex-direction: column; display: flex; max-width: 600px; margin: auto; padding: 40px 20px;">
+            <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">We'd love to hear from you!</h2>
+            
+            <label for="name" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Name:</label>
+            <input type="text" id="name" name="name" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary);">
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <label for="email" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Email:</label>
+            <input type="email" id="email" name="email" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary);">
 
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="4" required></textarea>
+            <label for="message" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Message:</label>
+            <textarea id="message" name="message" rows="6" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary); resize: vertical;"></textarea>
 
-            <button type="submit">Submit Feedback</button>
+            <button type="submit" style="padding: 12px 24px; background: var(--primary-color); color: var(--secondary-color); border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
+                <i class="fas fa-paper-plane"></i> Submit Feedback
+            </button>
         </form>
     </main>
 
@@ -30,5 +144,55 @@
         <p>&copy; 2025 Society Poems</p>
     </footer>
 
-    <script src="feedback.js"></script>
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        
+        // Logout functionality with confirmation
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    // Show loading state
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    const originalText = logoutBtn.innerHTML;
+                    logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+                    logoutBtn.disabled = true;
+                    
+                    await auth.signOut();
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Error logging out. Please try again.');
+                    
+                    // Reset button state
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                    logoutBtn.disabled = false;
+                }
+            }
+        });
+
+        // Form submission with better UX
+        document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.disabled = true;
+            
+            // Simulate sending (replace with actual implementation)
+            setTimeout(() => {
+                alert('Thank you for your feedback! We appreciate your input.');
+                e.target.reset();
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 1000);
+        });
+    </script>
+    <script src="theme-toggle.js"></script>
+</body>
 </html>

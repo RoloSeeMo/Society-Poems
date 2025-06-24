@@ -3,51 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Society Poems</title>
+  <title>Society Poems - Read</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="readstyles.css"/>
   <link rel="icon" href="images/Untitled1.png">
-  <script type="module" src="auth-guard.js"></script>
+  
+  <!-- Firebase and Auth Protection -->
   <script type="module" src="firebase-config.js"></script>
-
-  <script type="module">
-    import { auth } from './firebase-config.js'; // Import auth from centralized config
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // User is not signed in, redirect to the login page
-          console.log("No user found, redirecting to login");
-          window.location.href = "login.html";
-        } else {
-          // User is signed in, show the page
-          console.log("User is signed in:", user.email);
-          document.body.style.display = 'block'; // Make body visible after auth check
-        }
-      });
-    }
-
-    // Function to log out the user
-    window.logout = function() { // Made global for onclick
-      auth.signOut().then(() => {
-        window.location.href = "login.html";
-      }).catch((error) => {
-        console.error("Logout Error:", error);
-      });
-    }
-
-    // Initialize everything when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      checkAuthState();
-      
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", window.logout);
-      }
-    });
-  </script>
+  <script type="module" src="auth-check.js"></script>
 </head>
 
 <body data-theme="night">
@@ -68,10 +31,14 @@
           <a href="upload.html" class="nav-link">Upload</a>
         </li>
         <li class="nav-item">
-          <a id="logoutBtn" class="nav-link">Logout</a>
+          <button id="logoutBtn" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
         </li>
         <li class="nav-item">
-          <button id="toggleTheme" class="nav-link" aria-label="Toggle Theme">🎨 Theme</button>
+          <button id="toggleTheme" class="theme-toggle" aria-label="Toggle Theme">
+            <i class="fas fa-palette"></i> Theme
+          </button>
         </li>
       </ul>
       <button id="menu-open-button">☰</button>
@@ -89,9 +56,34 @@
   <script src="scripts.js"></script>
   <script src="theme-toggle.js"></script>
   <script type="module">
-    import { db } from './firebase-config.js'; // Import db from centralized config
+    import { auth, db } from './firebase-config.js';
     import { ref, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
+    // Logout functionality with confirmation
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Are you sure you want to logout?')) {
+        try {
+          // Show loading state
+          const logoutBtn = document.getElementById('logoutBtn');
+          const originalText = logoutBtn.innerHTML;
+          logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+          logoutBtn.disabled = true;
+          
+          await auth.signOut();
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Logout error:', error);
+          alert('Error logging out. Please try again.');
+          
+          // Reset button state
+          const logoutBtn = document.getElementById('logoutBtn');
+          logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+          logoutBtn.disabled = false;
+        }
+      }
+    });
+
+    // Load entries from database
     const entriesRef = ref(db, 'uploads');
     const container = document.getElementById('entriesContainer');
 
