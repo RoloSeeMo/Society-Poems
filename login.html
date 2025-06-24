@@ -93,7 +93,15 @@
             const googleBtn = document.getElementById('google-signin-btn');
             if (googleBtn) {
                 googleBtn.addEventListener('click', () => {
+                    // Create a new Google provider instance
                     const provider = new firebase.auth.GoogleAuthProvider();
+                    
+                    // NEW: Set a custom parameter to always prompt for account selection
+                    provider.setCustomParameters({
+                      'prompt': 'select_account'
+                    });
+
+                    // Sign in using the popup method with the configured provider
                     auth.signInWithPopup(provider).catch(error => {
                         showMessage('error', `Google sign-in failed: ${error.message}`);
                     });
