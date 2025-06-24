@@ -8,40 +8,9 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/Untitled1.png">
 
+  <!-- Firebase and Auth Protection -->
   <script type="module" src="firebase-config.js"></script>
-  <script type="module">
-    import { auth } from './firebase-config.js'; // Import auth from centralized config
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-    // Function to check if a user is logged in or not
-    function checkAuthState() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // User is not signed in, redirect to the login page
-          window.location.href = "login.html";
-        }
-      });
-    }
-
-    // Function to log out the user
-    window.logout = function () { // Made global for onclick
-      auth.signOut().then(() => {
-        window.location.href = "login.html"; // Redirect to login page
-      }).catch((error) => {
-        console.error("Logout Error:", error);
-      });
-    }
-
-    // Attach logout function to the button and check auth state on load
-    document.addEventListener('DOMContentLoaded', function () {
-      checkAuthState();
-
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", window.logout);
-      }
-    });
-  </script>
+  <script type="module" src="auth-check.js"></script>
   
   <style>
     /* Theme Variables */
@@ -253,16 +222,13 @@
       }
     }
   </style>
-  
 </head>
-
 
 <body data-theme="night">
   <main class="upload-section">
-
     <div class="upload-header">
       <a href="https://societypoems.com">Society Poems</a>
-      <a id="logoutBtn" class="logoutBtn" style="background:none; border:none; cursor:pointer;">Logout</a>
+      <button id="logoutBtn" style="background:none; border:none; cursor:pointer; color: var(--primary-color); font-size: var(--font-size-m);">Logout</button>
       <button id="toggleTheme" aria-label="Toggle Theme">🌙</button>
     </div>
     
@@ -292,7 +258,6 @@
       <textarea id="content" rows="10" placeholder="Write your thoughts here..."></textarea>
       <div class="char-count" id="charCount">0 characters</div>
 
-
       <button type="submit">Submit</button>
       <button type="button" id="clearDraft">Clear Draft</button>
 
@@ -313,5 +278,17 @@
 
   <script type="module" src="updateDB.js"></script>
   <script src="theme-toggle.js"></script>
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch((error) => {
+        console.error('Logout error:', error);
+      });
+    });
+  </script>
 </body>
 </html>
