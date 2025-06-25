@@ -6,42 +6,13 @@
     <title>Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Images/Untitled1.png" type="image/png">
-    <!-- Font Awesome for the eye icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Additional styles for the toggle link and password hint */
-        .toggle-form-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: var(--primary-color);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .password-requirements {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: -15px;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-        /* NEW: Styles for the password visibility toggle */
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px; /* Replaces the input's margin-bottom */
-        }
-        .password-wrapper input {
-            padding-right: 45px; /* Make space for the icon */
-            margin-bottom: 0; /* Remove margin from input as it's on the wrapper now */
-        }
-        .password-toggle-icon {
-            position: absolute;
-            right: 15px;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
+        .toggle-form-link{display:block;text-align:center;margin-top:20px;color:var(--primary-color);cursor:pointer;text-decoration:underline;}
+        .password-requirements{font-size:.8rem;color:var(--text-secondary);margin-top:-15px;margin-bottom:15px;line-height:1.4;}
+        .password-wrapper{position:relative;display:flex;align-items:center;margin-bottom:20px;}
+        .password-wrapper input{padding-right:45px;margin-bottom:0;}
+        .password-toggle-icon{position:absolute;right:15px;cursor:pointer;color:var(--text-secondary);}
     </style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
@@ -97,46 +68,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat versions for global access) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    
+   <script type="module" src="auth.js"></script>
+
+    <!-- UI Toggling Script (can remain as simple non-module script) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // TODO: Replace with your project's actual Firebase configuration.
-            const firebaseConfig = {
-                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-                authDomain: "society-poems-97f4d.firebaseapp.com",
-                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-                projectId: "society-poems-97f4d",
-                storageBucket: "society-poems-97f4d.firebasestorage.app",
-                messagingSenderId: "723670230106",
-                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-            };
-
-            const app = firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            
-            const loginMessageContainer = document.getElementById('login-message-container');
-            const signupMessageContainer = document.getElementById('signup-message-container');
-
-            function showMessage(container, type, text) {
-                if (!container) return;
-                container.className = `message-container ${type}-message`;
-                container.textContent = text;
-                container.style.display = 'block';
-            }
-
-            // --- Auth Check for Login Page ---
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    window.location.href = 'index.html';
-                } else {
-                    document.body.style.visibility = 'visible';
-                }
-            });
-            
-            // --- View Toggling Logic ---
             const loginView = document.getElementById('login-view');
             const signupView = document.getElementById('signup-view');
             document.getElementById('show-signup').addEventListener('click', () => {
@@ -147,107 +83,6 @@
                 signupView.style.display = 'none';
                 loginView.style.display = 'block';
             });
-
-
-            // --- Email/Password Login Logic ---
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = document.getElementById('login-email').value;
-                    const password = document.getElementById('login-password').value;
-                    
-                    auth.signInWithEmailAndPassword(email, password)
-                        .catch(error => {
-                            showMessage(loginMessageContainer, 'error', `Login failed: ${error.message}`);
-                        });
-                });
-            }
-
-            // --- Password Validation Function ---
-            function validatePassword(password) {
-                const errors = [];
-                if (password.length < 6) {
-                    errors.push("at least 6 characters");
-                }
-                if (!/[A-Z]/.test(password)) {
-                    errors.push("an uppercase letter");
-                }
-                if (!/[0-9]/.test(password)) {
-                    errors.push("a number");
-                }
-                if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
-                    errors.push("a special character");
-                }
-
-                if (errors.length > 0) {
-                    return `Password must contain ${errors.join(', ')}.`;
-                }
-                return null; 
-            }
-            
-            // --- Email/Password Sign Up Logic ---
-            const signupForm = document.getElementById('signup-form');
-            if(signupForm) {
-                signupForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = document.getElementById('signup-email').value;
-                    const password = document.getElementById('signup-password').value;
-                    const confirmPassword = document.getElementById('confirm-password').value;
-
-                    const passwordError = validatePassword(password);
-                    if (passwordError) {
-                        showMessage(signupMessageContainer, 'error', passwordError);
-                        return;
-                    }
-
-                    if (password !== confirmPassword) {
-                        showMessage(signupMessageContainer, 'error', 'Passwords do not match.');
-                        return;
-                    }
-
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .catch(error => {
-                            showMessage(signupMessageContainer, 'error', `Sign up failed: ${error.message}`);
-                        });
-                });
-            }
-
-            // --- Google Sign-in Logic ---
-            const googleBtn = document.getElementById('google-signin-btn');
-            if (googleBtn) {
-                googleBtn.addEventListener('click', () => {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    provider.setCustomParameters({ 'prompt': 'select_account' });
-                    auth.signInWithPopup(provider).catch(error => {
-                        const activeMessageContainer = loginView.style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
-                        showMessage(activeMessageContainer, 'error', `Google sign-in failed: ${error.message}`);
-                    });
-                });
-            }
-            
-            // --- NEW: Password Visibility Toggle Logic ---
-            function setupPasswordToggle(inputId, toggleId) {
-                const passwordInput = document.getElementById(inputId);
-                const toggleIcon = document.getElementById(toggleId);
-
-                if (passwordInput && toggleIcon) {
-                    toggleIcon.addEventListener('click', () => {
-                        // Toggle the type attribute
-                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                        passwordInput.setAttribute('type', type);
-
-                        // Toggle the icon class
-                        toggleIcon.classList.toggle('fa-eye');
-                        toggleIcon.classList.toggle('fa-eye-slash');
-                    });
-                }
-            }
-
-            // Initialize the toggle for all three password fields
-            setupPasswordToggle('login-password', 'toggle-login-password');
-            setupPasswordToggle('signup-password', 'toggle-signup-password');
-            setupPasswordToggle('confirm-password', 'toggle-confirm-password');
         });
     </script>
 </body>
