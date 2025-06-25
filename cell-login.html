@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="Images/Untitled1.png">
+    <!-- Link to your image to be used as a favicon -->
+    <link rel="icon" href="images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
@@ -15,11 +16,11 @@
             <h1>Login with Phone</h1>
             <div id="message-container"></div>
             
-            <form id="phone-login-form">
+            <form id="phone-login-form" onsubmit="return false;">
                 <div id="phone-entry-step">
                     <label for="phone-input">Phone Number:</label>
                     <input type="tel" id="phone-input" placeholder="+1 555-555-5555" required>
-                    <button type="submit" id="send-code-btn" class="form-button form-button-primary">Send Code</button>
+                    <button type="button" id="send-code-btn" class="form-button form-button-primary">Send Code</button>
                 </div>
 
                 <div id="otp-verify-step" style="display:none;">
@@ -73,16 +74,14 @@
             });
 
             // --- Phone Auth Logic ---
-            // Set up the reCAPTCHA verifier.
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible'
             });
 
-            const phoneForm = document.getElementById('phone-login-form');
+            const sendCodeBtn = document.getElementById('send-code-btn');
             const verifyOtpBtn = document.getElementById('verify-otp-btn');
 
-            phoneForm.addEventListener('submit', (e) => {
-                e.preventDefault();
+            sendCodeBtn.addEventListener('click', () => {
                 const phoneNumber = document.getElementById('phone-input').value;
                 const appVerifier = window.recaptchaVerifier;
                 
@@ -95,7 +94,6 @@
                     })
                     .catch((error) => {
                         showMessage('error', `SMS sending failed: ${error.message}`);
-                        // Reset reCAPTCHA on error
                          window.recaptchaVerifier.render().then(function(widgetId) {
                             grecaptcha.reset(widgetId);
                         });
