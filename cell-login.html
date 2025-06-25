@@ -46,15 +46,15 @@
                     <button type="button" id="verify-otp-btn" class="form-button form-button-primary">Verify Code</button>
                 </div>
             </form>
-             <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Back to Email/Google</button>
+                <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Back to Email/Google</button>
         </div>
     </div>
     <!-- This empty div is the anchor for the invisible reCAPTCHA widget -->
     <div id="recaptcha-container"></div>
 
     <!-- 
-      THE FIX: Using the older "compat" Firebase libraries to match login.html
-      This creates a consistent environment and prevents the conflict error.
+    THE FIX: Using the older "compat" Firebase libraries to match login.html
+    This creates a consistent environment and prevents the conflict error.
     -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
