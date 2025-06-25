@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="Images/Untitled1.png" type="image/png">
-    <script type="module" src="auth.js"></script>
-    <script type="module" src="app.js"></script>
-
+    <!-- Link to your image to be used as a favicon -->
+    <link rel="icon" href="images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
@@ -55,5 +53,122 @@
         </div>
     </div>
     <div id="recaptcha-container"></div>
+
+    <!-- Firebase SDKs (Compat versions for global access) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Firebase configuration is here
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            
+            const messageContainer = document.getElementById('message-container');
+            const phoneInput = document.getElementById('phone-input');
+            const countryCodeSelect = document.getElementById('country-code');
+
+            function showMessage(type, text) {
+                if (!messageContainer) return;
+                messageContainer.className = `message-container ${type}-message`;
+                messageContainer.textContent = text;
+                messageContainer.style.display = 'block';
+            }
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    window.location.href = 'index.html';
+                } else {
+                    document.body.style.visibility = 'visible';
+                }
+            });
+            
+            // --- NEW/FIXED: Phone number auto-formatting logic ---
+            phoneInput.addEventListener('input', (e) => {
+                // Only apply auto-formatting if USA is selected
+                if (countryCodeSelect.value === '+1') {
+                    let input = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
+                    input = input.substring(0, 10); // Enforce 10 digit limit
+
+                    let formattedInput = '';
+                    if (input.length > 6) {
+                        formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}-${input.substring(6)}`;
+                    } else if (input.length > 3) {
+                        formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}`;
+                    } else {
+                        formattedInput = input;
+                    }
+                    e.target.value = formattedInput;
+                }
+                // If other country is selected, do nothing and allow free-form input.
+            });
+
+
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                'size': 'invisible'
+            });
+
+            const sendCodeBtn = document.getElementById('send-code-btn');
+            const verifyOtpBtn = document.getElementById('verify-otp-btn');
+            const otpInput = document.getElementById('otp-input');
+            
+
+            sendCodeBtn.addEventListener('click', () => {
+                const countryCode = countryCodeSelect.value;
+                const digitsOnly = phoneInput.value.replace(/\D/g, '');
+
+                if (!digitsOnly) {
+                    showMessage('error', 'Please enter a valid phone number.');
+                    return;
+                }
+                
+                // Combine selected country code with the phone number
+                const phoneNumber = `${countryCode}${digitsOnly}`;
+                console.log(`Attempting to send code to formatted number: ${phoneNumber}`);
+
+                const appVerifier = window.recaptchaVerifier;
+                
+                auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+                    .then((confirmationResult) => {
+                        window.confirmationResult = confirmationResult;
+                        showMessage('success', 'Verification code sent!');
+                        document.getElementById('phone-entry-step').style.display = 'none';
+                        document.getElementById('otp-verify-step').style.display = 'block';
+                        otpInput.required = true;
+                    })
+                    .catch((error) => {
+                        showMessage('error', `SMS sending failed: ${error.message}`);
+                         window.recaptchaVerifier.render().then(function(widgetId) {
+                            grecaptcha.reset(widgetId);
+                        });
+                    });
+            });
+
+            verifyOtpBtn.addEventListener('click', () => {
+                const code = otpInput.value;
+                if (!code) {
+                    showMessage('error', 'Please enter the verification code.');
+                    return;
+                }
+                if (!window.confirmationResult) {
+                    showMessage('error', 'Please request a code first.');
+                    return;
+                }
+                window.confirmationResult.confirm(code).catch((error) => {
+                    showMessage('error', `Invalid code: ${error.message}`);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
