@@ -9,6 +9,7 @@
     <link rel="icon" href="images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
+    <script type="module" src="auth.js"></script>
 </head>
 <body data-theme="night" style="visibility: hidden;">
     <div class="form-page-container">
@@ -58,7 +59,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Firebase configuration is here
             const firebaseConfig = {
@@ -169,6 +170,7 @@
                 });
             });
         });
-    </script>
+    </script> -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
