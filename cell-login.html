@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Link to your image to be used as a favicon -->
-    <link rel="icon" href="Images/" type="image/png">
+    <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
@@ -16,16 +15,19 @@
             <h1>Login with Phone</h1>
             <div id="message-container"></div>
             
+            <!-- Using a form tag helps with semantics, but we will control submission with JS -->
             <form id="phone-login-form" onsubmit="return false;">
                 <div id="phone-entry-step">
                     <label for="phone-input">Phone Number:</label>
                     <input type="tel" id="phone-input" placeholder="+1 555-555-5555" required>
+                    <!-- Button type is 'button' to prevent default form validation -->
                     <button type="button" id="send-code-btn" class="form-button form-button-primary">Send Code</button>
                 </div>
 
                 <div id="otp-verify-step" style="display:none;">
                     <label for="otp-input">Verification Code:</label>
-                    <input type="text" id="otp-input" inputmode="numeric" placeholder="Enter OTP" required>
+                    <!-- CRITICAL FIX: The 'required' attribute is removed here and will be added via JS -->
+                    <input type="text" id="otp-input" inputmode="numeric" placeholder="Enter OTP">
                     <button type="button" id="verify-otp-btn" class="form-button form-button-primary">Verify Code</button>
                 </div>
             </form>
@@ -43,13 +45,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             // TODO: Replace with your Firebase config.
             const firebaseConfig = {
-                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-                authDomain: "society-poems-97f4d.firebaseapp.com",
-                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-                projectId: "society-poems-97f4d",
-                storageBucket: "society-poems-97f4d.firebasestorage.app",
-                messagingSenderId: "723670230106",
-                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                databaseURL: "YOUR_DATABASE_URL",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
             };
 
             const app = firebase.initializeApp(firebaseConfig);
@@ -80,9 +82,14 @@
 
             const sendCodeBtn = document.getElementById('send-code-btn');
             const verifyOtpBtn = document.getElementById('verify-otp-btn');
+            const otpInput = document.getElementById('otp-input');
 
             sendCodeBtn.addEventListener('click', () => {
                 const phoneNumber = document.getElementById('phone-input').value;
+                if (!phoneNumber) {
+                    showMessage('error', 'Please enter a phone number.');
+                    return;
+                }
                 const appVerifier = window.recaptchaVerifier;
                 
                 auth.signInWithPhoneNumber(phoneNumber, appVerifier)
@@ -91,6 +98,8 @@
                         showMessage('success', 'Verification code sent!');
                         document.getElementById('phone-entry-step').style.display = 'none';
                         document.getElementById('otp-verify-step').style.display = 'block';
+                        // CRITICAL FIX: Make the OTP input required ONLY after it's visible
+                        otpInput.required = true;
                     })
                     .catch((error) => {
                         showMessage('error', `SMS sending failed: ${error.message}`);
@@ -101,7 +110,11 @@
             });
 
             verifyOtpBtn.addEventListener('click', () => {
-                const code = document.getElementById('otp-input').value;
+                const code = otpInput.value;
+                if (!code) {
+                    showMessage('error', 'Please enter the verification code.');
+                    return;
+                }
                 if (!window.confirmationResult) {
                     showMessage('error', 'Please request a code first.');
                     return;
