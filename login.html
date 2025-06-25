@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Society Poems</title>
-    <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="Images/Untitled1.png" type="image/png">
+    <!-- Font Awesome for the eye icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Additional styles for the toggle link and password hint */
         .toggle-form-link {
@@ -23,6 +25,23 @@
             margin-bottom: 15px;
             line-height: 1.4;
         }
+        /* NEW: Styles for the password visibility toggle */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px; /* Replaces the input's margin-bottom */
+        }
+        .password-wrapper input {
+            padding-right: 45px; /* Make space for the icon */
+            margin-bottom: 0; /* Remove margin from input as it's on the wrapper now */
+        }
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
@@ -36,10 +55,13 @@
                     <label for="login-email">Email:</label>
                     <input type="email" id="login-email" required>
                     <label for="login-password">Password:</label>
-                    <input type="password" id="login-password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
+                    </div>
                     <button type="submit" class="form-button form-button-primary">Login</button>
                 </form>
-                <p class="toggle-form-link" id="show-signup">Sign Up with Email/Password</p>
+                <p class="toggle-form-link" id="show-signup">Don't have an account? Sign Up</p>
             </div>
 
             <!-- Signup Form (Hidden by default) -->
@@ -50,13 +72,18 @@
                     <label for="signup-email">Email:</label>
                     <input type="email" id="signup-email" required>
                     <label for="signup-password">Password:</label>
-                    <input type="password" id="signup-password" required>
-                    <!-- NEW: Password requirements hint -->
+                    <div class="password-wrapper">
+                        <input type="password" id="signup-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i>
+                    </div>
                     <p class="password-requirements">
                         Must be 6+ characters and contain an uppercase letter, a number, and a special character.
                     </p>
                     <label for="confirm-password">Confirm Password:</label>
-                    <input type="password" id="confirm-password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirm-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i>
+                    </div>
                     <button type="submit" class="form-button form-button-primary">Sign Up</button>
                 </form>
                 <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
@@ -137,7 +164,7 @@
                 });
             }
 
-            // --- NEW: Password Validation Function ---
+            // --- Password Validation Function ---
             function validatePassword(password) {
                 const errors = [];
                 if (password.length < 6) {
@@ -149,16 +176,14 @@
                 if (!/[0-9]/.test(password)) {
                     errors.push("a number");
                 }
-                // Regex for special characters
                 if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
                     errors.push("a special character");
                 }
 
                 if (errors.length > 0) {
-                    // Joins the errors into a readable sentence.
                     return `Password must contain ${errors.join(', ')}.`;
                 }
-                return null; // Return null if validation passes
+                return null; 
             }
             
             // --- Email/Password Sign Up Logic ---
@@ -170,20 +195,17 @@
                     const password = document.getElementById('signup-password').value;
                     const confirmPassword = document.getElementById('confirm-password').value;
 
-                    // 1. Validate password strength
                     const passwordError = validatePassword(password);
                     if (passwordError) {
                         showMessage(signupMessageContainer, 'error', passwordError);
                         return;
                     }
 
-                    // 2. Check if passwords match
                     if (password !== confirmPassword) {
                         showMessage(signupMessageContainer, 'error', 'Passwords do not match.');
                         return;
                     }
 
-                    // 3. Create user if all checks pass
                     auth.createUserWithEmailAndPassword(email, password)
                         .catch(error => {
                             showMessage(signupMessageContainer, 'error', `Sign up failed: ${error.message}`);
@@ -198,12 +220,34 @@
                     const provider = new firebase.auth.GoogleAuthProvider();
                     provider.setCustomParameters({ 'prompt': 'select_account' });
                     auth.signInWithPopup(provider).catch(error => {
-                        // Display error in the currently visible form's message container
                         const activeMessageContainer = loginView.style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
                         showMessage(activeMessageContainer, 'error', `Google sign-in failed: ${error.message}`);
                     });
                 });
             }
+            
+            // --- NEW: Password Visibility Toggle Logic ---
+            function setupPasswordToggle(inputId, toggleId) {
+                const passwordInput = document.getElementById(inputId);
+                const toggleIcon = document.getElementById(toggleId);
+
+                if (passwordInput && toggleIcon) {
+                    toggleIcon.addEventListener('click', () => {
+                        // Toggle the type attribute
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+
+                        // Toggle the icon class
+                        toggleIcon.classList.toggle('fa-eye');
+                        toggleIcon.classList.toggle('fa-eye-slash');
+                    });
+                }
+            }
+
+            // Initialize the toggle for all three password fields
+            setupPasswordToggle('login-password', 'toggle-login-password');
+            setupPasswordToggle('signup-password', 'toggle-signup-password');
+            setupPasswordToggle('confirm-password', 'toggle-confirm-password');
         });
     </script>
 </body>
