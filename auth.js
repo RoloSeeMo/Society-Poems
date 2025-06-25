@@ -62,6 +62,9 @@ if (googleBtn) {
 if (window.location.pathname.includes('cell-login.html')) {
     // This line is a correction. The verifier must be attached to the window
     // to be accessible by the signInWithPhoneNumber function and the reset logic.
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible'
+    });
 
     const phoneForm = document.getElementById('phone-login-form');
     // NOTE: The submit listener on the form is not ideal here because you have
@@ -91,11 +94,6 @@ if (window.location.pathname.includes('cell-login.html')) {
 
     if(sendCodeBtn) {
         sendCodeBtn.addEventListener('click', async () => {
-
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible'
-            });
-
             const countryCode = document.getElementById('country-code').value;
             const phoneInput = document.getElementById('phone-input').value;
             const phoneNumber = countryCode + phoneInput.replace(/\D/g, '');
