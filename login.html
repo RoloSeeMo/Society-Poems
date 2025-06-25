@@ -22,7 +22,7 @@
             <div id="login-view">
                 <h1>Login</h1>
                 <div id="login-message-container" class="message-container"></div>
-                <form id="login-form">
+                <form id="login-form" onsubmit="return false;">
                     <label for="login-email">Email:</label>
                     <input type="email" id="login-email" required>
                     <label for="login-password">Password:</label>
@@ -39,12 +39,12 @@
             <div id="signup-view" style="display: none;">
                 <h1>Sign Up</h1>
                 <div id="signup-message-container" class="message-container"></div>
-                <form id="signup-form">
+                <form id="signup-form" onsubmit="return false;">
                     <label for="signup-email">Email:</label>
                     <input type="email" id="signup-email" required>
                     <label for="signup-password">Password:</label>
                     <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
-                    <p class="password-requirements">Must be 6+ characters and contain an uppercase letter, a number, and a special character.</p>
+                    <p class="password-requirements">Must be 6+ characters.</p>
                     <label for="confirm-password">Confirm Password:</label>
                     <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
                     <button type="submit" class="form-button form-button-primary">Sign Up</button>
@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <!-- The single, modular script that handles all logic -->
+    <!-- The single, modular script that now handles all auth logic -->
     <script type="module" src="auth.js"></script>
 
     <!-- UI Toggling Script (can remain as simple non-module script) -->
@@ -75,6 +75,22 @@
                 signupView.style.display = 'none';
                 loginView.style.display = 'block';
             });
+            // Password visibility toggles
+            function setupPasswordToggle(inputId, toggleId) {
+                const passwordInput = document.getElementById(inputId);
+                const toggleIcon = document.getElementById(toggleId);
+                if (passwordInput && toggleIcon) {
+                    toggleIcon.addEventListener('click', () => {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+                        toggleIcon.classList.toggle('fa-eye');
+                        toggleIcon.classList.toggle('fa-eye-slash');
+                    });
+                }
+            }
+            setupPasswordToggle('login-password', 'toggle-login-password');
+            setupPasswordToggle('signup-password', 'toggle-signup-password');
+            setupPasswordToggle('confirm-password', 'toggle-confirm-password');
         });
     </script>
 </body>

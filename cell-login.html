@@ -6,7 +6,7 @@
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Images/Untitled1.png" type="image/png">
-    <!-- The reCAPTCHA script from Google -->
+    <!-- The reCAPTCHA script from Google. No other scripts needed here. -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body data-theme="night">
@@ -24,14 +24,6 @@
                         <option value="+91">India (+91)</option>
                         <option value="+61">Australia (+61)</option>
                         <option value="+86">China (+86)</option>
-                        <option value="+81">Japan (+81)</option>
-                        <option value="+49">Germany (+49)</option>
-                        <option value="+33">France (+33)</option>
-                        <option value="+52">Mexico (+52)</option>
-                        <option value="+55">Brazil (+55)</option>
-                        <option value="+7">Russia (+7)</option>
-                        <option value="+234">Nigeria (+234)</option>
-                        <option value="+27">South Africa (+27)</option>
                     </select>
 
                     <label for="phone-input">Phone Number:</label>
@@ -52,122 +44,7 @@
     <!-- This empty div is the anchor for the invisible reCAPTCHA widget -->
     <div id="recaptcha-container"></div>
 
-    <!-- 
-      THE FIX: A single, self-contained script block for this page.
-      It handles its own Firebase initialization and logic, preventing all conflicts.
-    -->
-    <script type="module">
-        // --- Modular Imports from Firebase SDK ---
-        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import {
-            getAuth,
-            onAuthStateChanged,
-            RecaptchaVerifier,
-            signInWithPhoneNumber
-        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-        // --- Firebase Configuration ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-            authDomain: "society-poems-97f4d.firebaseapp.com",
-            databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-            projectId: "society-poems-97f4d",
-            storageBucket: "society-poems-97f4d.firebasestorage.app",
-            messagingSenderId: "723670230106",
-            appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-        };
-
-        // --- Defensive Firebase App and Auth Initialization ---
-        let app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-        const auth = getAuth(app);
-
-        // --- Utility Function for showing messages ---
-        function showMessage(type, text) {
-            const container = document.getElementById('message-container');
-            if (!container) return;
-            container.className = `message-container ${type}-message`;
-            container.textContent = text;
-            container.style.display = 'block';
-        }
-
-        // Redirect user if they are already logged in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // --- Phone Auth Logic ---
-        window.confirmationResult = null;
-        const recaptchaContainer = document.getElementById('recaptcha-container');
-
-        // Initialize the verifier
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainer, {
-            'size': 'invisible'
-        });
-
-        const phoneInput = document.getElementById('phone-input');
-        const countryCodeSelect = document.getElementById('country-code');
-        const sendCodeBtn = document.getElementById('send-code-btn');
-        const verifyOtpBtn = document.getElementById('verify-otp-btn');
-        const otpInput = document.getElementById('otp-input');
-        const phoneEntryStep = document.getElementById('phone-entry-step');
-        const otpVerifyStep = document.getElementById('otp-verify-step');
-
-        // Listener for the "Send Code" button
-        sendCodeBtn.addEventListener('click', () => {
-            const countryCode = countryCodeSelect.value;
-            const digitsOnly = phoneInput.value.replace(/\D/g, ''); 
-            if (!digitsOnly) {
-                showMessage('error', 'Please enter a valid phone number.');
-                return;
-            }
-            const phoneNumber = `${countryCode}${digitsOnly}`;
-            const appVerifier = window.recaptchaVerifier;
-
-            signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-                .then((confirmationResult) => {
-                    window.confirmationResult = confirmationResult;
-                    showMessage('success', 'Verification code sent!');
-                    phoneEntryStep.style.display = 'none';
-                    otpVerifyStep.style.display = 'block';
-                })
-                .catch((error) => {
-                    showMessage('error', `SMS sending failed: ${error.message}`);
-                    if (window.grecaptcha) {
-                       window.grecaptcha.reset();
-                    }
-                });
-        });
-
-        // Listener for the "Verify Code" button
-        verifyOtpBtn.addEventListener('click', () => {
-            const code = otpInput.value;
-            if (!code || !window.confirmationResult) {
-                showMessage('error', 'Please enter the code, or request one first.');
-                return;
-            }
-            window.confirmationResult.confirm(code)
-                .catch((error) => {
-                    showMessage('error', `Invalid code: ${error.message}`);
-                });
-        });
-
-        // Auto-formatting for US phone numbers
-        phoneInput.addEventListener('input', (e) => {
-            if (countryCodeSelect.value === '+1') {
-                let input = e.target.value.replace(/\D/g, '').substring(0, 10);
-                let formattedInput = '';
-                if (input.length > 6) {
-                    formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}-${input.substring(6)}`;
-                } else if (input.length > 3) {
-                    formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}`;
-                } else {
-                    formattedInput = input;
-                }
-                e.target.value = formattedInput;
-            }
-        });
-    </script>
+    <!-- The single, modular script that handles all logic -->
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
