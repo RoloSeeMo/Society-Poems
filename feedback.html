@@ -4,195 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback - Society Poems</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="images/Untitled1.png">
-    
-    <!-- Add Firebase and Auth Protection -->
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="auth-check.js"></script>
-    
-    <style>
-        .feedback-header {
-            background: var(--primary-color);
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: var(--site-max-width);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-content h1 {
-            color: var(--secondary-color);
-            font-size: var(--font-size-x1);
-            font-weight: var(--font-weight-bold);
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-n);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-            transform: translateY(-1px);
-        }
-
-        .logout-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #toggleTheme {
-            background: var(--secondary-color);
-            color: var(--primary-color);
-            border: none;
-            padding: 10px 15px;
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-n);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        #toggleTheme:hover {
-            background: var(--primary-color-200);
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        main {
-            padding: 40px 20px;
-            min-height: calc(100vh - 200px);
-        }
-
-        @media screen and (max-width: 640px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .header-buttons {
-                flex-direction: row;
-                justify-content: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/Images/Untitled1.png">
 </head>
-<body data-theme="night">
-    <header class="feedback-header">
-        <div class="header-content">
-            <h1>📖 Society Poems - Feedback</h1>
-            <div class="header-buttons">
-                <button id="logoutBtn" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-                <button id="toggleTheme">
-                    <i class="fas fa-palette"></i> Theme
-                </button>
-            </div>
-        </div>
+<body data-theme="night" style="visibility: hidden;">
+
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <button id="menu-open-button" class="fas fa-bars"></button>
+            <ul class="nav-menu">
+                <button id="menu-close-button" class="fas fa-times"></button>
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="read.html" class="nav-link">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="feedback.html" class="nav-link active">Feedback</a></li>
+                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
-        <form id="feedbackForm" style="flex-direction: column; display: flex; max-width: 600px; margin: auto; padding: 40px 20px;">
-            <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">We'd love to hear from you!</h2>
-            
-            <label for="name" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Name:</label>
-            <input type="text" id="name" name="name" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary);">
-
-            <label for="email" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Email:</label>
-            <input type="email" id="email" name="email" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary);">
-
-            <label for="message" style="margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Message:</label>
-            <textarea id="message" name="message" rows="6" required style="padding: 12px; margin-bottom: 20px; border: 1px solid var(--input-border, #ccc); border-radius: 8px; background: var(--input-bg, #fff); color: var(--text-primary); resize: vertical;"></textarea>
-
-            <button type="submit" style="padding: 12px 24px; background: var(--primary-color); color: var(--secondary-color); border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
-                <i class="fas fa-paper-plane"></i> Submit Feedback
-            </button>
-        </form>
+        <div class="form-container" style="margin: auto;">
+            <h1>Feedback Form</h1>
+            <div id="message-container"></div>
+            <form id="feedbackForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="message">Message:</label>
+                <textarea id="message" rows="5" required></textarea>
+                <button type="submit" class="form-button form-button-primary">Submit Feedback</button>
+            </form>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2025 Society Poems</p>
     </footer>
+    
+    <!-- Firebase SDKs (Compat versions for global access) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <script type="module">
-        import { auth } from 'firebase-config.js';
-        
-        // Logout functionality with confirmation
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            if (confirm('Are you sure you want to logout?')) {
-                try {
-                    // Show loading state
-                    const logoutBtn = document.getElementById('logoutBtn');
-                    const originalText = logoutBtn.innerHTML;
-                    logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
-                    logoutBtn.disabled = true;
-                    
-                    await auth.signOut();
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    alert('Error logging out. Please try again.');
-                    
-                    // Reset button state
-                    const logoutBtn = document.getElementById('logoutBtn');
-                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-                    logoutBtn.disabled = false;
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TODO: Replace with your Firebase config.
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            // --- Shared Logic (implementation copied for self-containment) ---
+            const setupMobileMenu_impl = () => {
+                const openBtn = document.getElementById('menu-open-button');
+                const closeBtn = document.getElementById('menu-close-button');
+                const navMenu = document.querySelector('.nav-menu');
+                if (openBtn && closeBtn && navMenu) {
+                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
                 }
-            }
-        });
+            };
 
-        // Form submission with better UX
-        document.getElementById('feedbackForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Show loading state
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            submitBtn.disabled = true;
-            
-            // Simulate sending (replace with actual implementation)
-            setTimeout(() => {
-                alert('Thank you for your feedback! We appreciate your input.');
-                e.target.reset();
-                
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }, 1000);
+            const handleLogout_impl = () => {
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut().catch(error => console.error('Sign out error', error));
+                    });
+                }
+            };
+
+            const checkAuthState_impl = () => {
+                auth.onAuthStateChanged(user => {
+                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+                    if (!user && !isAuthPage) {
+                        window.location.href = 'login.html';
+                    } else if (user && isAuthPage) {
+                        window.location.href = 'index.html';
+                    } else {
+                        document.body.style.visibility = 'visible';
+                    }
+                });
+            };
+
+            // --- Feedback Page Specific Logic ---
+            const setupFeedbackForm = () => {
+                const feedbackForm = document.getElementById('feedbackForm');
+                const messageContainer = document.getElementById('message-container');
+
+                function showMessage(type, text) {
+                    if (!messageContainer) return;
+                    messageContainer.className = `message-container ${type}-message`;
+                    messageContainer.textContent = text;
+                    messageContainer.style.display = 'block';
+                }
+
+                feedbackForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const message = document.getElementById('message').value;
+                    const feedbackRef = db.ref('feedback');
+                    
+                    feedbackRef.push({
+                        name: name,
+                        email: email,
+                        message: message,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        showMessage('success', 'Thank you for your feedback!');
+                        feedbackForm.reset();
+                    }).catch(error => {
+                        showMessage('error', `Submission failed: ${error.message}`);
+                    });
+                });
+            };
+
+            // Initialize all page functions
+            setupMobileMenu_impl();
+            handleLogout_impl();
+            checkAuthState_impl();
+            setupFeedbackForm();
         });
     </script>
-    <script src="theme-toggle.js"></script>
 </body>
 </html>
