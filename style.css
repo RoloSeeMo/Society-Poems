@@ -215,7 +215,7 @@ footer {
     color: var(--text-primary) !important; /* Forces text color */
 }
 [data-theme="day"] .form-container select {
-    color: var(--black-color) !important;
+    color: black !important;
 }
 [data-theme="night"] .form-container select {
     color: var(--secondary-color) !important;
