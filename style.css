@@ -210,15 +210,18 @@ footer {
   font-size: var(--font-size-n);
 }
 
-/* NEW: Specific style to ensure dropdown text is readable */
-.form-container select {
-    color: var(--text-primary) !important; /* Forces text color */
+/* --- NEW FIX for Dropdown Option Readability --- */
+.form-container select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
-[data-theme="day"] .form-container select {
-    color: black !important;
+[data-theme="day"] .form-container select option {
+    background: #FFFFFF;
+    color: var(--black-color);
 }
-[data-theme="night"] .form-container select {
-    color: var(--secondary-color) !important;
+[data-theme="night"] .form-container select option {
+    background: var(--dark-color);
+    color: var(--secondary-color);
 }
 
 
@@ -415,6 +418,11 @@ footer {
   }
   .nav-menu.active {
       left: 0;
+  }
+  /* Rule to ensure mobile menu links have high contrast */
+  .nav-menu.active .nav-link {
+      color: var(--text-primary);
+      font-size: 1.2rem;
   }
   #menu-open-button {
       display: block;
