@@ -15,10 +15,10 @@
         .password-toggle-icon{position:absolute;right:15px;cursor:pointer;color:var(--text-secondary);}
     </style>
 </head>
-<body data-theme="night" style="visibility: hidden;">
+<body data-theme="night">
     <div class="form-page-container">
         <div class="form-container">
-            <!-- Login Form (Visible by default) -->
+            <!-- Login Form -->
             <div id="login-view">
                 <h1>Login</h1>
                 <div id="login-message-container" class="message-container"></div>
@@ -35,7 +35,7 @@
                 <p class="toggle-form-link" id="show-signup">Don't have an account? Sign Up</p>
             </div>
 
-            <!-- Signup Form (Hidden by default) -->
+            <!-- Signup Form -->
             <div id="signup-view" style="display: none;">
                 <h1>Sign Up</h1>
                 <div id="signup-message-container" class="message-container"></div>
@@ -43,18 +43,10 @@
                     <label for="signup-email">Email:</label>
                     <input type="email" id="signup-email" required>
                     <label for="signup-password">Password:</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="signup-password" required>
-                        <i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i>
-                    </div>
-                    <p class="password-requirements">
-                        Must be 6+ characters and contain an uppercase letter, a number, and a special character.
-                    </p>
+                    <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
+                    <p class="password-requirements">Must be 6+ characters and contain an uppercase letter, a number, and a special character.</p>
                     <label for="confirm-password">Confirm Password:</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="confirm-password" required>
-                        <i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i>
-                    </div>
+                    <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
                     <button type="submit" class="form-button form-button-primary">Sign Up</button>
                 </form>
                 <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
@@ -62,13 +54,13 @@
             
             <hr style="border-color: var(--border-color); margin: 20px 0;">
             
-            <!-- Shared Auth Buttons -->
             <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
             <button id="phone-signin-btn" class="form-button" style="background: #333; color: white;" onclick="window.location.href='cell-login.html'">Sign in with Phone</button>
         </div>
     </div>
 
-   <script type="module" src="auth.js"></script>
+    <!-- The single, modular script that handles all logic -->
+    <script type="module" src="auth.js"></script>
 
     <!-- UI Toggling Script (can remain as simple non-module script) -->
     <script>
