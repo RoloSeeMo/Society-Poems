@@ -6,8 +6,8 @@
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Images/Untitled1.png" type="image/png">
-    <!-- The reCAPTCHA script from Google. No other scripts needed here. -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- reCAPTCHA script is always required for phone auth -->
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body data-theme="night">
     <div class="form-page-container">
@@ -24,6 +24,14 @@
                         <option value="+91">India (+91)</option>
                         <option value="+61">Australia (+61)</option>
                         <option value="+86">China (+86)</option>
+                        <option value="+81">Japan (+81)</option>
+                        <option value="+49">Germany (+49)</option>
+                        <option value="+33">France (+33)</option>
+                        <option value="+52">Mexico (+52)</option>
+                        <option value="+55">Brazil (+55)</option>
+                        <option value="+7">Russia (+7)</option>
+                        <option value="+234">Nigeria (+234)</option>
+                        <option value="+27">South Africa (+27)</option>
                     </select>
 
                     <label for="phone-input">Phone Number:</label>
@@ -44,7 +52,89 @@
     <!-- This empty div is the anchor for the invisible reCAPTCHA widget -->
     <div id="recaptcha-container"></div>
 
-    <!-- The single, modular script that handles all logic -->
-    <script type="module" src="auth.js"></script>
+    <!-- 
+      THE FIX: Using the older "compat" Firebase libraries to match login.html
+      This creates a consistent environment and prevents the conflict error.
+    -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            // Initialize Firebase using the compat syntax
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            
+            // Utility function to show messages
+            const messageContainer = document.getElementById('message-container');
+            function showMessage(type, text) {
+                if (!messageContainer) return;
+                messageContainer.className = `message-container ${type}-message`;
+                messageContainer.textContent = text;
+                messageContainer.style.display = 'block';
+            }
+
+            // Redirect if user is already logged in
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // --- Phone Auth Logic using Compat SDK ---
+            const recaptchaContainer = document.getElementById('recaptcha-container');
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(recaptchaContainer, {
+                'size': 'invisible'
+            });
+
+            const sendCodeBtn = document.getElementById('send-code-btn');
+            const verifyOtpBtn = document.getElementById('verify-otp-btn');
+            const phoneInput = document.getElementById('phone-input');
+            const countryCodeSelect = document.getElementById('country-code');
+            const otpInput = document.getElementById('otp-input');
+
+            // Send Code Button Listener
+            sendCodeBtn.addEventListener('click', () => {
+                const phoneNumber = `${countryCodeSelect.value}${phoneInput.value.replace(/\D/g, '')}`;
+                const appVerifier = window.recaptchaVerifier;
+                
+                auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+                    .then((confirmationResult) => {
+                        window.confirmationResult = confirmationResult;
+                        showMessage('success', 'Verification code sent!');
+                        document.getElementById('phone-entry-step').style.display = 'none';
+                        document.getElementById('otp-verify-step').style.display = 'block';
+                    })
+                    .catch((error) => {
+                        showMessage('error', `SMS sending failed: ${error.message}`);
+                        // Reset the reCAPTCHA on failure
+                        grecaptcha.reset(window.recaptchaVerifier.widgetId);
+                    });
+            });
+
+            // Verify Code Button Listener
+            verifyOtpBtn.addEventListener('click', () => {
+                const code = otpInput.value;
+                if (!code || !window.confirmationResult) {
+                    showMessage('error', 'Please enter a valid code.');
+                    return;
+                }
+                window.confirmationResult.confirm(code).catch((error) => {
+                    showMessage('error', `Invalid code: ${error.message}`);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
