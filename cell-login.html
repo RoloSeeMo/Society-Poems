@@ -16,26 +16,42 @@
             <h1>Login with Phone</h1>
             <div id="message-container"></div>
             
-            <!-- Using a form tag helps with semantics, but we will control submission with JS -->
             <form id="phone-login-form" onsubmit="return false;">
                 <div id="phone-entry-step">
+                    <!-- NEW: Country Code Dropdown -->
+                    <label for="country-code">Country/Region:</label>
+                    <select id="country-code" name="country-code" class="form-container-select" required>
+                        <option value="+1" selected>United States (+1)</option>
+                        <option value="+44">United Kingdom (+44)</option>
+                        <option value="+91">India (+91)</option>
+                        <option value="+61">Australia (+61)</option>
+                        <option value="+86">China (+86)</option>
+                        <option value="+81">Japan (+81)</option>
+                        <option value="+49">Germany (+49)</option>
+                        <option value="+33">France (+33)</option>
+                        <option value="+52">Mexico (+52)</option>
+                        <option value="+55">Brazil (+55)</option>
+                        <option value="+7">Russia (+7)</option>
+                        <option value="+234">Nigeria (+234)</option>
+                        <option value="+27">South Africa (+27)</option>
+                        <!-- Add more countries as needed -->
+                    </select>
+
                     <label for="phone-input">Phone Number:</label>
-                    <input type="tel" id="phone-input" placeholder="+1 555-555-5555" required>
-                    <!-- Button type is 'button' to prevent default form validation -->
+                    <input type="tel" id="phone-input" placeholder="e.g. XXX-XXX-XXXX" required>
+                    
                     <button type="button" id="send-code-btn" class="form-button form-button-primary">Send Code</button>
                 </div>
 
                 <div id="otp-verify-step" style="display:none;">
                     <label for="otp-input">Verification Code:</label>
-                    <!-- The 'required' attribute is removed here and will be added via JS -->
                     <input type="text" id="otp-input" inputmode="numeric" placeholder="Enter OTP">
                     <button type="button" id="verify-otp-btn" class="form-button form-button-primary">Verify Code</button>
                 </div>
             </form>
-             <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Go Back</button>
+             <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Back to Email/Google</button>
         </div>
     </div>
-    <!-- This empty div is required by reCAPTCHA to function -->
     <div id="recaptcha-container"></div>
 
     <!-- Firebase SDKs (Compat versions for global access) -->
@@ -44,7 +60,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Firebase configuration object is now updated.
+            // Firebase configuration is here
             const firebaseConfig = {
                 apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
                 authDomain: "society-poems-97f4d.firebaseapp.com",
@@ -59,6 +75,7 @@
             const auth = firebase.auth();
             
             const messageContainer = document.getElementById('message-container');
+            const phoneInput = document.getElementById('phone-input');
 
             function showMessage(type, text) {
                 if (!messageContainer) return;
@@ -67,7 +84,6 @@
                 messageContainer.style.display = 'block';
             }
 
-            // --- Auth Check for Login Page ---
             auth.onAuthStateChanged(user => {
                 if (user) {
                     window.location.href = 'index.html';
@@ -75,8 +91,9 @@
                     document.body.style.visibility = 'visible';
                 }
             });
+            
+            // REMOVED: Phone number auto-formatting logic to support international numbers.
 
-            // --- Phone Auth Logic ---
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible'
             });
@@ -84,22 +101,20 @@
             const sendCodeBtn = document.getElementById('send-code-btn');
             const verifyOtpBtn = document.getElementById('verify-otp-btn');
             const otpInput = document.getElementById('otp-input');
+            const countryCodeSelect = document.getElementById('country-code');
 
             sendCodeBtn.addEventListener('click', () => {
-                // --- ROBUST FORMATTING FIX ---
-                // 1. Get the raw input from the user.
-                const rawPhoneNumber = document.getElementById('phone-input').value;
-                // 2. Remove all non-digit characters.
-                const digitsOnly = rawPhoneNumber.replace(/\D/g, '');
-                // 3. Construct the E.164 format number.
-                const phoneNumber = `+${digitsOnly}`;
+                const countryCode = countryCodeSelect.value;
+                const digitsOnly = phoneInput.value.replace(/\D/g, '');
 
-                if (!rawPhoneNumber) {
-                    showMessage('error', 'Please enter a phone number.');
+                if (!digitsOnly) {
+                    showMessage('error', 'Please enter a valid phone number.');
                     return;
                 }
-
-                console.log(`Attempting to send code to formatted number: ${phoneNumber}`); // Debugging line
+                
+                // --- FIX: Combine selected country code with the phone number ---
+                const phoneNumber = `${countryCode}${digitsOnly}`;
+                console.log(`Attempting to send code to formatted number: ${phoneNumber}`);
 
                 const appVerifier = window.recaptchaVerifier;
                 
