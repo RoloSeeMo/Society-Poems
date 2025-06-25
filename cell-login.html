@@ -6,7 +6,7 @@
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <!-- Link to your image to be used as a favicon -->
-    <link rel="icon" href="Images/Untitled1.png" type="image/png">
+    <link rel="icon" href="images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
@@ -38,7 +38,7 @@
                     </select>
 
                     <label for="phone-input">Phone Number:</label>
-                    <input type="tel" id="phone-input" placeholder="e.g. XXX-XXX-XXXX" required>
+                    <input type="tel" id="phone-input" placeholder="e.g. 555-555-5555" required>
                     
                     <button type="button" id="send-code-btn" class="form-button form-button-primary">Send Code</button>
                 </div>
@@ -76,6 +76,7 @@
             
             const messageContainer = document.getElementById('message-container');
             const phoneInput = document.getElementById('phone-input');
+            const countryCodeSelect = document.getElementById('country-code');
 
             function showMessage(type, text) {
                 if (!messageContainer) return;
@@ -92,7 +93,26 @@
                 }
             });
             
-            // REMOVED: Phone number auto-formatting logic to support international numbers.
+            // --- NEW/FIXED: Phone number auto-formatting logic ---
+            phoneInput.addEventListener('input', (e) => {
+                // Only apply auto-formatting if USA is selected
+                if (countryCodeSelect.value === '+1') {
+                    let input = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
+                    input = input.substring(0, 10); // Enforce 10 digit limit
+
+                    let formattedInput = '';
+                    if (input.length > 6) {
+                        formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}-${input.substring(6)}`;
+                    } else if (input.length > 3) {
+                        formattedInput = `${input.substring(0, 3)}-${input.substring(3, 6)}`;
+                    } else {
+                        formattedInput = input;
+                    }
+                    e.target.value = formattedInput;
+                }
+                // If other country is selected, do nothing and allow free-form input.
+            });
+
 
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible'
@@ -101,7 +121,7 @@
             const sendCodeBtn = document.getElementById('send-code-btn');
             const verifyOtpBtn = document.getElementById('verify-otp-btn');
             const otpInput = document.getElementById('otp-input');
-            const countryCodeSelect = document.getElementById('country-code');
+            
 
             sendCodeBtn.addEventListener('click', () => {
                 const countryCode = countryCodeSelect.value;
@@ -112,7 +132,7 @@
                     return;
                 }
                 
-                // --- FIX: Combine selected country code with the phone number ---
+                // Combine selected country code with the phone number
                 const phoneNumber = `${countryCode}${digitsOnly}`;
                 console.log(`Attempting to send code to formatted number: ${phoneNumber}`);
 
