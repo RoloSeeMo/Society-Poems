@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Login - Society Poems</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Link to your image to be used as a favicon -->
     <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <!-- reCAPTCHA script is required for phone auth -->
     <script src="https://www.google.com/recaptcha/api.js"></script>
@@ -26,12 +27,12 @@
 
                 <div id="otp-verify-step" style="display:none;">
                     <label for="otp-input">Verification Code:</label>
-                    <!-- CRITICAL FIX: The 'required' attribute is removed here and will be added via JS -->
+                    <!-- The 'required' attribute is removed here and will be added via JS -->
                     <input type="text" id="otp-input" inputmode="numeric" placeholder="Enter OTP">
                     <button type="button" id="verify-otp-btn" class="form-button form-button-primary">Verify Code</button>
                 </div>
             </form>
-             <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Back</button>
+             <button class="form-button" style="background: #555; color: white; margin-top: 10px;" onclick="window.location.href='login.html'">Go Back</button>
         </div>
     </div>
     <!-- This empty div is required by reCAPTCHA to function -->
@@ -43,7 +44,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // TODO: Replace with your Firebase config.
+            // Firebase configuration object is now updated.
             const firebaseConfig = {
                 apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
                 authDomain: "society-poems-97f4d.firebaseapp.com",
@@ -85,11 +86,21 @@
             const otpInput = document.getElementById('otp-input');
 
             sendCodeBtn.addEventListener('click', () => {
-                const phoneNumber = document.getElementById('phone-input').value;
-                if (!phoneNumber) {
+                // --- ROBUST FORMATTING FIX ---
+                // 1. Get the raw input from the user.
+                const rawPhoneNumber = document.getElementById('phone-input').value;
+                // 2. Remove all non-digit characters.
+                const digitsOnly = rawPhoneNumber.replace(/\D/g, '');
+                // 3. Construct the E.164 format number.
+                const phoneNumber = `+${digitsOnly}`;
+
+                if (!rawPhoneNumber) {
                     showMessage('error', 'Please enter a phone number.');
                     return;
                 }
+
+                console.log(`Attempting to send code to formatted number: ${phoneNumber}`); // Debugging line
+
                 const appVerifier = window.recaptchaVerifier;
                 
                 auth.signInWithPhoneNumber(phoneNumber, appVerifier)
@@ -98,7 +109,6 @@
                         showMessage('success', 'Verification code sent!');
                         document.getElementById('phone-entry-step').style.display = 'none';
                         document.getElementById('otp-verify-step').style.display = 'block';
-                        // CRITICAL FIX: Make the OTP input required ONLY after it's visible
                         otpInput.required = true;
                     })
                     .catch((error) => {
