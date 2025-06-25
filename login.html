@@ -4,23 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Society Poems</title>
+    <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="/Images/Untitled1.png">
+    <style>
+        /* Additional styles for the toggle link and password hint */
+        .toggle-form-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .password-requirements {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: -15px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
     <div class="form-page-container">
         <div class="form-container">
-            <h1>Login or Sign Up</h1>
-            <div id="message-container"></div>
-            
-            <form id="login-form">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-                <button type="submit" id="loginBtn" class="form-button form-button-primary">Login / Sign Up with Email</button>
-            </form>
+            <!-- Login Form (Visible by default) -->
+            <div id="login-view">
+                <h1>Login</h1>
+                <div id="login-message-container" class="message-container"></div>
+                <form id="login-form">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required>
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" required>
+                    <button type="submit" class="form-button form-button-primary">Login</button>
+                </form>
+                <p class="toggle-form-link" id="show-signup">Sign Up with Email/Password</p>
+            </div>
 
+            <!-- Signup Form (Hidden by default) -->
+            <div id="signup-view" style="display: none;">
+                <h1>Sign Up</h1>
+                <div id="signup-message-container" class="message-container"></div>
+                <form id="signup-form">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" required>
+                    <label for="signup-password">Password:</label>
+                    <input type="password" id="signup-password" required>
+                    <!-- NEW: Password requirements hint -->
+                    <p class="password-requirements">
+                        Must be 6+ characters and contain an uppercase letter, a number, and a special character.
+                    </p>
+                    <label for="confirm-password">Confirm Password:</label>
+                    <input type="password" id="confirm-password" required>
+                    <button type="submit" class="form-button form-button-primary">Sign Up</button>
+                </form>
+                <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
+            </div>
+            
+            <hr style="border-color: var(--border-color); margin: 20px 0;">
+            
+            <!-- Shared Auth Buttons -->
             <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
             <button id="phone-signin-btn" class="form-button" style="background: #333; color: white;" onclick="window.location.href='cell-login.html'">Sign in with Phone</button>
         </div>
@@ -46,45 +90,103 @@
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             
-            const messageContainer = document.getElementById('message-container');
+            const loginMessageContainer = document.getElementById('login-message-container');
+            const signupMessageContainer = document.getElementById('signup-message-container');
 
-            function showMessage(type, text) {
-                if (!messageContainer) return;
-                messageContainer.className = `message-container ${type}-message`;
-                messageContainer.textContent = text;
-                messageContainer.style.display = 'block';
+            function showMessage(container, type, text) {
+                if (!container) return;
+                container.className = `message-container ${type}-message`;
+                container.textContent = text;
+                container.style.display = 'block';
             }
 
             // --- Auth Check for Login Page ---
             auth.onAuthStateChanged(user => {
-                // If the user is already logged in, redirect them away from the login page.
                 if (user) {
                     window.location.href = 'index.html';
                 } else {
-                    // If no user, make the login form visible.
                     document.body.style.visibility = 'visible';
                 }
             });
+            
+            // --- View Toggling Logic ---
+            const loginView = document.getElementById('login-view');
+            const signupView = document.getElementById('signup-view');
+            document.getElementById('show-signup').addEventListener('click', () => {
+                loginView.style.display = 'none';
+                signupView.style.display = 'block';
+            });
+            document.getElementById('show-login').addEventListener('click', () => {
+                signupView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
 
-            // --- Email/Password Login/Signup Logic ---
+
+            // --- Email/Password Login Logic ---
             const loginForm = document.getElementById('login-form');
             if (loginForm) {
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
                     
                     auth.signInWithEmailAndPassword(email, password)
                         .catch(error => {
-                            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                                // If user doesn't exist, create an account.
-                                auth.createUserWithEmailAndPassword(email, password)
-                                    .catch(createError => {
-                                        showMessage('error', `Sign up failed: ${createError.message}`);
-                                    });
-                            } else {
-                                showMessage('error', `Login failed: ${error.message}`);
-                            }
+                            showMessage(loginMessageContainer, 'error', `Login failed: ${error.message}`);
+                        });
+                });
+            }
+
+            // --- NEW: Password Validation Function ---
+            function validatePassword(password) {
+                const errors = [];
+                if (password.length < 6) {
+                    errors.push("at least 6 characters");
+                }
+                if (!/[A-Z]/.test(password)) {
+                    errors.push("an uppercase letter");
+                }
+                if (!/[0-9]/.test(password)) {
+                    errors.push("a number");
+                }
+                // Regex for special characters
+                if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
+                    errors.push("a special character");
+                }
+
+                if (errors.length > 0) {
+                    // Joins the errors into a readable sentence.
+                    return `Password must contain ${errors.join(', ')}.`;
+                }
+                return null; // Return null if validation passes
+            }
+            
+            // --- Email/Password Sign Up Logic ---
+            const signupForm = document.getElementById('signup-form');
+            if(signupForm) {
+                signupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('signup-email').value;
+                    const password = document.getElementById('signup-password').value;
+                    const confirmPassword = document.getElementById('confirm-password').value;
+
+                    // 1. Validate password strength
+                    const passwordError = validatePassword(password);
+                    if (passwordError) {
+                        showMessage(signupMessageContainer, 'error', passwordError);
+                        return;
+                    }
+
+                    // 2. Check if passwords match
+                    if (password !== confirmPassword) {
+                        showMessage(signupMessageContainer, 'error', 'Passwords do not match.');
+                        return;
+                    }
+
+                    // 3. Create user if all checks pass
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .catch(error => {
+                            showMessage(signupMessageContainer, 'error', `Sign up failed: ${error.message}`);
                         });
                 });
             }
@@ -93,17 +195,12 @@
             const googleBtn = document.getElementById('google-signin-btn');
             if (googleBtn) {
                 googleBtn.addEventListener('click', () => {
-                    // Create a new Google provider instance
                     const provider = new firebase.auth.GoogleAuthProvider();
-                    
-                    // NEW: Set a custom parameter to always prompt for account selection
-                    provider.setCustomParameters({
-                      'prompt': 'select_account'
-                    });
-
-                    // Sign in using the popup method with the configured provider
+                    provider.setCustomParameters({ 'prompt': 'select_account' });
                     auth.signInWithPopup(provider).catch(error => {
-                        showMessage('error', `Google sign-in failed: ${error.message}`);
+                        // Display error in the currently visible form's message container
+                        const activeMessageContainer = loginView.style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
+                        showMessage(activeMessageContainer, 'error', `Google sign-in failed: ${error.message}`);
                     });
                 });
             }
