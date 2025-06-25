@@ -1,6 +1,9 @@
 // auth.js - Handles all Firebase Authentication logic
 
+// --- Modular Imports from Firebase SDK ---
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
+    getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
@@ -8,9 +11,30 @@ import {
     RecaptchaVerifier,
     signInWithPhoneNumber
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { auth } from './firebase-config.js';
 
-// --- Utility Functions for showing messages ---
+// --- Firebase Configuration (copied here for self-sufficiency) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+    authDomain: "society-poems-97f4d.firebaseapp.com",
+    databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+    projectId: "society-poems-97f4d",
+    storageBucket: "society-poems-97f4d.firebasestorage.app",
+    messagingSenderId: "723670230106",
+    appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+};
+
+// --- Defensive Firebase App and Auth Initialization ---
+// This pattern prevents "duplicate app" errors when navigating between pages.
+let app;
+if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApp(); // Use the existing app if one has been initialized.
+}
+const auth = getAuth(app); // Get a guaranteed-valid Auth instance.
+
+
+// --- Utility Function for showing messages ---
 function showMessage(type, text, containerId = 'message-container') {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -19,8 +43,7 @@ function showMessage(type, text, containerId = 'message-container') {
     container.style.display = 'block';
 }
 
-// Wrap all logic in a DOMContentLoaded listener to ensure the HTML is fully loaded
-// before the scripts try to find elements. This is a robust way to prevent race conditions.
+// --- Main Logic (runs after the page is fully loaded) ---
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Email/Password Auth Logic for login.html ---
@@ -29,21 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // Note: The original login.html has different IDs for login/signup.
-                // This logic is simplified based on the original auth.js. 
-                // For a split login/signup form, you would have separate handlers.
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (error) {
-                     // Using the specific message container from login.html
                     showMessage('error', `Login failed: ${error.message}`, 'login-message-container');
                 }
             });
         }
         
-        // --- Google Sign-in Logic for login.html ---
         const googleBtn = document.getElementById('google-signin-btn');
         if (googleBtn) {
             googleBtn.addEventListener('click', async () => {
@@ -59,15 +77,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // --- CORRECTED Phone Number Auth for cell-login.html ---
     if (window.location.pathname.includes('cell-login.html')) {
         
         window.confirmationResult = null;
-
         const recaptchaContainer = document.getElementById('recaptcha-container');
 
         if (recaptchaContainer) {
+            // Initialize the verifier with our defensively-created auth instance.
             window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainer, {
                 'size': 'invisible',
                 'callback': (response) => {
@@ -100,8 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const phoneNumber = `${countryCode}${digitsOnly}`;
-            console.log(`Attempting to send code to formatted number: ${phoneNumber}`);
-
             const appVerifier = window.recaptchaVerifier;
 
             signInWithPhoneNumber(auth, phoneNumber, appVerifier)
@@ -113,11 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch((error) => {
                     showMessage('error', `SMS sending failed: ${error.message}`);
-                    window.recaptchaVerifier.render().then(function(widgetId) {
-                        if(window.grecaptcha) {
+                    if (window.grecaptcha && window.recaptchaVerifier) {
+                       window.recaptchaVerifier.render().then((widgetId) => {
                            grecaptcha.reset(widgetId);
-                        }
-                    });
+                       });
+                    }
                 });
         });
 
