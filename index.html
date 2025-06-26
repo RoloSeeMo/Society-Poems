@@ -28,7 +28,7 @@
         <section class="hero-section">
             <div class="hero-content">
                 <h1 class="section-title">A space for all to read and write.</h1>
-                <p>Every post tells a story. Share your's.</p>
+                <p>Every post tells a story. Share yours.</p>
                 <div class="hero-buttons">
                     <a href="read.html" class="button read-here">READ</a>
                     <a href="upload.html" class="button upload-here">UPLOAD</a>
@@ -55,9 +55,9 @@
         <p>&copy; 2025 Society Poems</p>
     </footer>
 
-    <!-- Firebase SDKs (Compat versions for global access) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -75,6 +75,7 @@
             // Initialize Firebase
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
+            const db = firebase.database();
 
             // --- Shared Logic ---
             const setupMobileMenu = () => {
@@ -98,13 +99,29 @@
 
             const checkAuthState = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+                    const isAuthPage = window.location.pathname.includes('login.html');
                     if (!user && !isAuthPage) {
+                        // Not logged in and not on an auth page, send to login.
                         window.location.href = 'login.html';
                     } else if (user && isAuthPage) {
+                        // Logged in but on an auth page, redirect away.
                         window.location.href = 'index.html';
+                    } else if (user) {
+                        // --- !! NEW SECURITY CHECK !! ---
+                        // User is logged in, now verify they have a username.
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                // Username exists, show the page content.
+                                document.body.style.visibility = 'visible';
+                            } else {
+                                // No username! Force back to login to complete profile.
+                                window.location.href = 'login.html';
+                            }
+                        });
                     } else {
-                        document.body.style.visibility = 'visible';
+                        // Failsafe for non-logged-in users on non-auth pages.
+                         document.body.style.visibility = 'visible';
                     }
                 });
             };

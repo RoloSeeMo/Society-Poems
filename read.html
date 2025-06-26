@@ -57,12 +57,11 @@
             const auth = firebase.auth();
             const db = firebase.database();
 
-            // --- NEW: Admin Configuration ---
-            // TODO: Add the Firebase UIDs of your admin users to this array.
+            // --- Admin Configuration ---
             const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
             let currentUserIsAdmin = false;
 
-            // --- Shared Logic (implementation copied for self-containment) ---
+            // --- Shared Logic ---
             const setupMobileMenu_impl = () => {
                 const openBtn = document.getElementById('menu-open-button');
                 const closeBtn = document.getElementById('menu-close-button');
@@ -84,17 +83,23 @@
             
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+                    const isAuthPage = window.location.pathname.includes('login.html');
                     if (!user && !isAuthPage) {
                         window.location.href = 'login.html';
                     } else if (user && isAuthPage) {
                         window.location.href = 'index.html';
-                    } else {
-                        // NEW: Check if the logged-in user is an admin
-                        if (user) {
-                            currentUserIsAdmin = adminUIDs.includes(user.uid);
-                        }
-                        document.body.style.visibility = 'visible';
+                    } else if (user) {
+                        // --- !! NEW SECURITY CHECK !! ---
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                currentUserIsAdmin = adminUIDs.includes(user.uid);
+                                document.body.style.visibility = 'visible';
+                                loadEntries(); // Load entries only after verification
+                            } else {
+                                window.location.href = 'login.html';
+                            }
+                        });
                     }
                 });
             };
@@ -112,7 +117,6 @@
                         return;
                     }
 
-                    // Iterate over object keys to preserve them for the delete function
                     const entryKeys = Object.keys(data).reverse(); 
                     
                     entryKeys.forEach(key => {
@@ -127,15 +131,16 @@
                         const meta = document.createElement('div');
                         meta.className = 'entry-meta';
                         const date = new Date(entry.timestamp).toLocaleString();
-                        meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+                        // Display genre if it exists
+                        const genreText = entry.genre ? `, <em>${entry.genre}</em>` : '';
+                        meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>${genreText}, <em>${date}</em>`;
                         
-                        // NEW: Add delete button IF the current user is an admin
                         if (currentUserIsAdmin) {
                             const deleteBtn = document.createElement('button');
                             deleteBtn.className = 'delete-btn';
-                            deleteBtn.innerHTML = '&times;'; // A simple 'x' character
+                            deleteBtn.innerHTML = '&times;';
                             deleteBtn.title = 'Delete this entry';
-                            deleteBtn.dataset.key = key; // Store the database key on the button
+                            deleteBtn.dataset.key = key;
                             div.appendChild(deleteBtn);
                         }
 
@@ -145,23 +150,14 @@
                     });
                 });
 
-                // NEW: Add a single event listener to the container for deleting entries
                 entriesContainer.addEventListener('click', (e) => {
-                    // Check if a delete button was clicked
                     if (e.target && e.target.classList.contains('delete-btn')) {
                         const entryKey = e.target.dataset.key;
-                        // Ask for confirmation before deleting
                         if (entryKey && confirm('Are you sure you want to permanently delete this entry?')) {
                             const entryRef = db.ref('uploads/' + entryKey);
                             entryRef.remove()
-                                .then(() => {
-                                    console.log("Entry deleted successfully.");
-                                    // The 'onValue' listener will automatically update the UI.
-                                })
-                                .catch((error) => {
-                                    console.error("Error deleting entry:", error);
-                                    alert("Failed to delete the entry. Check console for details.");
-                                });
+                                .then(() => console.log("Entry deleted successfully."))
+                                .catch((error) => console.error("Error deleting entry:", error));
                         }
                     }
                 });
@@ -171,7 +167,7 @@
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();
-            loadEntries();
+            // `loadEntries` is now called from within `checkAuthState_impl`
         });
     </script>
 </body>
