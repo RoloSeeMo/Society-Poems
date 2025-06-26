@@ -89,7 +89,7 @@
                     } else if (user && isAuthPage) {
                         window.location.href = 'index.html';
                     } else if (user) {
-                        // --- !! NEW SECURITY CHECK !! ---
+                        // --- Security Check ---
                         const userRef = db.ref('users/' + user.uid);
                         userRef.once('value', (snapshot) => {
                             if (snapshot.exists() && snapshot.val().username) {
@@ -110,46 +110,75 @@
                 const entriesRef = db.ref('uploads');
 
                 entriesRef.on('value', (snapshot) => {
-                    entriesContainer.innerHTML = '';
+                    entriesContainer.innerHTML = ''; // Clear previous content
                     const data = snapshot.val();
                     if (!data) {
                         entriesContainer.innerHTML = '<p>No entries yet. Be the first!</p>';
                         return;
                     }
 
-                    const entryKeys = Object.keys(data).reverse(); 
-                    
-                    entryKeys.forEach(key => {
+                    // --- NEW: Group entries by genre ---
+                    const genres = {};
+                    for (const key in data) {
                         const entry = data[key];
-                        const div = document.createElement('div');
-                        div.className = 'entry';
+                        const entryGenre = entry.genre || 'Uncategorized'; // Default for old posts
                         
-                        const content = document.createElement('p');
-                        content.className = 'entry-content';
-                        content.innerText = entry.content;
-                        
-                        const meta = document.createElement('div');
-                        meta.className = 'entry-meta';
-                        const date = new Date(entry.timestamp).toLocaleString();
-                        // Display genre if it exists
-                        const genreText = entry.genre ? `, <em>${entry.genre}</em>` : '';
-                        meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>${genreText}, <em>${date}</em>`;
-                        
-                        if (currentUserIsAdmin) {
-                            const deleteBtn = document.createElement('button');
-                            deleteBtn.className = 'delete-btn';
-                            deleteBtn.innerHTML = '&times;';
-                            deleteBtn.title = 'Delete this entry';
-                            deleteBtn.dataset.key = key;
-                            div.appendChild(deleteBtn);
+                        if (!genres[entryGenre]) {
+                            genres[entryGenre] = [];
                         }
+                        // Add the database key to the entry object for deletion
+                        entry.dbKey = key; 
+                        genres[entryGenre].push(entry);
+                    }
 
-                        div.appendChild(content);
-                        div.appendChild(meta);
-                        entriesContainer.appendChild(div);
-                    });
+                    // --- NEW: Display entries grouped by genre ---
+                    for (const genreName in genres) {
+                        // Create a container for the genre
+                        const genreSection = document.createElement('div');
+                        genreSection.className = 'genre-section';
+
+                        // Create the title for the genre
+                        const genreTitle = document.createElement('h2');
+                        genreTitle.className = 'genre-title';
+                        genreTitle.textContent = genreName;
+                        genreSection.appendChild(genreTitle);
+
+                        // Sort entries in this genre by timestamp (newest first)
+                        const sortedEntries = genres[genreName].sort((a, b) => b.timestamp - a.timestamp);
+
+                        // Create and append each entry to this genre's section
+                        sortedEntries.forEach(entry => {
+                            const div = document.createElement('div');
+                            div.className = 'entry';
+                            
+                            const content = document.createElement('p');
+                            content.className = 'entry-content';
+                            content.innerText = entry.content;
+                            
+                            const meta = document.createElement('div');
+                            meta.className = 'entry-meta';
+                            const date = new Date(entry.timestamp).toLocaleString();
+                            meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+                            
+                            if (currentUserIsAdmin) {
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'delete-btn';
+                                deleteBtn.innerHTML = '&times;';
+                                deleteBtn.title = 'Delete this entry';
+                                deleteBtn.dataset.key = entry.dbKey; // Use the stored key
+                                div.appendChild(deleteBtn);
+                            }
+
+                            div.appendChild(content);
+                            div.appendChild(meta);
+                            genreSection.appendChild(div);
+                        });
+
+                        entriesContainer.appendChild(genreSection);
+                    }
                 });
 
+                // Event listener for deletion remains the same
                 entriesContainer.addEventListener('click', (e) => {
                     if (e.target && e.target.classList.contains('delete-btn')) {
                         const entryKey = e.target.dataset.key;
@@ -163,11 +192,10 @@
                 });
             };
 
-            // Initialize all page functions
+            // Initializing page functions
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();
-            // `loadEntries` is now called from within `checkAuthState_impl`
         });
     </script>
 </body>

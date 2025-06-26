@@ -393,6 +393,26 @@ footer {
     color: var(--primary-color-400);
     border-color: var(--secondary-color);
 }
+
+.genre-section {
+  margin-bottom: 60px; /* Adds space between genre groups */
+}
+
+.genre-title {
+  font-size: var(--font-size-l);
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Minor adjustment to entry margin to look good within sections */
+.genre-section .entry {
+  margin-bottom: 25px;
+}
+
+
+
 [data-theme="night"] .upload-here:hover {
     background: var(--primary-color-200);
     color: var(--black-color);
