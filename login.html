@@ -32,6 +32,8 @@
                     <button type="submit" class="form-button form-button-primary">Login</button>
                 </form>
                 <p class="toggle-form-link" id="show-signup">Don't have an account? Sign Up</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
             </div>
 
             <div id="signup-view" style="display: none;">
@@ -48,6 +50,8 @@
                     <button type="submit" class="form-button form-button-primary">Sign Up</button>
                 </form>
                 <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign up with Google</button>
             </div>
 
             <div id="create-username-view" style="display: none;">
@@ -58,12 +62,10 @@
                     <input type="text" id="username" required>
                     <button type="submit" class="form-button form-button-primary">Save Username</button>
                 </form>
+                <button id="back-to-login-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
             </div>
-            
-            <hr style="border-color: var(--border-color); margin: 20px 0;">
-            
-            <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
-            </div>
+
+        </div>
     </div>
 
     <script type="module" src="auth.js"></script>
@@ -82,6 +84,17 @@
             document.getElementById('show-login').addEventListener('click', () => {
                 signupView.style.display = 'none';
                 loginView.style.display = 'block';
+            });
+
+            // NEW: Back button functionality
+            document.getElementById('back-to-login-btn').addEventListener('click', () => {
+                createUsernameView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
+
+            // Re-link the Google button on the signup form
+            document.getElementById('google-signin-btn-signup').addEventListener('click', () => {
+                document.getElementById('google-signin-btn').click();
             });
 
             // Password visibility toggles
