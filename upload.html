@@ -28,26 +28,21 @@
             <h1>✍️ Upload Your Writing</h1>
             <div id="message-container"></div>
             <form id="uploadForm">
-                <label for="privacy">Privacy:</label>
-                <select id="privacy" required>
-                    <option value="" disabled selected>-- Select --</option>
-                    <option value="anonymous">Anonymous</option>
-                    <option value="named">Named</option>
+                <p style="text-align: center; margin-bottom: 20px;">Posting as: <strong id="author-name">Loading...</strong></p>
+
+                <label for="genre">Genre:</label>
+                <select id="genre" required>
+                    <option value="" disabled selected>-- Select a Genre --</option>
+                    <option value="Poetry">Poetry</option>
+                    <option value="Prose">Prose</option>
+                    <option value="Freeform">Freeform</option>
+                    <option value="Short Story">Short Story</option>
+                    <option value="Musings">Musings</option>
                 </select>
-                
-                <!-- This field is dynamically controlled by the script below -->
-                <div id="nameField" style="display:none;">
-                    <label for="username">Your Name:</label>
-                    <input type="text" id="username" maxlength="25" placeholder="e.g. Maya Angelou">
-                    <!-- This note appears for Google/Email users -->
-                    <p id="auto-name-note" style="font-size: 0.8rem; color: var(--gray-color); display: none; margin-top: -15px; margin-bottom: 15px;">
-                        Your display name is used automatically.
-                    </p>
-                </div>
                 
                 <label for="content">Your Writing:</label>
                 <textarea id="content" rows="10" placeholder="Let your soul speak..." required></textarea>
-                <button type="submit" class="form-button form-button-primary">Submit</button>
+                <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Submit</button>
             </form>
         </div>
     </main>
@@ -76,8 +71,9 @@
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.database();
+            let currentUsername = null; // Variable to hold the fetched username
             
-            // --- Shared Logic (implementation copied for self-containment) ---
+            // --- Shared Logic ---
              const setupMobileMenu_impl = () => {
                 const openBtn = document.getElementById('menu-open-button');
                 const closeBtn = document.getElementById('menu-close-button');
@@ -99,74 +95,57 @@
             
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
-                    if (!user && !isAuthPage) {
+                    if (!user) {
                         window.location.href = 'login.html';
-                    } else if (user && isAuthPage) {
-                        window.location.href = 'index.html';
                     } else {
+                        // --- NEW: Fetch the user's username ---
+                        fetchUsername(user.uid);
                         document.body.style.visibility = 'visible';
                     }
+                });
+            };
+
+            // --- NEW: Function to get the username from the database ---
+            const fetchUsername = (uid) => {
+                const userRef = db.ref('users/' + uid + '/username');
+                userRef.once('value', (snapshot) => {
+                    const username = snapshot.val();
+                    const authorNameEl = document.getElementById('author-name');
+                    const submitBtn = document.getElementById('submit-btn');
+
+                    if (username) {
+                        currentUsername = username;
+                        authorNameEl.textContent = username;
+                        submitBtn.disabled = false; // Enable submission
+                    } else {
+                        // This case handles users who signed up before the username feature
+                        authorNameEl.textContent = "No username set. Please contact support.";
+                        // Keep the submit button disabled
+                    }
+                }).catch(error => {
+                    console.error("Failed to fetch username:", error);
+                    document.getElementById('author-name').textContent = "Error loading username.";
                 });
             };
 
             // --- Upload Page Specific Logic ---
             const setupUploadForm = () => {
                 const uploadForm = document.getElementById('uploadForm');
-                const privacySelect = document.getElementById('privacy');
-                const nameField = document.getElementById('nameField');
-                const usernameInput = document.getElementById('username');
-                const autoNameNote = document.getElementById('auto-name-note');
                 const messageContainer = document.getElementById('message-container');
-
-                // --- NEW LOGIC: This event listener handles the dynamic name field ---
-                privacySelect.addEventListener('change', () => {
-                    const user = auth.currentUser;
-                    if (privacySelect.value === 'named' && user) {
-                        // Check if the user's primary login method is phone
-                        const isPhoneUser = user.providerData.some(provider => provider.providerId === 'phone');
-
-                        if (isPhoneUser) {
-                            // Phone User: Prompt for manual name entry
-                            nameField.style.display = 'block';
-                            usernameInput.value = ''; // Clear any previous value
-                            usernameInput.disabled = false;
-                            autoNameNote.style.display = 'none';
-                        } else {
-                            // Email or Google User: Auto-populate their name
-                            nameField.style.display = 'block';
-                            let autoName = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-                            usernameInput.value = autoName;
-                            usernameInput.disabled = true; // Prevent user from editing
-                            autoNameNote.style.display = 'block';
-                        }
-                    } else {
-                        // "Anonymous" or no user: Hide the field
-                        nameField.style.display = 'none';
-                    }
-                });
 
                 uploadForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const user = auth.currentUser;
-                    if (!user) {
-                        showMessage('error', 'You must be logged in.'); return;
-                    }
-                    const content = document.getElementById('content').value.trim();
-                    if (!content) {
-                         showMessage('error', 'Content cannot be empty.'); return;
+                    if (!user || !currentUsername) {
+                        showMessage('error', 'Cannot submit without a valid user and username.');
+                        return;
                     }
 
-                    // --- NEW LOGIC: Determine the name based on the selection ---
-                    let name;
-                    if (privacySelect.value === 'named') {
-                        // The value will either be auto-populated (and disabled) or entered by a phone user.
-                        name = usernameInput.value.trim();
-                        if (!name) {
-                            showMessage('error', 'Please enter a name.'); return;
-                        }
-                    } else {
-                        name = 'Anonymous';
+                    const content = document.getElementById('content').value.trim();
+                    const genre = document.getElementById('genre').value;
+                    
+                    if (!content || !genre) {
+                         showMessage('error', 'All fields are required.'); return;
                     }
 
                     const uploadsRef = db.ref('uploads');
@@ -174,12 +153,12 @@
                     uploadsRef.push({
                         uid: user.uid,
                         content: content,
-                        name: name,
+                        name: currentUsername, // Use the fetched username
+                        genre: genre, // Add the genre
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
                         showMessage('success', 'Submitted successfully!');
                         uploadForm.reset();
-                        nameField.style.display = 'none';
                     }).catch(error => {
                         showMessage('error', `Submission failed: ${error.message}`);
                     });
