@@ -12,7 +12,7 @@ import {
     RecaptchaVerifier,
     signInWithPhoneNumber
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -35,7 +35,7 @@ onAuthStateChanged(auth, (user) => {
     const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
     if (user && isAuthPage) {
         // We will now handle redirection manually after username creation
-        // window.location.href = 'index.html'; 
+        // window.location.href = 'index.html';
     }
 });
 
@@ -102,12 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider)
                 .then((result) => {
-                    // Check if this is a new user
+                    const user = result.user;
                     const isNewUser = result.additionalUserInfo?.isNewUser;
+
                     if (isNewUser) {
+                        // If it's a brand new user, always show the username form.
                         showCreateUsernameForm();
                     } else {
-                        window.location.href = 'index.html';
+                        // --- NEW LOGIC: For returning users, check if they have a username ---
+                        const userRef = ref(db, 'users/' + user.uid + '/username');
+                        get(userRef).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                // Username exists, proceed to the app.
+                                window.location.href = 'index.html';
+                            } else {
+                                // Returning user, but no username found in the database.
+                                showCreateUsernameForm();
+                            }
+                        });
                     }
                 })
                 .catch(error => {
@@ -146,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const countryCode = document.getElementById('country-code').value;
             const phoneInput = document.getElementById('phone-input').value;
             const phoneNumber = `${countryCode}${phoneInput.replace(/\D/g, '')}`;
-            
+
             signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
                 .then(confirmationResult => {
                     window.confirmationResult = confirmationResult;
@@ -169,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (isNewUser) {
                             showCreateUsernameForm();
                         } else {
+                            // You could add the same DB check here for phone users if needed
                             window.location.href = 'index.html';
                         }
                     })
