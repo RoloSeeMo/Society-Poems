@@ -103,24 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
             signInWithPopup(auth, provider)
                 .then((result) => {
                     const user = result.user;
-                    const isNewUser = result.additionalUserInfo?.isNewUser;
-
-                    if (isNewUser) {
-                        // If it's a brand new user, always show the username form.
-                        showCreateUsernameForm();
-                    } else {
-                        // --- NEW LOGIC: For returning users, check if they have a username ---
-                        const userRef = ref(db, 'users/' + user.uid + '/username');
-                        get(userRef).then((snapshot) => {
-                            if (snapshot.exists()) {
-                                // Username exists, proceed to the app.
-                                window.location.href = 'index.html';
-                            } else {
-                                // Returning user, but no username found in the database.
-                                showCreateUsernameForm();
-                            }
-                        });
-                    }
+                    // --- ROBUST LOGIC: Always check the database for a username ---
+                    const userRef = ref(db, 'users/' + user.uid);
+                    get(userRef).then((snapshot) => {
+                        if (snapshot.exists() && snapshot.val().username) {
+                            // Username exists, proceed to the app.
+                            window.location.href = 'index.html';
+                        } else {
+                            // No username found in the database, prompt user to create one.
+                            showCreateUsernameForm();
+                        }
+                    });
                 })
                 .catch(error => {
                     const activeContainer = document.getElementById('login-view').style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
@@ -177,13 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (code && window.confirmationResult) {
                 window.confirmationResult.confirm(code)
                     .then((result) => {
-                        const isNewUser = result.additionalUserInfo?.isNewUser;
-                        if (isNewUser) {
-                            showCreateUsernameForm();
-                        } else {
-                            // You could add the same DB check here for phone users if needed
-                            window.location.href = 'index.html';
-                        }
+                        // --- Applying same robust logic for phone users ---
+                        const user = result.user;
+                        const userRef = ref(db, 'users/' + user.uid);
+                        get(userRef).then((snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                window.location.href = 'index.html';
+                            } else {
+                                showCreateUsernameForm();
+                            }
+                        });
                     })
                     .catch(error => showMessage('error', `Invalid code: ${error.message}`, messageContainer));
             } else {
