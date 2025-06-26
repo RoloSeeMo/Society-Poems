@@ -95,12 +95,25 @@
             
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    if (!user) {
+                    const isAuthPage = window.location.pathname.includes('login.html');
+                    if (!user && !isAuthPage) {
                         window.location.href = 'login.html';
-                    } else {
-                        // --- NEW: Fetch the user's username ---
-                        fetchUsername(user.uid);
-                        document.body.style.visibility = 'visible';
+                    } else if (user && isAuthPage) {
+                        window.location.href = 'index.html';
+                    } else if (user) {
+                        // --- !! NEW SECURITY CHECK !! ---
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                // On the upload page, we need to fetch the username after validation
+                                if(typeof fetchUsername === 'function') {
+                                    fetchUsername(user.uid);
+                                }
+                                document.body.style.visibility = 'visible';
+                            } else {
+                                window.location.href = 'login.html';
+                            }
+                        });
                     }
                 });
             };
