@@ -3,14 +3,14 @@
 // --- Modular Imports from Firebase SDK ---
 import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-    getAuth,
-    onAuthStateChanged,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
+    getAuth,
     GoogleAuthProvider,
-    signInWithPopup,
+    onAuthStateChanged,
     RecaptchaVerifier,
-    signInWithPhoneNumber
+    signInWithEmailAndPassword,
+    signInWithPhoneNumber,
+    signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { get, getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
