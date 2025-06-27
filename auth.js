@@ -1,7 +1,7 @@
 // auth.js - A single, consolidated file for all Firebase Authentication logic.
 
 // --- Modular Imports from Firebase SDK ---
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
     getAuth,
     onAuthStateChanged,
@@ -12,7 +12,7 @@ import {
     RecaptchaVerifier,
     signInWithPhoneNumber
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { get, getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -100,6 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         googleBtn.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
+            
+            // --- !! NEW !! ---
+            // This line forces the account chooser to always appear.
+            provider.setCustomParameters({
+              prompt: 'select_account'
+            });
+
             signInWithPopup(auth, provider)
                 .then((result) => {
                     const user = result.user;
@@ -183,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                     .catch(error => showMessage('error', `Invalid code: ${error.message}`, messageContainer));
             } else {
-                 showMessage('error', 'Please enter a valid code.', messageContainer);
+                showMessage('error', 'Please enter a valid code.', messageContainer);
             }
         });
     }
