@@ -1,0 +1,30 @@
+# .github/workflows/cleanup.yml
+# This workflow runs a script to clean up orphaned users from the database.
+
+name: Clean Up Orphaned Database Users
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+  schedule:
+    - cron: '0 4 * * 0' # Runs at 4:00 AM UTC every Sunday
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Using a stable version of Node.js
+
+      - name: Create Service Account Key File from Secret
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+
+      - name: Install Dependencies for Sync Script
+        run: npm install firebase-admin
+
+      - name: Run the User Cleanup Script
+        run: node syncUsers.js
