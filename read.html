@@ -56,7 +56,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Firebase and App Initialization ---
             const firebaseConfig = {
                 apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
                 authDomain: "society-poems-97f4d.firebaseapp.com",
@@ -72,16 +71,13 @@
             const db = firebase.database();
             const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
             let currentUserIsAdmin = false;
-            let allEntries = null; // Cache for all entries
+            let allEntries = null;
 
-            // --- UI Elements ---
             const genreSelectionView = document.getElementById('genre-selection-view');
             const entriesView = document.getElementById('entries-view');
             const entriesContainer = document.getElementById('entriesContainer');
             const genreButtonsContainer = document.getElementById('genre-buttons-container');
             const backToGenresBtn = document.getElementById('back-to-genres-btn');
-            
-            // --- Core Functions ---
             
             const fetchAllEntriesAndDisplayGenres = () => {
                 const entriesRef = db.ref('uploads');
@@ -92,19 +88,26 @@
                         return;
                     }
 
-                    const genres = new Set();
+                    // --- NEW: Calculate genre counts ---
+                    const genreCounts = {};
                     for (const key in allEntries) {
-                        genres.add(allEntries[key].genre || 'Uncategorized');
+                        const genre = allEntries[key].genre || 'Uncategorized';
+                        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
                     }
                     
                     genreButtonsContainer.innerHTML = '';
-                    genres.forEach(genreName => {
+                    for (const genreName in genreCounts) {
+                        const count = genreCounts[genreName];
+                        
                         const button = document.createElement('button');
                         button.className = 'genre-button';
-                        button.textContent = genreName;
                         button.dataset.genre = genreName;
+                        
+                        // Set the button's content with a span for the count
+                        button.innerHTML = `${genreName} <span class="genre-count">${count}</span>`;
+                        
                         genreButtonsContainer.appendChild(button);
-                    });
+                    }
                 }, (error) => {
                     console.error(error);
                     genreButtonsContainer.innerHTML = '<p>Error loading genres.</p>';
@@ -126,7 +129,7 @@
                 for (const key in allEntries) {
                     const entry = allEntries[key];
                     if ((entry.genre || 'Uncategorized') === selectedGenre) {
-                        entry.dbKey = key; // Attach the key to the object
+                        entry.dbKey = key;
                         entriesForGenre.push(entry);
                     }
                 }
@@ -175,7 +178,7 @@
                         userRef.once('value', (snapshot) => {
                             if (snapshot.exists() && snapshot.val().username) {
                                 currentUserIsAdmin = adminUIDs.includes(user.uid);
-                                document.body.style.visibility = 'visible'; // This should now execute
+                                document.body.style.visibility = 'visible';
                                 fetchAllEntriesAndDisplayGenres();
                             } else {
                                 window.location.href = 'login.html';
@@ -185,10 +188,10 @@
                 });
             };
 
-            // --- Event Listeners ---
             genreButtonsContainer.addEventListener('click', (e) => {
-                if (e.target && e.target.classList.contains('genre-button')) {
-                    loadEntriesByGenre(e.target.dataset.genre);
+                const button = e.target.closest('.genre-button');
+                if (button) {
+                    loadEntriesByGenre(button.dataset.genre);
                 }
             });
 
@@ -221,7 +224,6 @@
                 });
             }
             
-            // --- Initialize Page ---
             checkAuthState();
         });
     </script>

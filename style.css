@@ -431,6 +431,23 @@ footer {
   cursor: pointer;
   transition: all var(--transition-speed);
   text-align: center;
+  /* Make the genre button a positioning container */
+  position: relative; /* This is crucial for positioning the count */
+  padding-bottom: 35px; /* Add extra padding at the bottom for the count */
+}
+
+/* Style for the post count number */
+.genre-count {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--secondary-color);
+  padding: 3px 8px;
+  border-radius: 10px;
+  line-height: 1;
 }
 
 .genre-button:hover {
