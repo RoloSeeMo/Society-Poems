@@ -25,10 +25,24 @@
 
     <main>
         <section class="section-content">
-            <h1 class="section-title">Submissions</h1>
-            <div id="entriesContainer">
-                <p>Loading entries...</p>
+            
+            <div id="genre-selection-view">
+                <h1 class="section-title">Choose a Genre</h1>
+                <div id="genre-buttons-container" class="genre-buttons-container">
+                    <p>Loading genres...</p>
+                </div>
             </div>
+
+            <div id="entries-view" style="display: none;">
+                <div class="entries-header">
+                    <button id="back-to-genres-btn" class="back-button">&larr; Back to Genres</button>
+                    <h1 id="entries-view-title" class="section-title" style="margin-top: 0;"></h1>
+                </div>
+                <div id="entriesContainer">
+                    <p>Loading entries...</p>
+                </div>
+            </div>
+
         </section>
     </main>
 
@@ -42,7 +56,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // TODO: Replace with your Firebase config.
             const firebaseConfig = {
                 apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
                 authDomain: "society-poems-97f4d.firebaseapp.com",
@@ -56,46 +69,32 @@
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.database();
-
-            // --- Admin Configuration ---
             const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
             let currentUserIsAdmin = false;
+            let allEntries = null; // Cache for all entries
+
+            // --- Views and UI Elements ---
+            const genreSelectionView = document.getElementById('genre-selection-view');
+            const entriesView = document.getElementById('entries-view');
+            const entriesContainer = document.getElementById('entriesContainer');
+            const genreButtonsContainer = document.getElementById('genre-buttons-container');
+            const backToGenresBtn = document.getElementById('back-to-genres-btn');
 
             // --- Shared Logic ---
-            const setupMobileMenu_impl = () => {
-                const openBtn = document.getElementById('menu-open-button');
-                const closeBtn = document.getElementById('menu-close-button');
-                const navMenu = document.querySelector('.nav-menu');
-                if (openBtn && closeBtn && navMenu) {
-                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
-                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
-                }
-            };
-
-            const handleLogout_impl = () => {
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', () => {
-                        auth.signOut().catch(error => console.error('Sign out error', error));
-                    });
-                }
-            };
+            const setupMobileMenu_impl = () => { /* ... same as before ... */ };
+            const handleLogout_impl = () => { /* ... same as before ... */ };
             
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html');
-                    if (!user && !isAuthPage) {
+                    if (!user) {
                         window.location.href = 'login.html';
-                    } else if (user && isAuthPage) {
-                        window.location.href = 'index.html';
-                    } else if (user) {
-                        // --- Security Check ---
+                    } else {
                         const userRef = db.ref('users/' + user.uid);
                         userRef.once('value', (snapshot) => {
                             if (snapshot.exists() && snapshot.val().username) {
                                 currentUserIsAdmin = adminUIDs.includes(user.uid);
                                 document.body.style.visibility = 'visible';
-                                loadEntries(); // Load entries only after verification
+                                fetchAllEntriesAndDisplayGenres();
                             } else {
                                 window.location.href = 'login.html';
                             }
@@ -104,95 +103,114 @@
                 });
             };
 
-            // --- Read Page Specific Logic ---
-            const loadEntries = () => {
-                const entriesContainer = document.getElementById('entriesContainer');
+            // --- NEW: Step 1 - Fetch all entries once and generate genre buttons ---
+            const fetchAllEntriesAndDisplayGenres = () => {
                 const entriesRef = db.ref('uploads');
-
                 entriesRef.on('value', (snapshot) => {
-                    entriesContainer.innerHTML = ''; // Clear previous content
-                    const data = snapshot.val();
-                    if (!data) {
-                        entriesContainer.innerHTML = '<p>No entries yet. Be the first!</p>';
+                    allEntries = snapshot.val(); // Store all entries in the cache
+                    if (!allEntries) {
+                        genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
                         return;
                     }
 
-                    // --- NEW: Group entries by genre ---
-                    const genres = {};
-                    for (const key in data) {
-                        const entry = data[key];
-                        const entryGenre = entry.genre || 'Uncategorized'; // Default for old posts
-                        
-                        if (!genres[entryGenre]) {
-                            genres[entryGenre] = [];
-                        }
-                        // Add the database key to the entry object for deletion
-                        entry.dbKey = key; 
-                        genres[entryGenre].push(entry);
+                    const genres = new Set();
+                    for (const key in allEntries) {
+                        genres.add(allEntries[key].genre || 'Uncategorized');
                     }
-
-                    // --- NEW: Display entries grouped by genre ---
-                    for (const genreName in genres) {
-                        // Create a container for the genre
-                        const genreSection = document.createElement('div');
-                        genreSection.className = 'genre-section';
-
-                        // Create the title for the genre
-                        const genreTitle = document.createElement('h2');
-                        genreTitle.className = 'genre-title';
-                        genreTitle.textContent = genreName;
-                        genreSection.appendChild(genreTitle);
-
-                        // Sort entries in this genre by timestamp (newest first)
-                        const sortedEntries = genres[genreName].sort((a, b) => b.timestamp - a.timestamp);
-
-                        // Create and append each entry to this genre's section
-                        sortedEntries.forEach(entry => {
-                            const div = document.createElement('div');
-                            div.className = 'entry';
-                            
-                            const content = document.createElement('p');
-                            content.className = 'entry-content';
-                            content.innerText = entry.content;
-                            
-                            const meta = document.createElement('div');
-                            meta.className = 'entry-meta';
-                            const date = new Date(entry.timestamp).toLocaleString();
-                            meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
-                            
-                            if (currentUserIsAdmin) {
-                                const deleteBtn = document.createElement('button');
-                                deleteBtn.className = 'delete-btn';
-                                deleteBtn.innerHTML = '&times;';
-                                deleteBtn.title = 'Delete this entry';
-                                deleteBtn.dataset.key = entry.dbKey; // Use the stored key
-                                div.appendChild(deleteBtn);
-                            }
-
-                            div.appendChild(content);
-                            div.appendChild(meta);
-                            genreSection.appendChild(div);
-                        });
-
-                        entriesContainer.appendChild(genreSection);
-                    }
-                });
-
-                // Event listener for deletion remains the same
-                entriesContainer.addEventListener('click', (e) => {
-                    if (e.target && e.target.classList.contains('delete-btn')) {
-                        const entryKey = e.target.dataset.key;
-                        if (entryKey && confirm('Are you sure you want to permanently delete this entry?')) {
-                            const entryRef = db.ref('uploads/' + entryKey);
-                            entryRef.remove()
-                                .then(() => console.log("Entry deleted successfully."))
-                                .catch((error) => console.error("Error deleting entry:", error));
-                        }
-                    }
+                    
+                    genreButtonsContainer.innerHTML = ''; // Clear loading message
+                    genres.forEach(genreName => {
+                        const button = document.createElement('button');
+                        button.className = 'genre-button';
+                        button.textContent = genreName;
+                        button.dataset.genre = genreName;
+                        genreButtonsContainer.appendChild(button);
+                    });
+                }, (error) => {
+                    console.error(error);
+                    genreButtonsContainer.innerHTML = '<p>Error loading genres.</p>';
                 });
             };
 
-            // Initializing page functions
+            // --- NEW: Step 2 - Load and display entries for a specific genre ---
+            const loadEntriesByGenre = (selectedGenre) => {
+                genreSelectionView.style.display = 'none';
+                entriesView.style.display = 'block';
+                document.getElementById('entries-view-title').textContent = selectedGenre;
+                entriesContainer.innerHTML = '';
+
+                if (!allEntries) {
+                    entriesContainer.innerHTML = '<p>No entries found.</p>';
+                    return;
+                }
+                
+                let entriesForGenre = Object.values(allEntries).filter(entry => (entry.genre || 'Uncategorized') === selectedGenre);
+                entriesForGenre.sort((a, b) => b.timestamp - a.timestamp); // Sort newest first
+
+                if (entriesForGenre.length === 0) {
+                    entriesContainer.innerHTML = `<p>No entries found for the genre "${selectedGenre}".</p>`;
+                    return;
+                }
+
+                entriesForGenre.forEach(entry => {
+                    // This is where you would get the database key if you weren't caching
+                    // For now, let's find the key from the cached object
+                    const dbKey = Object.keys(allEntries).find(key => allEntries[key] === entry);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'entry';
+                    
+                    const content = document.createElement('p');
+                    content.className = 'entry-content';
+                    content.innerText = entry.content;
+                    
+                    const meta = document.createElement('div');
+                    meta.className = 'entry-meta';
+                    const date = new Date(entry.timestamp).toLocaleString();
+                    meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+                    
+                    if (currentUserIsAdmin) {
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = '&times;';
+                        deleteBtn.title = 'Delete this entry';
+                        deleteBtn.dataset.key = dbKey;
+                        div.appendChild(deleteBtn);
+                    }
+
+                    div.appendChild(content);
+                    div.appendChild(meta);
+                    entriesContainer.appendChild(div);
+                });
+            };
+            
+            // --- NEW: Event Listeners for new UI ---
+            genreButtonsContainer.addEventListener('click', (e) => {
+                if (e.target && e.target.classList.contains('genre-button')) {
+                    const genre = e.target.dataset.genre;
+                    loadEntriesByGenre(genre);
+                }
+            });
+
+            backToGenresBtn.addEventListener('click', () => {
+                entriesView.style.display = 'none';
+                genreSelectionView.style.display = 'block';
+            });
+
+            entriesContainer.addEventListener('click', (e) => {
+                if (e.target && e.target.classList.contains('delete-btn')) {
+                    const entryKey = e.target.dataset.key;
+                    if (entryKey && confirm('Are you sure you want to permanently delete this entry?')) {
+                        db.ref('uploads/' + entryKey).remove();
+                    }
+                }
+            });
+
+            // Re-implementing shared logic here for brevity
+            setupMobileMenu_impl = () => { const openBtn = document.getElementById('menu-open-button'); const closeBtn = document.getElementById('menu-close-button'); const navMenu = document.querySelector('.nav-menu'); if (openBtn && closeBtn && navMenu) { openBtn.addEventListener('click', () => navMenu.classList.add('active')); closeBtn.addEventListener('click', () => navMenu.classList.remove('active')); } };
+            handleLogout_impl = () => { const logoutBtn = document.getElementById('logoutBtn'); if (logoutBtn) { logoutBtn.addEventListener('click', () => { auth.signOut().catch(error => console.error('Sign out error', error)); }); } };
+
+            // Initialize Page
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();
