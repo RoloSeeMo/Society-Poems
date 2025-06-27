@@ -72,6 +72,7 @@
             const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
             let currentUserIsAdmin = false;
             let allEntries = null;
+            let currentOpenGenre = null; // --- NEW: Tracks the currently viewed genre ---
 
             const genreSelectionView = document.getElementById('genre-selection-view');
             const entriesView = document.getElementById('entries-view');
@@ -79,33 +80,38 @@
             const genreButtonsContainer = document.getElementById('genre-buttons-container');
             const backToGenresBtn = document.getElementById('back-to-genres-btn');
             
-            const fetchAllEntriesAndDisplayGenres = () => {
+            // --- UPDATED: This is now the main live listener for all data changes ---
+            const setupLiveEntriesListener = () => {
                 const entriesRef = db.ref('uploads');
                 entriesRef.on('value', (snapshot) => {
                     allEntries = snapshot.val(); 
-                    if (!allEntries) {
-                        genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
-                        return;
+                    
+                    // Always update the genre buttons and counts
+                    const genreCounts = {};
+                    if (allEntries) {
+                        for (const key in allEntries) {
+                            const genre = allEntries[key].genre || 'Uncategorized';
+                            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+                        }
                     }
 
-                    const genreCounts = {};
-                    for (const key in allEntries) {
-                        const genre = allEntries[key].genre || 'Uncategorized';
-                        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
-                    }
-                    
                     genreButtonsContainer.innerHTML = '';
-                    for (const genreName in genreCounts) {
-                        const count = genreCounts[genreName];
-                        
-                        const button = document.createElement('button');
-                        button.className = 'genre-button';
-                        button.dataset.genre = genreName;
-                        
-                        // Set the button's content with a span for the count
-                        button.innerHTML = `${genreName} <span class="genre-count">Posts: ${count}</span>`;
-                        
-                        genreButtonsContainer.appendChild(button);
+                    if (Object.keys(genreCounts).length > 0) {
+                        for (const genreName in genreCounts) {
+                            const count = genreCounts[genreName];
+                            const button = document.createElement('button');
+                            button.className = 'genre-button';
+                            button.dataset.genre = genreName;
+                            button.innerHTML = `${genreName} <span class="genre-count">Posts: ${count}</span>`;
+                            genreButtonsContainer.appendChild(button);
+                        }
+                    } else {
+                        genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
+                    }
+
+                    // --- NEW: If a genre is currently open, refresh its view ---
+                    if (currentOpenGenre) {
+                        loadEntriesByGenre(currentOpenGenre, true); // `true` indicates a refresh
                     }
                 }, (error) => {
                     console.error(error);
@@ -113,9 +119,13 @@
                 });
             };
 
-            const loadEntriesByGenre = (selectedGenre) => {
-                genreSelectionView.style.display = 'none';
-                entriesView.style.display = 'block';
+            const loadEntriesByGenre = (selectedGenre, isRefresh = false) => {
+                if (!isRefresh) {
+                    // Only switch views if it's not a live refresh
+                    genreSelectionView.style.display = 'none';
+                    entriesView.style.display = 'block';
+                }
+                currentOpenGenre = selectedGenre; // Set the current genre
                 document.getElementById('entries-view-title').textContent = selectedGenre;
                 entriesContainer.innerHTML = '';
 
@@ -143,11 +153,9 @@
                 entriesForGenre.forEach(entry => {
                     const div = document.createElement('div');
                     div.className = 'entry';
-                    
                     const content = document.createElement('p');
                     content.className = 'entry-content';
                     content.innerText = entry.content;
-                    
                     const meta = document.createElement('div');
                     meta.className = 'entry-meta';
                     const date = new Date(entry.timestamp).toLocaleString();
@@ -178,7 +186,7 @@
                             if (snapshot.exists() && snapshot.val().username) {
                                 currentUserIsAdmin = adminUIDs.includes(user.uid);
                                 document.body.style.visibility = 'visible';
-                                fetchAllEntriesAndDisplayGenres();
+                                setupLiveEntriesListener(); // Start the live listener
                             } else {
                                 window.location.href = 'login.html';
                             }
@@ -195,6 +203,7 @@
             });
 
             backToGenresBtn.addEventListener('click', () => {
+                currentOpenGenre = null; // --- NEW: Clear the current genre ---
                 entriesView.style.display = 'none';
                 genreSelectionView.style.display = 'block';
             });
