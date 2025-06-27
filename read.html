@@ -88,7 +88,6 @@
                         return;
                     }
 
-                    // --- NEW: Calculate genre counts ---
                     const genreCounts = {};
                     for (const key in allEntries) {
                         const genre = allEntries[key].genre || 'Uncategorized';
@@ -104,7 +103,7 @@
                         button.dataset.genre = genreName;
                         
                         // Set the button's content with a span for the count
-                        button.innerHTML = `${genreName} <span class="genre-count">${count}</span>`;
+                        button.innerHTML = `${genreName} <span class="genre-count">Posts: ${count}</span>`;
                         
                         genreButtonsContainer.appendChild(button);
                     }

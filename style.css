@@ -431,21 +431,23 @@ footer {
   cursor: pointer;
   transition: all var(--transition-speed);
   text-align: center;
-  /* Make the genre button a positioning container */
+}
+
+.genre-button {
   position: relative; /* This is crucial for positioning the count */
   padding-bottom: 35px; /* Add extra padding at the bottom for the count */
 }
 
-/* Style for the post count number */
+/* Style for the count number itself */
 .genre-count {
   position: absolute;
   bottom: 8px;
   right: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--secondary-color);
-  padding: 3px 8px;
+  font-size: 0.75rem; /* Made the font smaller as requested */
+  font-weight: normal; /* Less emphasis than bold */
+  background-color: rgba(255, 255, 255, 0.15); /* Slightly adjusted for contrast */
+  color: var(--text-secondary); /* Using a secondary text color */
+  padding: 4px 8px;
   border-radius: 10px;
   line-height: 1;
 }
