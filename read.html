@@ -86,7 +86,6 @@
                 entriesRef.on('value', (snapshot) => {
                     allEntries = snapshot.val(); 
                     
-                    // Always update the genre buttons and counts
                     const genreCounts = {};
                     if (allEntries) {
                         for (const key in allEntries) {
@@ -102,7 +101,7 @@
                             const button = document.createElement('button');
                             button.className = 'genre-button';
                             button.dataset.genre = genreName;
-                            button.innerHTML = `${genreName} <span class="genre-count">Posts:&nbsp ${count}</span>`;
+                            button.innerHTML = `${genreName} <span class="genre-count">Posts: ${count}</span>`;
                             genreButtonsContainer.appendChild(button);
                         }
                     } else {
@@ -121,11 +120,10 @@
 
             const loadEntriesByGenre = (selectedGenre, isRefresh = false) => {
                 if (!isRefresh) {
-                    // Only switch views if it's not a live refresh
                     genreSelectionView.style.display = 'none';
                     entriesView.style.display = 'block';
                 }
-                currentOpenGenre = selectedGenre; // Set the current genre
+                currentOpenGenre = selectedGenre; 
                 document.getElementById('entries-view-title').textContent = selectedGenre;
                 entriesContainer.innerHTML = '';
 
@@ -186,7 +184,7 @@
                             if (snapshot.exists() && snapshot.val().username) {
                                 currentUserIsAdmin = adminUIDs.includes(user.uid);
                                 document.body.style.visibility = 'visible';
-                                setupLiveEntriesListener(); // Start the live listener
+                                setupLiveEntriesListener(); 
                             } else {
                                 window.location.href = 'login.html';
                             }
