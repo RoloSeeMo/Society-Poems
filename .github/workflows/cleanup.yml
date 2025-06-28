@@ -6,7 +6,7 @@ name: Clean Up Orphaned Database Users
 on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
-    - cron: '0 * * * *' 
+    - cron: '0 */12 * * *'
 
 jobs:
   cleanup:
