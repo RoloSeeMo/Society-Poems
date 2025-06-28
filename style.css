@@ -349,6 +349,10 @@ footer {
 }
 
 
+.password-requirements{
+  color: red;
+}
+
 /* Home Page specific styles */
 .hero-section {
     display: flex;
