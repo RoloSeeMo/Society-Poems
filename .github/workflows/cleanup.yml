@@ -6,6 +6,7 @@ name: Clean Up Orphaned Database Users
 on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
+    # UPDATED: This now runs EVERY MINUTE.
     - cron: '* * * * *'
 
 jobs:
@@ -18,13 +19,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Using a stable version of Node.js
+          node-version: '18'
 
       - name: Create Service Account Key File from Secret
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+        working-directory: ./Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
 
       - name: Install Dependencies for Sync Script
         run: npm install firebase-admin
+        working-directory: ./Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
 
       - name: Run the User Cleanup Script
         run: node syncUsers.js
+        working-directory: ./Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
