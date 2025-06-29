@@ -21,17 +21,12 @@ jobs:
         with:
           node-version: '18'
 
-      # NEW: We must tell npm where to find the package.json to install dependencies.
-      # The package.json will be created by the npm install command.
-      - name: Install Dependencies for Sync Script
-        run: npm install firebase-admin
-        working-directory: ./Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
-
-      # UPDATED: We now give the full path to the script.
-      - name: Run the User Cleanup Script
-        run: node Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e/syncUsers.js
-
-      # Note: We are no longer creating the service account key file,
-      # as the script will look for it in its own directory.
-      # Make sure the `serviceAccountKey.json` is in the same folder as `syncUsers.js`.
-      # The secret will need to be re-created in your GitHub repo settings if it's not already there.
+      # Corrected Step:
+      # We now `cd` into the directory where the script lives and then run the commands.
+      # This is a more reliable way to ensure the correct path.
+      - name: Run Cleanup Script in Correct Directory
+        run: |
+          cd Society-Poems
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+          npm install firebase-admin
+          node syncUsers.js
