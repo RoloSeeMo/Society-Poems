@@ -6,7 +6,7 @@ name: Clean Up Orphaned Database Users
 on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
-    # Runs every minute.
+    # Runs every minute. Please be mindful of your Actions usage limits.
     - cron: '* * * * *'
 
 jobs:
@@ -21,13 +21,17 @@ jobs:
         with:
           node-version: '18'
 
-      # The following steps now run in the root of the checked-out repository,
-      # which is the correct location.
-      - name: Create Service Account Key File from Secret
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
-
+      # NEW: We must tell npm where to find the package.json to install dependencies.
+      # The package.json will be created by the npm install command.
       - name: Install Dependencies for Sync Script
         run: npm install firebase-admin
+        working-directory: ./Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
 
+      # UPDATED: We now give the full path to the script.
       - name: Run the User Cleanup Script
-        run: node syncUsers.js
+        run: node Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e/syncUsers.js
+
+      # Note: We are no longer creating the service account key file,
+      # as the script will look for it in its own directory.
+      # Make sure the `serviceAccountKey.json` is in the same folder as `syncUsers.js`.
+      # The secret will need to be re-created in your GitHub repo settings if it's not already there.
