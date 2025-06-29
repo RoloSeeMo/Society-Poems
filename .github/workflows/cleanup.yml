@@ -1,13 +1,13 @@
 # .github/workflows/cleanup.yml
-# This workflow runs a script to clean up orphaned users from the database.
+# This workflow automates the syncUsers.js script.
 
 name: Clean Up Orphaned Database Users
 
 on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
-    # Runs every minute. Please be mindful of your Actions usage limits.
-    - cron: '* * * * *'
+    # UPDATED: This now runs every 30 minutes.
+    - cron: '*/30 * * * *'
 
 jobs:
   cleanup:
@@ -21,9 +21,6 @@ jobs:
         with:
           node-version: '18'
 
-      # Corrected Step:
-      # We now `cd` into the directory where the script lives and then run the commands.
-      # This is a more reliable way to ensure the correct path.
       - name: Run Cleanup Script in Correct Directory
         run: |
           cd Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
