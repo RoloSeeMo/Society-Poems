@@ -1,5 +1,7 @@
 UserManagement/*
 
+auth.js
+
 functions/
 
 firebase.json
