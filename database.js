@@ -1,7 +1,7 @@
 // database.js - Handles interactions with Firebase Realtime Database
 
-import { ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-import { db, auth } from './firebase-config.js';
+import { onValue, push, ref, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { auth, db } from './firebase-config.js';
 
 const messageContainer = document.getElementById('message-container');
 
