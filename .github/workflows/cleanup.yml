@@ -1,13 +1,13 @@
 # .github/workflows/cleanup.yml
-# This workflow automates the syncUsers.js script.
+# This workflow runs a script to clean up orphaned users from the database.
 
 name: Clean Up Orphaned Database Users
 
 on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
-    # UPDATED: This now runs every 30 minutes.
-    - cron: '* */6 * * *'
+    # Runs automatically on your chosen schedule.
+    - cron: '* * * * *'
 
 jobs:
   cleanup:
@@ -21,10 +21,11 @@ jobs:
         with:
           node-version: '18'
 
+      # Corrected Step:
+      # `cd` all the way to UserManagement directory.
       - name: Run Cleanup Script in Correct Directory
-        working-directory: ./Society-Poems
         run: |
-          cd Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
+          cd Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e/UserManagement
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
           npm install firebase-admin
           node syncUsers.js
