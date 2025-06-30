@@ -22,6 +22,7 @@ jobs:
           node-version: '18'
 
       - name: Run Cleanup Script in Correct Directory
+        working-directory: ./Society-Poems
         run: |
           cd Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json

@@ -1,4 +1,4 @@
-UserManagement/
+UserManagement/*
 
 functions/
 
@@ -7,3 +7,5 @@ firebase.json
 .firebaserc
 
 Images/
+
+!Usermanagement/syncUsers.js
