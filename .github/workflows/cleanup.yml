@@ -25,7 +25,7 @@ jobs:
       # `cd` all the way to UserManagement directory.
       - name: Run Cleanup Script in Correct Directory
         run: |
-          cd Society-Poems-5e760502de27caf2fde997197d1e0e9b53dc179e/UserManagement
+          cd UserManagement
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
           npm install firebase-admin
           node syncUsers.js
