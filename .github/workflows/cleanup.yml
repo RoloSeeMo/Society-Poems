@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # Allows you to run this manually from the Actions tab
   schedule:
     # UPDATED: This now runs every 30 minutes.
-    - cron: '*/30 * * * *'
+    - cron: '* */6 * * *'
 
 jobs:
   cleanup:
