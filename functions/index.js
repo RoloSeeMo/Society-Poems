@@ -23,32 +23,32 @@ admin.initializeApp();
 // Configure the email transport using securely stored environment variables.
 // We will set these variables in the next step.
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: functions.config().gmail.email,
-        pass: functions.config().gmail.password,
+  service: "gmail",
+  auth: {
+    user: functions.config().gmail.email,
+    pass: functions.config().gmail.password,
     },
 });
 
 // This new function triggers when a new document is written to /feedback/{pushId}
 exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
-    .onCreate((snapshot, context) => {
-        // Get the feedback data from the snapshot
-        const feedbackData = snapshot.val();
+  .onCreate((snapshot, context) => {
+  // Get the feedback data from the snapshot
+    const feedbackData = snapshot.val();
 
-        // Set up the email options
-        const mailOptions = {
-            from: "Your Name <your-gmail-address@gmail.com>", // Can be the same as your login email
-            to: "officialsocietypoems@gmail.com", // <-- SET YOUR EMAIL ADDRESS HERE
-            subject: `New Feedback from ${feedbackData.name}`,
-            html: `
-                <p>You have received new feedback!</p>
-                <ul>
-                    <li><b>Name:</b> ${feedbackData.name}</li>
-                    <li><b>Email:</b> ${feedbackData.email}</li>
-                    <li><b>Message:</b> ${feedbackData.message}</li>
-                </ul>
-            `,
+    // Set up the email options
+    const mailOptions = {
+      from: "Your Name <your-gmail-address@gmail.com>", // Can be the same as your login email
+      to: "officialsocietypoems@gmail.com", // <-- SET YOUR EMAIL ADDRESS HERE
+      subject: `New Feedback from ${feedbackData.name}`,
+      html: `
+          <p>You have received new feedback!</p>
+            <ul>
+              <li><b>Name:</b> ${feedbackData.name}</li>
+              <li><b>Email:</b> ${feedbackData.email}</li>
+              <li><b>Message:</b> ${feedbackData.message}</li>
+            </ul>
+          `,
         };
 
         // Send the email
