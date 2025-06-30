@@ -25,7 +25,7 @@
         };
         
         let app, auth, db, tokenClient;
-    
+
         function showMessage(type, text) {
             const messageContainer = document.getElementById('message-container');
             if (!messageContainer) return;
@@ -33,63 +33,82 @@
             messageContainer.textContent = text;
             messageContainer.style.display = 'block';
         }
-    
+
         // --- GOOGLE API CLIENT LOGIC ---
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
-    
+
         async function initializeGapiClient() {
             await gapi.client.init({
                 apiKey: API_KEY,
                 discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"],
             });
         }
-    
+
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/gmail.send',
+                // ADDED a new scope to ask for user's email and profile info
+                scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
                 callback: '',
             });
         }
-    
+
         function handleFormSubmit(e) {
             e.preventDefault();
             tokenClient.callback = async (resp) => {
                 if (resp.error !== undefined) { throw (resp); }
-                await sendEmail();
+                // After successful authorization, call the function to send the email
+                await sendEmailWithUserInfo();
             };
-    
+
+            // Ask for authorization
             if (gapi.client.getToken() === null) {
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
                 tokenClient.requestAccessToken({prompt: ''});
             }
         }
-    
-        async function sendEmail() {
-            showMessage('info', 'Sending email...');
-            const name = document.getElementById('name').value;
-            const fromEmail = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-    
-            const emailLines = [
-                'Content-Type: text/plain; charset="UTF-8"', `To: ${TO_EMAIL}`, `From: ${fromEmail}`,
-                `Subject: New Feedback from ${name}`, '', message
-            ].join('\r\n');
-    
-            const base64EncodedEmail = btoa(unescape(encodeURIComponent(emailLines)));
-    
+
+        async function sendEmailWithUserInfo() {
+            showMessage('info', 'Fetching user info...');
             try {
-                await gapi.client.gmail.users.messages.send({
-                    'userId': 'me', 'resource': { 'raw': base64EncodedEmail }
+                // 1. Get the user's profile info from Google
+                const userInfoResponse = await gapi.client.request({
+                    'path': 'https://www.googleapis.com/oauth2/v3/userinfo'
                 });
+
+                const profile = userInfoResponse.result;
+                const name = profile.name;
+                const fromEmail = profile.email;
+                const message = document.getElementById('message').value;
+
+                showMessage('info', 'Sending email...');
+
+                // 2. Construct the email with the fetched info
+                const emailLines = [
+                    'Content-Type: text/plain; charset="UTF-8"',
+                    `To: ${TO_EMAIL}`,
+                    `From: "${name}" <${fromEmail}>`, // Use name and email
+                    `Subject: New Feedback from ${name}`, // Use name
+                    '',
+                    message
+                ].join('\r\n');
+
+                const base64EncodedEmail = btoa(unescape(encodeURIComponent(emailLines)));
+
+                // 3. Send the email using the Gmail API
+                await gapi.client.gmail.users.messages.send({
+                    'userId': 'me',
+                    'resource': { 'raw': base64EncodedEmail }
+                });
+                
                 showMessage('success', 'Thank you! Your feedback has been sent.');
                 document.getElementById('feedbackForm').reset();
             } catch (error) {
                 console.error(error);
-                showMessage('error', `Error sending email. Please try again.`);
+                showMessage('error', `An error occurred. Please try again.`);
             }
         }
         
@@ -97,10 +116,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             app = firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
-            db = firebase.database();
-    
-            const setupMobileMenu_impl = () => { /* ... your menu logic ... */ };
-    
+
             const handleLogout_impl = () => {
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
@@ -112,21 +128,16 @@
                 }
             };
             
-            // --- CORRECTED AUTH STATE CHECK ---
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    // If the user is not logged into Firebase, send them to the login page.
                     if (!user) {
                         window.location.href = 'login.html';
                     } else {
-                        // If the user *is* logged in, just make the page visible.
-                        // The Google Auth flow will be handled by the button click.
                         document.body.style.visibility = 'visible';
                     }
                 });
             };
-    
-            setupMobileMenu_impl();
+
             handleLogout_impl();
             checkAuthState_impl();
             document.getElementById('feedbackForm').addEventListener('submit', handleFormSubmit);
@@ -144,31 +155,17 @@
     <header>
         <nav class="navbar">
             <a href="index.html" class="nav-logo">📖 Society Poems</a>
-            <button id="menu-open-button" class="fas fa-bars"></button>
-            <ul class="nav-menu">
-                <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="read.html" class="nav-link">Read</a></li>
-                <li><a href="upload.html" class="nav-link">Upload</a></li>
-                <li><a href="feedback.html" class="nav-link active">Feedback</a></li>
-                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
-            </ul>
-        </nav>
+            </nav>
     </header>
 
     <main>
         <div class="form-container" style="margin: auto;">
             <h1>Feedback Form</h1>
             <p style="text-align: center; font-size: 0.9em; opacity: 0.8;">
-                You will be asked to authorize with your Google account to send the feedback email.
+                You will be asked to authorize with your Google account to send your feedback.
             </p>
             <div id="message-container"></div>
             <form id="feedbackForm">
-                <label for="name">Name:</label>
-                <input type="text" id="name" required>
-                <label for="email">Your Email:</label>
-
-                <input type="email" id="email" required>
                 <label for="message">Message:</label>
                 <textarea id="message" rows="5" required></textarea>
                 <button type="submit" class="form-button form-button-primary">Authorize & Send Feedback</button>
