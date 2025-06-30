@@ -49,7 +49,6 @@
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
-                // ADDED a new scope to ask for user's email and profile info
                 scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
                 callback: '',
             });
@@ -59,11 +58,9 @@
             e.preventDefault();
             tokenClient.callback = async (resp) => {
                 if (resp.error !== undefined) { throw (resp); }
-                // After successful authorization, call the function to send the email
                 await sendEmailWithUserInfo();
             };
 
-            // Ask for authorization
             if (gapi.client.getToken() === null) {
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
@@ -74,7 +71,6 @@
         async function sendEmailWithUserInfo() {
             showMessage('info', 'Fetching user info...');
             try {
-                // 1. Get the user's profile info from Google
                 const userInfoResponse = await gapi.client.request({
                     'path': 'https://www.googleapis.com/oauth2/v3/userinfo'
                 });
@@ -86,19 +82,17 @@
 
                 showMessage('info', 'Sending email...');
 
-                // 2. Construct the email with the fetched info
                 const emailLines = [
                     'Content-Type: text/plain; charset="UTF-8"',
                     `To: ${TO_EMAIL}`,
-                    `From: "${name}" <${fromEmail}>`, // Use name and email
-                    `Subject: New Feedback from ${name}`, // Use name
+                    `From: "${name}" <${fromEmail}>`,
+                    `Subject: New Feedback from ${name}`,
                     '',
                     message
                 ].join('\r\n');
 
                 const base64EncodedEmail = btoa(unescape(encodeURIComponent(emailLines)));
 
-                // 3. Send the email using the Gmail API
                 await gapi.client.gmail.users.messages.send({
                     'userId': 'me',
                     'resource': { 'raw': base64EncodedEmail }
@@ -155,7 +149,14 @@
     <header>
         <nav class="navbar">
             <a href="index.html" class="nav-logo">📖 Society Poems</a>
-            </nav>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="read.html" class="nav-link">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="feedback.html" class="nav-link active">Feedback</a></li>
+                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
@@ -166,6 +167,9 @@
             </p>
             <div id="message-container"></div>
             <form id="feedbackForm">
+                <p style="text-align: center; margin-bottom: 20px; line-height: 1.5;">
+                    Your thoughts help build this community. Please share any feedback, suggestions, or bugs you've found.
+                </p>
                 <label for="message">Message:</label>
                 <textarea id="message" rows="5" required></textarea>
                 <button type="submit" class="form-button form-button-primary">Authorize & Send Feedback</button>
