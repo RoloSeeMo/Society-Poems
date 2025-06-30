@@ -16,14 +16,14 @@ const transporter = nodemailer.createTransport({
  * Sends an email when new feedback is submitted.
  */
 exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
-  .onCreate((snapshot, context) => {
-    const feedbackData = snapshot.val();
+    .onCreate((snapshot, context) => {
+      const feedbackData = snapshot.val();
 
-    const mailOptions = {
-      from: "Society Poems Feedback <officialsocietypoems@gmail.com>",
-      to: "officialsocietypoems@gmail.com", // REPLACE with your email
-      subject: `New Feedback from ${feedbackData.name}`,
-      html: `
+      const mailOptions = {
+        from: "Society Poems Feedback <officialsocietypoems@gmail.com>",
+        to: "officialsocietypoems@gmail.com", // REPLACE with your email
+        subject: `New Feedback from ${feedbackData.name}`,
+        html: `
         <p>You have received new feedback!</p>
         <ul>
             <li><b>Name:</b> ${feedbackData.name}</li>
@@ -31,15 +31,15 @@ exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
             <li><b>Message:</b> ${feedbackData.message}</li>
         </ul>
       `,
-    };
+      };
 
-    return transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.error("Error sending email:", error);
-      }
-      return console.log("Email sent successfully:", info.response);
+      return transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.error("Error sending email:", error);
+        }
+        return console.log("Email sent successfully:", info.response);
+      });
     });
-  });
 
 /**
  * Deletes user data when a user is deleted from Firebase Auth.

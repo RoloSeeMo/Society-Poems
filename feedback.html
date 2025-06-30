@@ -6,6 +6,7 @@
     <title>Feedback - Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/Images/Untitled1.png">
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 </head>
 <body data-theme="night" style="visibility: hidden;">
 
@@ -27,15 +28,18 @@
     <main>
         <div class="form-container" style="margin: auto;">
             <h1>Feedback Form</h1>
+            <p style="text-align: center; font-size: 0.9em; opacity: 0.8;">
+                You will be asked to authorize with your Google account to send the feedback email.
+            </p>
             <div id="message-container"></div>
             <form id="feedbackForm">
                 <label for="name">Name:</label>
                 <input type="text" id="name" required>
-                <label for="email">Email:</label>
+                <label for="email">Your Email:</label>
                 <input type="email" id="email" required>
                 <label for="message">Message:</label>
                 <textarea id="message" rows="5" required></textarea>
-                <button type="submit" class="form-button form-button-primary">Submit Feedback</button>
+                <button type="submit" class="form-button form-button-primary">Authorize & Send Feedback</button>
             </form>
         </div>
     </main>
@@ -44,29 +48,114 @@
         <p>&copy; 2025 Society Poems</p>
     </footer>
     
-    <!-- Firebase SDKs (Compat versions for global access) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
+        // --- IMPORTANT CONFIGURATION ---
+        const CLIENT_ID = '723670230106-h7lidt5s4psj74p83m0cl0ri98532492.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM'; //Firebase API Key
+        const TO_EMAIL = 'officialsocietypoems@gmail.com'; //The email address where you want to receive feedback
+
+        // --- Firebase Config (Needed for Auth) ---
+        const firebaseConfig = {
+            apiKey: API_KEY,
+            authDomain: "society-poems-97f4d.firebaseapp.com",
+            databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+            projectId: "society-poems-97f4d",
+            storageBucket: "society-poems-97f4d.firebasestorage.app",
+            messagingSenderId: "723670230106",
+            appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        const messageContainer = document.getElementById('message-container');
+
+        function showMessage(type, text) {
+            if (!messageContainer) return;
+            messageContainer.className = `message-container ${type}-message`;
+            messageContainer.textContent = text;
+            messageContainer.style.display = 'block';
+        }
+
+        /**
+         * This function is called after the Google API script has loaded.
+         */
+        function gapiLoaded() {
+            gapi.load('client:auth2', initializeGapiClient);
+        }
+
+        /**
+         * Initializes the Google API client with your credentials.
+         */
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"],
+                scope: "https://www.googleapis.com/auth/gmail.send"
+            });
+        }
+
+        /**
+         * Handles the form submission by signing the user in and sending the email.
+         */
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
+            if (!isSignedIn) {
+                // Sign the user in, then send the email in the callback.
+                await gapi.auth2.getAuthInstance().signIn();
+            }
+            sendEmail();
+        }
+
+        /**
+         * Constructs and sends the email using the Gmail API.
+         */
+        async function sendEmail() {
+            showMessage('info', 'Sending email...');
+            const name = document.getElementById('name').value;
+            const fromEmail = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            // 1. Create the raw email content.
+            const emailLines = [
+                'Content-Type: text/plain; charset="UTF-8"',
+                'MIME-Version: 1.0',
+                `To: ${TO_EMAIL}`,
+                `From: ${fromEmail}`,
+                `Subject: New Feedback from ${name}`,
+                '',
+                message
+            ];
+            const email = emailLines.join('\r\n');
+
+            // 2. Base64-encode the email.
+            const base64EncodedEmail = btoa(email).replace(/\+/g, '-').replace(/\//g, '_');
+
+            // 3. Send the email using the Gmail API.
+            try {
+                const request = gapi.client.gmail.users.messages.send({
+                    'userId': 'me',
+                    'resource': {
+                        'raw': base64EncodedEmail
+                    }
+                });
+                await request;
+                showMessage('success', 'Thank you! Your feedback has been sent.');
+                document.getElementById('feedbackForm').reset();
+            } catch (error) {
+                console.error(error);
+                showMessage('error', `Error sending email: ${error.result.error.message}`);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // TODO: Replace with your Firebase config.
-            const firebaseConfig = {
-                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-                authDomain: "society-poems-97f4d.firebaseapp.com",
-                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-                projectId: "society-poems-97f4d",
-                storageBucket: "society-poems-97f4d.firebasestorage.app",
-                messagingSenderId: "723670230106",
-                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-            };
-
-            const app = firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.database();
-
-            // --- Shared Logic (implementation copied for self-containment) ---
+            // --- Shared Logic ---
             const setupMobileMenu_impl = () => {
                 const openBtn = document.getElementById('menu-open-button');
                 const closeBtn = document.getElementById('menu-close-button');
@@ -85,62 +174,14 @@
                     });
                 }
             };
-
+            
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html');
-                    if (!user && !isAuthPage) {
+                    if (user) {
+                        document.body.style.visibility = 'visible';
+                    } else {
                         window.location.href = 'login.html';
-                    } else if (user && isAuthPage) {
-                        window.location.href = 'index.html';
-                    } else if (user) {
-                        // --- !! NEW SECURITY CHECK !! ---
-                        const userRef = db.ref('users/' + user.uid);
-                        userRef.once('value', (snapshot) => {
-                            if (snapshot.exists() && snapshot.val().username) {
-                                // On the upload page, we need to fetch the username after validation
-                                if(typeof fetchUsername === 'function') {
-                                    fetchUsername(user.uid);
-                                }
-                                document.body.style.visibility = 'visible';
-                            } else {
-                                window.location.href = 'login.html';
-                            }
-                        });
                     }
-                });
-            };
-
-            // --- Feedback Page Specific Logic ---
-            const setupFeedbackForm = () => {
-                const feedbackForm = document.getElementById('feedbackForm');
-                const messageContainer = document.getElementById('message-container');
-
-                function showMessage(type, text) {
-                    if (!messageContainer) return;
-                    messageContainer.className = `message-container ${type}-message`;
-                    messageContainer.textContent = text;
-                    messageContainer.style.display = 'block';
-                }
-
-                feedbackForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.getElementById('name').value;
-                    const email = document.getElementById('email').value;
-                    const message = document.getElementById('message').value;
-                    const feedbackRef = db.ref('feedback');
-                    
-                    feedbackRef.push({
-                        name: name,
-                        email: email,
-                        message: message,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        showMessage('success', 'Thank you for your feedback!');
-                        feedbackForm.reset();
-                    }).catch(error => {
-                        showMessage('error', `Submission failed: ${error.message}`);
-                    });
                 });
             };
 
@@ -148,7 +189,7 @@
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();
-            setupFeedbackForm();
+            document.getElementById('feedbackForm').addEventListener('submit', handleFormSubmit);
         });
     </script>
 </body>
