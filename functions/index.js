@@ -13,8 +13,6 @@ exports.cleanupUser = functions.auth.user().onDelete((user) => {
   return admin.database().ref(`/users/${uid}`).remove();
 });
 
-
-const admin = require("firebase-admin");
 const nodemailer = require("nodemailer"); // Import nodemailer
 
 admin.initializeApp();
