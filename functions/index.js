@@ -1,11 +1,29 @@
+// This is the corrected file for /functions/index.js
+
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const nodemailer = require("nodemailer"); // One import for nodemailer
+admin.initializeApp();
+
+// This function triggers whenever a user is deleted from Authentication
+exports.cleanupUser = functions.auth.user().onDelete((user) => {
+  const uid = user.uid;
+  console.log(`User ${uid} deleted, cleaning up database profile.`);
+
+  // Return the promise from the remove() operation
+  return admin.database().ref(`/users/${uid}`).remove();
+});
+
+
+const admin = require("firebase-admin");
+const nodemailer = require("nodemailer"); // Import nodemailer
 
 admin.initializeApp();
 
-// --- Securely configure the email transport ---
-// This uses the environment variables we set with the CLI.
+
+// --- EMAIL FUNCTION ---
+
+// Configure the email transport using securely stored environment variables.
+// We will set these variables in the next step.
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -14,14 +32,16 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// --- NEW Cloud Function to send email on feedback ---
+// This new function triggers when a new document is written to /feedback/{pushId}
 exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
     .onCreate((snapshot, context) => {
+        // Get the feedback data from the snapshot
         const feedbackData = snapshot.val();
 
+        // Set up the email options
         const mailOptions = {
-            from: "Society Poems Feedback <officialsocietypoems@gmail.com>", // Replace with your email
-            to: "officialsocietypoems@gmail.com", // REPLACE with your personal email
+            from: "Your Name <your-gmail-address@gmail.com>", // Can be the same as your login email
+            to: "officialsocietypoems@gmail.com", // <-- SET YOUR EMAIL ADDRESS HERE
             subject: `New Feedback from ${feedbackData.name}`,
             html: `
                 <p>You have received new feedback!</p>
@@ -33,16 +53,19 @@ exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
             `,
         };
 
+        // Send the email
         return transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.error("Error sending email:", error);
+                console.error("Error sending email: ", error);
                 return;
             }
-            console.log("Email sent successfully:", info.response);
+            console.log("Email sent successfully: " + info.response);
         });
     });
 
-// --- EXISTING Cloud Function to clean up users ---
+// --- END OF NEW EMAIL FUNCTION ---
+
+// This is your existing function to clean up users. You can leave it as is.
 exports.cleanupUser = functions.auth.user().onDelete((user) => {
   const db = admin.database();
   return db.ref(`/users/${user.uid}`).remove();
