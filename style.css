@@ -230,6 +230,33 @@ Legal Pages (Privacy & TOS)
 
 
 
+/*
+===============
+Footer Links
+===============
+*/
+.footer-links {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.footer-links a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.footer-links span {
+  color: var(--text-muted);
+}
+
+
+
 /* Forms (Login, Upload, Feedback) */
 .form-page-container {
   display: flex;
