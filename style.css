@@ -165,6 +165,71 @@ footer {
   margin-top: auto;
 }
 
+/*
+===============
+Legal Pages (Privacy & TOS)
+===============
+*/
+.legal-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px 40px;
+  background-color: var(--background-alt);
+  border-radius: 8px;
+  color: var(--text-color);
+}
+
+.legal-container h2 {
+  font-size: 2em;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.legal-container h3 {
+  font-size: 1.5em;
+  color: var(--secondary-color);
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.legal-container p, 
+.legal-container li {
+  line-height: 1.7;
+  font-size: 1em;
+  margin-bottom: 15px;
+}
+
+.legal-container ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.legal-container ul ul {
+  list-style-type: circle;
+  margin-top: 10px;
+}
+
+.legal-container a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.legal-container a:hover {
+  text-decoration: underline;
+}
+
+.legal-container .last-updated {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: -15px;
+  margin-bottom: 30px;
+  font-size: 0.9em;
+}
+
+
+
 /* Forms (Login, Upload, Feedback) */
 .form-page-container {
   display: flex;
