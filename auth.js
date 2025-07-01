@@ -8,7 +8,8 @@ import {
     GoogleAuthProvider,
     onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { equalTo, get, getDatabase, orderByChild, query, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+// UPDATED: Added 'update' for modifying user data without overwriting.
+import { equalTo, get, getDatabase, orderByChild, query, ref, set, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -42,21 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function logoutUser(reason) {
         auth.signOut().then(() => {
-            // Redirect to login with a message indicating the reason
             window.location.href = `/login.html?reason=${reason}`;
         });
     }
 
     function resetTimers() {
-        // 1. Reset the 10-minute inactivity timer for the current session
         clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(() => logoutUser('inactivity'), 300000); // 10 minutes
-
-        // 2. Update the persistent "last seen" timestamp in localStorage
+        inactivityTimer = setTimeout(() => logoutUser('inactivity'), 600000);
         localStorage.setItem('lastActivityTime', new Date().getTime());
     }
 
-    // Events that reset the timers
     window.onload = resetTimers;
     document.onmousemove = resetTimers;
     document.onmousedown = resetTimers; 
@@ -79,24 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ** MASTER AUTH GATEKEEPER ** ---
+    // --- ** MASTER AUTHENTICATION GATEKEEPER ** ---
     onAuthStateChanged(auth, async (user) => {
         const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
 
         if (user) {
-            // --- ** SESSION CHECK ** ---
             const lastActivity = localStorage.getItem('lastActivityTime');
             const now = new Date().getTime();
             const ONE_HOUR = 60 * 60 * 1000;
 
             if (lastActivity && (now - lastActivity > ONE_HOUR)) {
-                // If more than an hour has passed since the last visit, log out.
                 logoutUser('session_expired');
-                return; // Stop further execution
+                return;
             }
-            // --- ** FIN SESSION CHECK ** ---
 
-            // A user is logged in. Start/reset all timers.
             resetTimers();
 
             const userRef = ref(db, 'users/' + user.uid);
@@ -110,9 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hasValidUsername = userData.username && usernameValidationRegex.test(userData.username);
 
                 if (hasValidUsername) {
+                    // UPDATED: This block now checks for and adds missing fields.
+                    const updates = {};
                     if (!userData.username_lowercase) {
-                        await set(userRef, { ...userData, username_lowercase: userData.username.toLowerCase() });
+                        updates.username_lowercase = userData.username.toLowerCase();
                     }
+                    // Check if the 'uploads' field is missing.
+                    if (userData.uploads === undefined) {
+                        updates.uploads = 0; // Initialize with 0 uploads.
+                    }
+
+                    // If any updates are needed, perform a single update operation.
+                    if (Object.keys(updates).length > 0) {
+                        await update(userRef, updates);
+                    }
+                    
                     isProfileCompleteAndValid = true;
                 }
             }
@@ -129,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            // No user is signed in. Stop the inactivity timer and clear storage.
             clearTimeout(inactivityTimer);
             localStorage.removeItem('lastActivityTime');
             if (!isAuthPage) {
@@ -140,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== LOGIC FOR login.html PAGE ==========
     if (document.getElementById('login-form')) {
-        // Display session timeout messages if applicable
         const urlParams = new URLSearchParams(window.location.search);
         const reason = urlParams.get('reason');
         const loginMessageContainer = document.getElementById('login-message-container');
@@ -215,10 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage('error', 'This username is already taken. Please choose another.', usernameMessageContainer);
                 } else {
                     const userRef = ref(db, 'users/' + user.uid);
+                    // UPDATED: Added 'uploads: 0' to the new user object.
                     await set(userRef, {
                         username: username,
                         username_lowercase: lowercaseUsername,
-                        email: user.email
+                        email: user.email,
+                        uploads: 0 // Initialize upload count.
                     });
                 }
             } catch (error) {
