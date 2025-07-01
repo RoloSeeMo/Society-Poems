@@ -1,27 +1,26 @@
 {
     "rules": {
-        "users": {
-        // NEW: Allows any authenticated user to query the /users list.
-        // This is required for the "is username taken?" check to work.
+      "users": {
+        // Allows any authenticated user to query the /users list.
         ".read": "auth != null",
-        // NEW: Tells Firebase to create an index on the 'username' field.
-        // This makes username queries fast and is required by Firebase.
-        ".indexOn": "username",
+        // UPDATED: Added an index for the new lowercase username field.
+        ".indexOn": ["username", "username_lowercase"],
         "$uid": {
-        // This rule remains unchanged. It correctly allows a user
-        // to write ONLY to their own profile node.
-        ".write": "auth != null && auth.uid === $uid"
+          // This rule remains unchanged. It correctly allows a user
+          // to write ONLY to their own profile node.
+          ".write": "auth != null && auth.uid === $uid"
         }
-        },
-        "uploads": {
+      },
+      "uploads": {
         // These rules remain unchanged.
         ".read": "auth != null",
         ".write": "auth != null",
         ".indexOn": ["uid"]
-        },
-        "feedback": {
+      },
+      "feedback": {
         // This rule remains unchanged.
         ".write": "auth != null"
-        }
+      }
     }
-}
+  }
+  
