@@ -55,18 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
         createUsernameView.style.display = 'block';
     }
 
-    // --- ** NEW CENTRALIZED LOGIN SUCCESS HANDLER ** ---
+    // --- Centralized Login Success Handler ---
     async function handleLoginSuccess(user) {
         const userRef = ref(db, 'users/' + user.uid);
         const snapshot = await get(userRef);
         const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
 
-        // Check if username exists AND if it's valid
         if (snapshot.exists() && snapshot.val().username && usernameValidationRegex.test(snapshot.val().username)) {
-            // Username is valid, proceed to the site
             window.location.href = 'index.html';
         } else {
-            // Username does not exist OR is invalid. Show the form to create/update it.
             showCreateUsernameForm();
         }
     }
@@ -88,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value;
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    handleLoginSuccess(userCredential.user); // Use the new handler
+                    handleLoginSuccess(userCredential.user);
                 })
                 .catch(error => showMessage('error', `Login failed: ${error.message}`, loginMessageContainer));
         });
@@ -105,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             createUserWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    showCreateUsernameForm(); // New users always go to the username form
+                    showCreateUsernameForm();
                 })
                 .catch(error => showMessage('error', `Sign up failed: ${error.message}`, signupMessageContainer));
         });
@@ -117,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             signInWithPopup(auth, provider)
                 .then((result) => {
-                    handleLoginSuccess(result.user); // Use the new handler
+                    handleLoginSuccess(result.user);
                 })
                 .catch(error => {
                     const activeContainer = document.getElementById('login-view').style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
@@ -125,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        // --- Username Creation Logic ---
+        // --- ** USERNAME CREATION WITH CASE-INSENSITIVE CHECK ** ---
         createUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -142,17 +139,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Create a lowercase version for searching.
+            const lowercaseUsername = username.toLowerCase();
+
             try {
                 const usersRef = ref(db, 'users');
-                const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
+                // Query the new 'username_lowercase' field.
+                const usernameQuery = query(usersRef, orderByChild('username_lowercase'), equalTo(lowercaseUsername));
                 const snapshot = await get(usernameQuery);
 
                 if (snapshot.exists()) {
                     showMessage('error', 'This username is already taken. Please choose another.', usernameMessageContainer);
                 } else {
                     const userRef = ref(db, 'users/' + user.uid);
+                    // Save both the original and the lowercase version.
                     await set(userRef, {
                         username: username,
+                        username_lowercase: lowercaseUsername,
                         email: user.email
                     });
                     window.location.href = 'index.html';
@@ -162,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
 
     // // ========== LOGIC FOR cell-login.html PAGE (in progress/development) ==========
     // if (document.getElementById('phone-login-form')) {
