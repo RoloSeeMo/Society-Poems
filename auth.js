@@ -37,7 +37,7 @@ function showMessage(type, text, container) {
 // --- Main Logic (runs after the page is fully loaded) ---
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ** NEW INACTIVITY TIMEOUT LOGIC ** ---
+    // --- ** INACTIVITY TIMEOUT LOGIC ** ---
     let inactivityTimer;
 
     function logoutDueToInactivity() {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.onclick = resetInactivityTimer;
     document.onkeydown = resetInactivityTimer;
     document.addEventListener('scroll', resetInactivityTimer, true);
-    // --- ** END OF INACTIVITY TIMEOUT LOGIC ** ---
+    // --- ** FIN INACTIVITY TIMEOUT LOGIC ** ---
 
 
     const loginView = document.getElementById('login-view');
