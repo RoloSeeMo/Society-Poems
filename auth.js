@@ -55,15 +55,34 @@ document.addEventListener('DOMContentLoaded', () => {
         createUsernameView.style.display = 'block';
     }
 
-    // --- Centralized Login Success Handler ---
+    // --- ** NEW "SELF-HEALING" LOGIN SUCCESS HANDLER ** ---
     async function handleLoginSuccess(user) {
         const userRef = ref(db, 'users/' + user.uid);
         const snapshot = await get(userRef);
         const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
 
-        if (snapshot.exists() && snapshot.val().username && usernameValidationRegex.test(snapshot.val().username)) {
-            window.location.href = 'index.html';
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            const hasValidUsername = userData.username && usernameValidationRegex.test(userData.username);
+            const hasLowercaseField = userData.username_lowercase;
+
+            if (hasValidUsername && hasLowercaseField) {
+                // Case 1: User is perfect. Proceed to site.
+                window.location.href = 'index.html';
+            } else if (hasValidUsername && !hasLowercaseField) {
+                // Case 2: User has a valid name but is missing the lowercase field.
+                // We'll add the field for them to fix their data, then proceed.
+                await set(userRef, {
+                    ...userData, // Keep existing data
+                    username_lowercase: userData.username.toLowerCase()
+                });
+                window.location.href = 'index.html';
+            } else {
+                // Case 3: Username is invalid or missing. Force them to create/update it.
+                showCreateUsernameForm();
+            }
         } else {
+            // Case 4: User is authenticated but has no record in the database.
             showCreateUsernameForm();
         }
     }
@@ -122,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        // --- ** USERNAME CREATION WITH CASE-INSENSITIVE CHECK ** ---
+        // --- Username Creation Logic ---
         createUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -139,12 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Create a lowercase version for searching.
             const lowercaseUsername = username.toLowerCase();
 
             try {
                 const usersRef = ref(db, 'users');
-                // Query the new 'username_lowercase' field.
                 const usernameQuery = query(usersRef, orderByChild('username_lowercase'), equalTo(lowercaseUsername));
                 const snapshot = await get(usernameQuery);
 
@@ -152,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage('error', 'This username is already taken. Please choose another.', usernameMessageContainer);
                 } else {
                     const userRef = ref(db, 'users/' + user.uid);
-                    // Save both the original and the lowercase version.
                     await set(userRef, {
                         username: username,
                         username_lowercase: lowercaseUsername,
