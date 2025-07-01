@@ -3,7 +3,10 @@
 // --- Modular Imports from Firebase SDK ---
 import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-    getAuth, onAuthStateChanged
+    createUserWithEmailAndPassword,
+    getAuth,
+    GoogleAuthProvider,
+    onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { equalTo, get, getDatabase, orderByChild, query, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
@@ -52,6 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
         createUsernameView.style.display = 'block';
     }
 
+    // --- ** NEW CENTRALIZED LOGIN SUCCESS HANDLER ** ---
+    async function handleLoginSuccess(user) {
+        const userRef = ref(db, 'users/' + user.uid);
+        const snapshot = await get(userRef);
+        const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
+
+        // Check if username exists AND if it's valid
+        if (snapshot.exists() && snapshot.val().username && usernameValidationRegex.test(snapshot.val().username)) {
+            // Username is valid, proceed to the site
+            window.location.href = 'index.html';
+        } else {
+            // Username does not exist OR is invalid. Show the form to create/update it.
+            showCreateUsernameForm();
+        }
+    }
+
     // ========== LOGIC FOR login.html PAGE ==========
     if (document.getElementById('login-form')) {
         const loginMessageContainer = document.getElementById('login-message-container');
@@ -62,21 +81,51 @@ document.addEventListener('DOMContentLoaded', () => {
         const createUsernameForm = document.getElementById('create-username-form');
         const googleBtn = document.getElementById('google-signin-btn');
 
+        // --- Email/Password Login Logic ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            // ... (login logic remains the same)
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    handleLoginSuccess(userCredential.user); // Use the new handler
+                })
+                .catch(error => showMessage('error', `Login failed: ${error.message}`, loginMessageContainer));
         });
 
+        // --- Email/Password Signup Logic ---
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            // ... (signup logic remains the same)
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (password !== confirmPassword) {
+                showMessage('error', 'Passwords do not match.', signupMessageContainer);
+                return;
+            }
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    showCreateUsernameForm(); // New users always go to the username form
+                })
+                .catch(error => showMessage('error', `Sign up failed: ${error.message}`, signupMessageContainer));
         });
 
+        // --- Google Sign-In Logic ---
         googleBtn.addEventListener('click', () => {
-            // ... (Google sign-in logic remains the same)
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    handleLoginSuccess(result.user); // Use the new handler
+                })
+                .catch(error => {
+                    const activeContainer = document.getElementById('login-view').style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
+                    showMessage('error', `Google sign-in failed: ${error.message}`, activeContainer);
+                });
         });
 
-        // --- ** USERNAME CREATION WITH VALIDATION AND UNIQUENESS CHECK ** ---
+        // --- Username Creation Logic ---
         createUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -87,30 +136,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 1. Validate the format (alphanumeric, no spaces)
             const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
             if (!usernameValidationRegex.test(username)) {
                 showMessage('error', 'Username can only contain letters and numbers, with no spaces.', usernameMessageContainer);
                 return;
             }
 
-            // 2. Check if the username is already taken
             try {
                 const usersRef = ref(db, 'users');
                 const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
                 const snapshot = await get(usernameQuery);
 
                 if (snapshot.exists()) {
-                    // Username is already taken
                     showMessage('error', 'This username is already taken. Please choose another.', usernameMessageContainer);
                 } else {
-                    // Username is available, proceed to save it
                     const userRef = ref(db, 'users/' + user.uid);
                     await set(userRef, {
                         username: username,
                         email: user.email
                     });
-                    // Success, redirect to the main page
                     window.location.href = 'index.html';
                 }
             } catch (error) {
@@ -118,4 +162,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // // ========== LOGIC FOR cell-login.html PAGE (in progress/development) ==========
+    // if (document.getElementById('phone-login-form')) {
+    //     const messageContainer = document.getElementById('message-container');
+    //     const recaptchaContainer = document.getElementById('recaptcha-container');
+    //     window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainer, { 'size': 'invisible' });
+
+    //     const sendCodeBtn = document.getElementById('send-code-btn');
+    //     sendCodeBtn.addEventListener('click', () => {
+    //         const countryCode = document.getElementById('country-code').value;
+    //         const phoneInput = document.getElementById('phone-input').value;
+    //         const phoneNumber = `${countryCode}${phoneInput.replace(/\D/g, '')}`;
+
+    //         signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
+    //             .then(confirmationResult => {
+    //                 window.confirmationResult = confirmationResult;
+    //                 showMessage('success', 'Verification code sent!', messageContainer);
+    //                 document.getElementById('phone-entry-step').style.display = 'none';
+    //                 document.getElementById('otp-verify-step').style.display = 'block';
+    //             }).catch(error => {
+    //                 showMessage('error', `SMS sending failed: ${error.message}`, messageContainer);
+    //                 if (window.grecaptcha) window.grecaptcha.reset();
+    //             });
+    //     });
+
+    //     const verifyOtpBtn = document.getElementById('verify-otp-btn');
+    //     verifyOtpBtn.addEventListener('click', () => {
+    //         const code = document.getElementById('otp-input').value;
+    //         if (code && window.confirmationResult) {
+    //             window.confirmationResult.confirm(code)
+    //                 .then((result) => {
+    //                     const user = result.user;
+    //                     const userRef = ref(db, 'users/' + user.uid);
+    //                     get(userRef).then((snapshot) => {
+    //                         if (snapshot.exists() && snapshot.val().username) {
+    //                             window.location.href = 'index.html';
+    //                         } else {
+    //                             showCreateUsernameForm();
+    //                         }
+    //                     });
+    //                 })
+    //                 .catch(error => showMessage('error', `Invalid code: ${error.message}`, messageContainer));
+    //         } else {
+    //             showMessage('error', 'Please enter a valid code.', messageContainer);
+    //         }
+    //     });
+    // }
 });
