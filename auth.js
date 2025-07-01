@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
         // Set timeout to 10 minutes (10 * 60 * 1000 milliseconds)
-        inactivityTimer = setTimeout(logoutDueToInactivity, 600000);
+        inactivityTimer = setTimeout(logoutDueToInactivity, 300000);
     }
 
     // Events that reset the timer
