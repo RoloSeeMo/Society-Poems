@@ -1,4 +1,4 @@
-// auth.js - A single, consolidated file for all Firebase Authentication logic.
+// auth.js - A single file for all Firebase Authentication logic.
 
 // --- Modular Imports from Firebase SDK ---
 import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -37,6 +37,33 @@ function showMessage(type, text, container) {
 // --- Main Logic (runs after the page is fully loaded) ---
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- ** NEW INACTIVITY TIMEOUT LOGIC ** ---
+    let inactivityTimer;
+
+    function logoutDueToInactivity() {
+        auth.signOut().then(() => {
+            // Redirect to login with a message
+            window.location.href = '/login.html?reason=inactivity';
+        });
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        // Set timeout to 10 minutes (10 * 60 * 1000 milliseconds)
+        inactivityTimer = setTimeout(logoutDueToInactivity, 600000);
+    }
+
+    // Events that reset the timer
+    window.onload = resetInactivityTimer;
+    document.onmousemove = resetInactivityTimer;
+    document.onmousedown = resetInactivityTimer; 
+    document.ontouchstart = resetInactivityTimer;
+    document.onclick = resetInactivityTimer;
+    document.onkeydown = resetInactivityTimer;
+    document.addEventListener('scroll', resetInactivityTimer, true);
+    // --- ** END OF INACTIVITY TIMEOUT LOGIC ** ---
+
+
     const loginView = document.getElementById('login-view');
     const signupView = document.getElementById('signup-view');
     const createUsernameView = document.getElementById('create-username-view');
@@ -49,13 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ** AUTHENTICATION GATEKEEPER ** ---
-    // This runs on every page load and handles all user validation and redirection.
+    // --- ** MASTER AUTHENTICATION GATEKEEPER ** ---
     onAuthStateChanged(auth, async (user) => {
         const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
 
         if (user) {
-            // A user is logged in.
+            // A user is logged in. Start the inactivity timer.
+            resetInactivityTimer();
+
             const userRef = ref(db, 'users/' + user.uid);
             const snapshot = await get(userRef);
             const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
@@ -67,9 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hasValidUsername = userData.username && usernameValidationRegex.test(userData.username);
 
                 if (hasValidUsername) {
-                    // Username format valid. Next check for the lowercase field.
                     if (!userData.username_lowercase) {
-                        // Self-heal: If the lowercase field is missing, add it.
                         await set(userRef, { ...userData, username_lowercase: userData.username.toLowerCase() });
                     }
                     isProfileCompleteAndValid = true;
@@ -77,23 +103,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (isProfileCompleteAndValid) {
-                // Profile is valid. If they are on the login page, redirect them to the main site.
                 if (isAuthPage) {
                     window.location.href = 'index.html';
                 }
             } else {
-                // Profile is NOT valid or complete.
-                // If they are on a page that ISN'T the login page, force them there to update their profile.
                 if (!isAuthPage) {
                     window.location.href = 'login.html';
                 } else {
-                    // They are already on the login page, so just show the username form.
                     showCreateUsernameForm();
                 }
             }
         } else {
-            // No user is signed in.
-            // If they are on a protected page (not the login page), send them to login.
+            // No user is signed in. Stop the inactivity timer.
+            clearTimeout(inactivityTimer);
             if (!isAuthPage) {
                 window.location.href = 'login.html';
             }
@@ -102,6 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== LOGIC FOR login.html PAGE ==========
     if (document.getElementById('login-form')) {
+        // Display inactivity message if applicable
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reason') === 'inactivity') {
+            const loginMessageContainer = document.getElementById('login-message-container');
+            showMessage('info', 'You have been logged out due to inactivity.', loginMessageContainer);
+        }
+
         const loginMessageContainer = document.getElementById('login-message-container');
         const signupMessageContainer = document.getElementById('signup-message-container');
         const usernameMessageContainer = document.getElementById('username-message-container');
@@ -110,17 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const createUsernameForm = document.getElementById('create-username-form');
         const googleBtn = document.getElementById('google-signin-btn');
 
-        // --- Email/Password Login Logic (Now simpler) ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            // Just sign in. The onAuthStateChanged observer will handle the rest.
             signInWithEmailAndPassword(auth, email, password)
                 .catch(error => showMessage('error', `Login failed: ${error.message}`, loginMessageContainer));
         });
 
-        // --- Email/Password Signup Logic (Now simpler) ---
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('signup-email').value;
@@ -130,16 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('error', 'Passwords do not match.', signupMessageContainer);
                 return;
             }
-            // Just sign up. The observer will detect the new user and show the username form.
             createUserWithEmailAndPassword(auth, email, password)
                 .catch(error => showMessage('error', `Sign up failed: ${error.message}`, signupMessageContainer));
         });
 
-        // --- Google Sign-In Logic (Now simpler) ---
         googleBtn.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-            // Just sign in. The observer will handle the rest.
             signInWithPopup(auth, provider)
                 .catch(error => {
                     const activeContainer = document.getElementById('login-view').style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
@@ -147,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        // --- Username Creation Logic (Unchanged) ---
         createUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -180,8 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         username_lowercase: lowercaseUsername,
                         email: user.email
                     });
-                    // The onAuthStateChanged listener will now handle the redirect automatically.
-                    // We can simply let it run again.
                 }
             } catch (error) {
                 showMessage('error', `An error occurred: ${error.message}`, usernameMessageContainer);
