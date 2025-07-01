@@ -1,9 +1,13 @@
 // database.js - Handles interactions with Firebase Realtime Database
 
-import { onValue, push, ref, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { onValue, push, ref, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 import { auth, db } from './firebase-config.js';
 
 const messageContainer = document.getElementById('message-container');
+
+// --- ** IMPORTANT: ADMIN CONFIGURATION ** ---
+// Replace this with the actual UID of your admin account.
+const ADMIN_UID = "PASTE_YOUR_ADMIN_USER_ID_HERE";
 
 function showMessage(type, text) {
     if (!messageContainer) return;
@@ -25,15 +29,14 @@ if (window.location.pathname.includes('read.html')) {
             return;
         }
 
-        const entries = Object.values(data).reverse(); // Show newest first
-        entries.forEach(entry => {
+        const entries = Object.entries(data).reverse();
+        entries.forEach(([key, entry]) => {
             const div = document.createElement('div');
             div.className = 'entry';
             
-            // Sanitize content to prevent HTML injection
             const content = document.createElement('p');
             content.className = 'entry-content';
-            content.innerText = entry.content; // Use innerText, not innerHTML
+            content.innerText = entry.content;
 
             const meta = document.createElement('div');
             meta.className = 'entry-meta';
@@ -42,9 +45,35 @@ if (window.location.pathname.includes('read.html')) {
             
             div.appendChild(content);
             div.appendChild(meta);
+
+            // Admin Delete Button Logic
+            if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete Post';
+                deleteButton.className = 'delete-button';
+                deleteButton.onclick = () => {
+                    if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
+                        // The delete function now only needs the post's key.
+                        deletePost(key);
+                    }
+                };
+                div.appendChild(deleteButton);
+            }
+
             entriesContainer.appendChild(div);
         });
     });
+
+    // --- ** SIMPLIFIED: Function to delete a post ** ---
+    function deletePost(postKey) {
+        const postRef = ref(db, 'uploads/' + postKey);
+        remove(postRef).then(() => {
+            console.log('Post deleted successfully.');
+            // No need to decrement user count anymore.
+        }).catch(error => {
+            console.error('Error deleting post:', error);
+        });
+    }
 }
 
 // --- Upload Page Logic ---
@@ -69,12 +98,14 @@ if (window.location.pathname.includes('upload.html')) {
         const name = privacySelect.value === 'named' ? document.getElementById('username').value : 'Anonymous';
         
         const uploadsRef = ref(db, 'uploads');
+        // --- ** SIMPLIFIED: Just push the new post ** ---
         push(uploadsRef, {
             uid: user.uid,
             content: content,
             name: name,
             timestamp: serverTimestamp()
         }).then(() => {
+            // No need to increment user count anymore.
             showMessage('success', 'Your writing has been submitted!');
             uploadForm.reset();
             nameField.style.display = 'none';
