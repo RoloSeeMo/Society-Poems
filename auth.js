@@ -1,4 +1,4 @@
-// auth.js - A single file for all Firebase Authentication logic.
+// auth.js - A single, consolidated file for all Firebase Authentication logic.
 
 // --- Modular Imports from Firebase SDK ---
 import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -37,31 +37,34 @@ function showMessage(type, text, container) {
 // --- Main Logic (runs after the page is fully loaded) ---
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ** INACTIVITY TIMEOUT LOGIC ** ---
+    // --- ** SESSION TIMEOUT LOGIC ** ---
     let inactivityTimer;
 
-    function logoutDueToInactivity() {
+    function logoutUser(reason) {
         auth.signOut().then(() => {
-            // Redirect to login with a message
-            window.location.href = '/login.html?reason=inactivity';
+            // Redirect to login with a message indicating the reason
+            window.location.href = `/login.html?reason=${reason}`;
         });
     }
 
-    function resetInactivityTimer() {
+    function resetTimers() {
+        // 1. Reset the 10-minute inactivity timer for the current session
         clearTimeout(inactivityTimer);
-        // Set timeout to 10 minutes (10 * 60 * 1000 milliseconds)
-        inactivityTimer = setTimeout(logoutDueToInactivity, 300000);
+        inactivityTimer = setTimeout(() => logoutUser('inactivity'), 300000); // 10 minutes
+
+        // 2. Update the persistent "last seen" timestamp in localStorage
+        localStorage.setItem('lastActivityTime', new Date().getTime());
     }
 
-    // Events that reset the timer
-    window.onload = resetInactivityTimer;
-    document.onmousemove = resetInactivityTimer;
-    document.onmousedown = resetInactivityTimer; 
-    document.ontouchstart = resetInactivityTimer;
-    document.onclick = resetInactivityTimer;
-    document.onkeydown = resetInactivityTimer;
-    document.addEventListener('scroll', resetInactivityTimer, true);
-    // --- ** FIN INACTIVITY TIMEOUT LOGIC ** ---
+    // Events that reset the timers
+    window.onload = resetTimers;
+    document.onmousemove = resetTimers;
+    document.onmousedown = resetTimers; 
+    document.ontouchstart = resetTimers;
+    document.onclick = resetTimers;
+    document.onkeydown = resetTimers;
+    document.addEventListener('scroll', resetTimers, true);
+    // --- ** END OF SESSION TIMEOUT LOGIC ** ---
 
 
     const loginView = document.getElementById('login-view');
@@ -76,13 +79,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ** MASTER AUTHENTICATION GATEKEEPER ** ---
+    // --- ** MASTER AUTH GATEKEEPER ** ---
     onAuthStateChanged(auth, async (user) => {
         const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
 
         if (user) {
-            // A user is logged in. Start the inactivity timer.
-            resetInactivityTimer();
+            // --- ** SESSION CHECK ** ---
+            const lastActivity = localStorage.getItem('lastActivityTime');
+            const now = new Date().getTime();
+            const ONE_HOUR = 60 * 60 * 1000;
+
+            if (lastActivity && (now - lastActivity > ONE_HOUR)) {
+                // If more than an hour has passed since the last visit, log out.
+                logoutUser('session_expired');
+                return; // Stop further execution
+            }
+            // --- ** FIN SESSION CHECK ** ---
+
+            // A user is logged in. Start/reset all timers.
+            resetTimers();
 
             const userRef = ref(db, 'users/' + user.uid);
             const snapshot = await get(userRef);
@@ -114,8 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            // No user is signed in. Stop the inactivity timer.
+            // No user is signed in. Stop the inactivity timer and clear storage.
             clearTimeout(inactivityTimer);
+            localStorage.removeItem('lastActivityTime');
             if (!isAuthPage) {
                 window.location.href = 'login.html';
             }
@@ -124,14 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== LOGIC FOR login.html PAGE ==========
     if (document.getElementById('login-form')) {
-        // Display inactivity message if applicable
+        // Display session timeout messages if applicable
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('reason') === 'inactivity') {
-            const loginMessageContainer = document.getElementById('login-message-container');
+        const reason = urlParams.get('reason');
+        const loginMessageContainer = document.getElementById('login-message-container');
+        if (reason === 'inactivity') {
             showMessage('info', 'You have been logged out due to inactivity.', loginMessageContainer);
+        } else if (reason === 'session_expired') {
+            showMessage('info', 'Your session has expired. Please log in again.', loginMessageContainer);
         }
 
-        const loginMessageContainer = document.getElementById('login-message-container');
         const signupMessageContainer = document.getElementById('signup-message-container');
         const usernameMessageContainer = document.getElementById('username-message-container');
         const loginForm = document.getElementById('login-form');
