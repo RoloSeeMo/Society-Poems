@@ -7,7 +7,7 @@ const messageContainer = document.getElementById('message-container');
 
 // --- ** IMPORTANT: ADMIN CONFIGURATION ** ---
 // Replace this with the actual UID of your admin account.
-const ADMIN_UID = "PASTE_YOUR_ADMIN_USER_ID_HERE";
+const ADMIN_UID = "SAD2VGjLrtVA80Cg0ay71rDiijQ2";
 
 function showMessage(type, text) {
     if (!messageContainer) return;
