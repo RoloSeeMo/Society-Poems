@@ -26,14 +26,6 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// --- Global Auth State Listener ---
-onAuthStateChanged(auth, (user) => {
-    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
-    if (user && isAuthPage) {
-        // Redirection is handled manually after username creation
-    }
-});
-
 // --- Utility Function for showing messages ---
 function showMessage(type, text, container) {
     if (!container) return;
@@ -50,42 +42,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const createUsernameView = document.getElementById('create-username-view');
 
     function showCreateUsernameForm() {
-        loginView.style.display = 'none';
-        signupView.style.display = 'none';
-        createUsernameView.style.display = 'block';
-    }
-
-    // --- ** NEW "SELF-HEALING" LOGIN SUCCESS HANDLER ** ---
-    async function handleLoginSuccess(user) {
-        const userRef = ref(db, 'users/' + user.uid);
-        const snapshot = await get(userRef);
-        const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
-
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            const hasValidUsername = userData.username && usernameValidationRegex.test(userData.username);
-            const hasLowercaseField = userData.username_lowercase;
-
-            if (hasValidUsername && hasLowercaseField) {
-                // Case 1: User is perfect. Proceed to site.
-                window.location.href = 'index.html';
-            } else if (hasValidUsername && !hasLowercaseField) {
-                // Case 2: User has a valid name but is missing the lowercase field.
-                // We'll add the field for them to fix their data, then proceed.
-                await set(userRef, {
-                    ...userData, // Keep existing data
-                    username_lowercase: userData.username.toLowerCase()
-                });
-                window.location.href = 'index.html';
-            } else {
-                // Case 3: Username is invalid or missing. Force them to create/update it.
-                showCreateUsernameForm();
-            }
-        } else {
-            // Case 4: User is authenticated but has no record in the database.
-            showCreateUsernameForm();
+        if (loginView && signupView && createUsernameView) {
+            loginView.style.display = 'none';
+            signupView.style.display = 'none';
+            createUsernameView.style.display = 'block';
         }
     }
+
+    // --- ** AUTHENTICATION GATEKEEPER ** ---
+    // This runs on every page load and handles all user validation and redirection.
+    onAuthStateChanged(auth, async (user) => {
+        const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('cell-login.html');
+
+        if (user) {
+            // A user is logged in.
+            const userRef = ref(db, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            const usernameValidationRegex = /^[a-zA-Z0-9]+$/;
+
+            let isProfileCompleteAndValid = false;
+
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                const hasValidUsername = userData.username && usernameValidationRegex.test(userData.username);
+
+                if (hasValidUsername) {
+                    // Username format valid. Next check for the lowercase field.
+                    if (!userData.username_lowercase) {
+                        // Self-heal: If the lowercase field is missing, add it.
+                        await set(userRef, { ...userData, username_lowercase: userData.username.toLowerCase() });
+                    }
+                    isProfileCompleteAndValid = true;
+                }
+            }
+
+            if (isProfileCompleteAndValid) {
+                // Profile is valid. If they are on the login page, redirect them to the main site.
+                if (isAuthPage) {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                // Profile is NOT valid or complete.
+                // If they are on a page that ISN'T the login page, force them there to update their profile.
+                if (!isAuthPage) {
+                    window.location.href = 'login.html';
+                } else {
+                    // They are already on the login page, so just show the username form.
+                    showCreateUsernameForm();
+                }
+            }
+        } else {
+            // No user is signed in.
+            // If they are on a protected page (not the login page), send them to login.
+            if (!isAuthPage) {
+                window.location.href = 'login.html';
+            }
+        }
+    });
 
     // ========== LOGIC FOR login.html PAGE ==========
     if (document.getElementById('login-form')) {
@@ -97,19 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const createUsernameForm = document.getElementById('create-username-form');
         const googleBtn = document.getElementById('google-signin-btn');
 
-        // --- Email/Password Login Logic ---
+        // --- Email/Password Login Logic (Now simpler) ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            // Just sign in. The onAuthStateChanged observer will handle the rest.
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    handleLoginSuccess(userCredential.user);
-                })
                 .catch(error => showMessage('error', `Login failed: ${error.message}`, loginMessageContainer));
         });
 
-        // --- Email/Password Signup Logic ---
+        // --- Email/Password Signup Logic (Now simpler) ---
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('signup-email').value;
@@ -119,29 +130,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('error', 'Passwords do not match.', signupMessageContainer);
                 return;
             }
+            // Just sign up. The observer will detect the new user and show the username form.
             createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    showCreateUsernameForm();
-                })
                 .catch(error => showMessage('error', `Sign up failed: ${error.message}`, signupMessageContainer));
         });
 
-        // --- Google Sign-In Logic ---
+        // --- Google Sign-In Logic (Now simpler) ---
         googleBtn.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-
+            // Just sign in. The observer will handle the rest.
             signInWithPopup(auth, provider)
-                .then((result) => {
-                    handleLoginSuccess(result.user);
-                })
                 .catch(error => {
                     const activeContainer = document.getElementById('login-view').style.display !== 'none' ? loginMessageContainer : signupMessageContainer;
                     showMessage('error', `Google sign-in failed: ${error.message}`, activeContainer);
                 });
         });
 
-        // --- Username Creation Logic ---
+        // --- Username Creation Logic (Unchanged) ---
         createUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -174,7 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         username_lowercase: lowercaseUsername,
                         email: user.email
                     });
-                    window.location.href = 'index.html';
+                    // The onAuthStateChanged listener will now handle the redirect automatically.
+                    // We can simply let it run again.
                 }
             } catch (error) {
                 showMessage('error', `An error occurred: ${error.message}`, usernameMessageContainer);
