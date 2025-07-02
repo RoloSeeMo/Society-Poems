@@ -163,7 +163,7 @@
                     const genre = document.getElementById('genre').value;
                     
                     if (!content || !genre) {
-                         showMessage('error', 'All fields are required.'); return;
+                        showMessage('error', 'All fields are required.'); return;
                     }
 
                     const uploadsRef = db.ref('uploads');
