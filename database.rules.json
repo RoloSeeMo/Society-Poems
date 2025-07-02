@@ -1,6 +1,6 @@
 {
     "rules": {
-      "users": {
+    "users": {
         // Allows any authenticated user to query the /users list.
         ".read": "auth != null",
         // UPDATED: Added an index for the new lowercase username field.
@@ -8,19 +8,18 @@
         "$uid": {
           // This rule remains unchanged. It correctly allows a user
           // to write ONLY to their own profile node.
-          ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid"
         }
-      },
-      "uploads": {
+    },
+    "uploads": {
         // These rules remain unchanged.
         ".read": "auth != null",
         ".write": "auth != null",
         ".indexOn": ["uid"]
-      },
-      "feedback": {
+    },
+    "feedback": {
         // This rule remains unchanged.
         ".write": "auth != null"
-      }
     }
-  }
-  
+    }
+}
