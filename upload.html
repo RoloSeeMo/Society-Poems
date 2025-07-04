@@ -31,34 +31,39 @@
             <form id="uploadForm">
                 <p style="text-align: center; margin-bottom: 20px;">Posting as: <strong id="author-name">Loading...</strong></p>
 
-                <div id="topic-selection-section">
+                <label for="topic-selection">Topic:</label>
+                <div class="topic-selection-container">
                     <div class="radio-group">
-                        <input type="radio" id="chooseExisting" name="topicOption" value="existing" checked>
-                        <label for="chooseExisting">Select Existing Topic</label>
-                        <input type="radio" id="createNew" name="topicOption" value="new">
-                        <label for="createNew">Create New Topic</label>
+                        <label class="radio-label">
+                            <input type="radio" name="topicType" value="existing" id="existing-topic-radio" checked>
+                            Choose existing topic
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="topicType" value="custom" id="custom-topic-radio">
+                            Create new topic
+                        </label>
                     </div>
-
-                    <div id="existingTopicGroup" style="margin-top: 15px;">
-                        <select id="topicSelect" required>
-                            <option value="" disabled selected>-- Loading Topics --</option>
+                    
+                    <div id="existing-topic-container" class="topic-input-container">
+                        <select id="existing-topic" required>
+                            <option value="" disabled selected>-- Select a Topic --</option>
+                            <option value="Poetry">Poetry</option>
+                            <option value="Prose">Prose</option>
+                            <option value="Freeform">Freeform</option>
+                            <option value="Short Story">Short Story</option>
+                            <option value="Musings">Musings</option>
                         </select>
                     </div>
-
-                    <div id="newTopicGroup" style="display: none; margin-top: 15px;">
-                        <label for="topicInput">New Topic Name:</label>
-                        <input type="text" id="topicInput" placeholder="Enter new topic (e.g., 'NaturePoems')" maxlength="100">
-                        <small id="topicError" style="color: red; display: none;">Topic name rules: No blanks, max 100 characters, no duplicates (case-insensitive).</small>
+                    
+                    <div id="custom-topic-container" class="topic-input-container" style="display: none;">
+                        <input type="text" id="custom-topic" placeholder="Enter your topic name..." maxlength="50">
+                        <small class="input-help">Topic names should be descriptive and appropriate for all audiences</small>
                     </div>
-
-                    <button type="button" id="proceedToPostBtn" class="form-button form-button-primary" style="margin-top: 20px;">Proceed to Post</button>
                 </div>
-
-                <div id="postContentSection" style="display: none;">
-                    <label for="content">Your Writing:</label>
-                    <textarea id="content" rows="10" placeholder="Let your soul speak..." required></textarea>
-                    <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Submit</button>
-                </div>
+                
+                <label for="content">Your Writing:</label>
+                <textarea id="content" rows="10" placeholder="Let your soul speak..." required></textarea>
+                <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Submit</button>
             </form>
         </div>
     </main>
@@ -72,7 +77,6 @@
         </div>
     </footer>
 
-    <script type="module" src="database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -163,6 +167,50 @@
                 });
             };
 
+            // --- Topic Selection Logic ---
+            const setupTopicSelection = () => {
+                const existingTopicRadio = document.getElementById('existing-topic-radio');
+                const customTopicRadio = document.getElementById('custom-topic-radio');
+                const existingTopicContainer = document.getElementById('existing-topic-container');
+                const customTopicContainer = document.getElementById('custom-topic-container');
+                const existingTopicSelect = document.getElementById('existing-topic');
+                const customTopicInput = document.getElementById('custom-topic');
+
+                // Handle radio button changes
+                existingTopicRadio.addEventListener('change', () => {
+                    if (existingTopicRadio.checked) {
+                        existingTopicContainer.style.display = 'block';
+                        customTopicContainer.style.display = 'none';
+                        existingTopicSelect.required = true;
+                        customTopicInput.required = false;
+                        customTopicInput.value = ''; // Clear custom input
+                    }
+                });
+
+                customTopicRadio.addEventListener('change', () => {
+                    if (customTopicRadio.checked) {
+                        existingTopicContainer.style.display = 'none';
+                        customTopicContainer.style.display = 'block';
+                        existingTopicSelect.required = false;
+                        customTopicInput.required = true;
+                        existingTopicSelect.value = ''; // Clear existing selection
+                        customTopicInput.focus(); // Focus on the input for better UX
+                    }
+                });
+
+                // Validate custom topic input
+                customTopicInput.addEventListener('input', (e) => {
+                    const value = e.target.value.trim();
+                    const isValid = value.length >= 2 && value.length <= 50 && /^[a-zA-Z0-9\s\-_&]+$/.test(value);
+                    
+                    if (value && !isValid) {
+                        customTopicInput.setCustomValidity('Topic must be 2-50 characters and contain only letters, numbers, spaces, hyphens, underscores, and ampersands');
+                    } else {
+                        customTopicInput.setCustomValidity('');
+                    }
+                });
+            };
+
             // --- Upload Page Specific Logic ---
             const setupUploadForm = () => {
                 const uploadForm = document.getElementById('uploadForm');
@@ -177,10 +225,32 @@
                     }
 
                     const content = document.getElementById('content').value.trim();
-                    const genre = document.getElementById('genre').value;
                     
-                    if (!content || !genre) {
-                        showMessage('error', 'All fields are required.'); return;
+                    // Determine which topic to use
+                    let selectedTopic = '';
+                    const existingTopicRadio = document.getElementById('existing-topic-radio');
+                    
+                    if (existingTopicRadio.checked) {
+                        selectedTopic = document.getElementById('existing-topic').value;
+                    } else {
+                        selectedTopic = document.getElementById('custom-topic').value.trim();
+                    }
+                    
+                    if (!content || !selectedTopic) {
+                        showMessage('error', 'All fields are required.'); 
+                        return;
+                    }
+
+                    // Additional validation for custom topics
+                    if (!existingTopicRadio.checked) {
+                        if (selectedTopic.length < 2 || selectedTopic.length > 50) {
+                            showMessage('error', 'Custom topic must be between 2 and 50 characters.');
+                            return;
+                        }
+                        if (!/^[a-zA-Z0-9\s\-_&]+$/.test(selectedTopic)) {
+                            showMessage('error', 'Topic can only contain letters, numbers, spaces, hyphens, underscores, and ampersands.');
+                            return;
+                        }
                     }
 
                     const uploadsRef = db.ref('uploads');
@@ -189,11 +259,17 @@
                         uid: user.uid,
                         content: content,
                         name: currentUsername, // Use the fetched username
-                        genre: genre, // Add the genre
+                        genre: selectedTopic, // Use the selected topic (existing or custom)
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
                         showMessage('success', 'Submitted successfully!');
                         uploadForm.reset();
+                        // Reset to default state (existing topic selected)
+                        document.getElementById('existing-topic-radio').checked = true;
+                        document.getElementById('existing-topic-container').style.display = 'block';
+                        document.getElementById('custom-topic-container').style.display = 'none';
+                        document.getElementById('existing-topic').required = true;
+                        document.getElementById('custom-topic').required = false;
                     }).catch(error => {
                         showMessage('error', `Submission failed: ${error.message}`);
                     });
@@ -211,6 +287,7 @@
             setupMobileMenu_impl();
             handleLogout_impl();
             checkAuthState_impl();
+            setupTopicSelection();
             setupUploadForm();
         });
     </script>
