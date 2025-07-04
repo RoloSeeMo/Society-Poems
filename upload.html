@@ -57,7 +57,7 @@
                     
                     <div id="custom-topic-container" class="topic-input-container" style="display: none;">
                         <input type="text" id="custom-topic" placeholder="Enter your topic name..." maxlength="50">
-                        <small class="input-help">Topic names should be descriptive and appropriate for all audiences</small>
+                        <small class="input-help">Topic names should only contain letters and numbers (no spaces or special characters)</small>
                     </div>
                 </div>
                 
@@ -201,10 +201,10 @@
                 // Validate custom topic input
                 customTopicInput.addEventListener('input', (e) => {
                     const value = e.target.value.trim();
-                    const isValid = value.length >= 2 && value.length <= 50 && /^[a-zA-Z0-9\s\-_&]+$/.test(value);
+                    const isValid = value.length >= 2 && value.length <= 50 && /^[a-zA-Z0-9]+$/.test(value);
                     
                     if (value && !isValid) {
-                        customTopicInput.setCustomValidity('Topic must be 2-50 characters and contain only letters, numbers, spaces, hyphens, underscores, and ampersands');
+                        customTopicInput.setCustomValidity('Topic must be 2-50 characters and contain only letters and numbers (no spaces or special characters)');
                     } else {
                         customTopicInput.setCustomValidity('');
                     }
@@ -247,8 +247,8 @@
                             showMessage('error', 'Custom topic must be between 2 and 50 characters.');
                             return;
                         }
-                        if (!/^[a-zA-Z0-9\s\-_&]+$/.test(selectedTopic)) {
-                            showMessage('error', 'Topic can only contain letters, numbers, spaces, hyphens, underscores, and ampersands.');
+                        if (!/^[a-zA-Z0-9]+$/.test(selectedTopic)) {
+                            showMessage('error', 'Topic can only contain letters and numbers (no spaces or special characters).');
                             return;
                         }
                     }
