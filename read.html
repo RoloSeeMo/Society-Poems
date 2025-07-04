@@ -108,12 +108,13 @@
         };
 
         // Function to setup live listener for entries
-        function setupLiveEntriesListener() {
+function setupLiveEntriesListener() {
     const genreButtonsContainer = document.getElementById("genre-buttons-container");
     let genreCounts = {};
 
     // Listen to the uploads reference to get all topics
     db.ref("uploads").on("value", (snapshot) => {
+        console.log("Database snapshot received:", snapshot.exists()); // Debug log
         genreCounts = {};
         
         if (snapshot.exists()) {
@@ -121,10 +122,13 @@
                 const topicName = topicSnapshot.key;
                 const postsCount = topicSnapshot.numChildren();
                 genreCounts[topicName] = postsCount;
+                console.log(`Found topic: ${topicName} with ${postsCount} posts`); // Debug log
             });
+        } else {
+            console.log("No data found in uploads"); // Debug log
         }
 
-        // Create genre buttons
+        // Clear existing content
         genreButtonsContainer.innerHTML = '';
 
         if (Object.keys(genreCounts).length > 0) {
@@ -152,6 +156,7 @@
             sortingControls.appendChild(alphabeticalBtn);
             sortingControls.appendChild(countBtn);
 
+            // Insert sorting controls before genre buttons
             genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
 
             for (const genre in genreCounts) {
@@ -180,6 +185,9 @@
                 loadEntriesByGenre(topicParam);
             }, 1000);
         }
+    }, (error) => {
+        console.error("Database error:", error); // Debug log
+        genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
     });
 }
 
@@ -310,30 +318,45 @@
         };
 
         // Function to populate genre filter options
-        function populateGenreFilter() {
-            const genreSelect = document.getElementById("genre-select");
-            const genres = ["Fiction", "Non-Fiction", "Science Fiction", "Fantasy", "Mystery", "Thriller", "Horror", "Romance", "Historical Fiction"]; // Example genres
+        // Function to populate genre filter options
 
-            genres.forEach(genre => {
-                const option = document.createElement("option");
-                option.value = genre;
-                option.textContent = genre;
-                genreSelect.appendChild(option);
-            });
+// Add mobile menu functionality
+const setupMobileMenu = () => {
+    const openBtn = document.getElementById('menu-open-button');
+    const closeBtn = document.getElementById('menu-close-button');
+    const navMenu = document.querySelector('.nav-menu');
+    if (openBtn && closeBtn && navMenu) {
+        openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+        closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+    }
+};
 
-            genreSelect.addEventListener("change", function() {
-                const selectedGenre = this.value;
-                if (selectedGenre === "") {
-                    setupLiveEntriesListener(); // Load all entries
-                } else {
-                    loadEntriesByGenre(selectedGenre);
-                }
-            });
-        }
+// Add logout functionality
+const handleLogout = () => {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().catch(error => console.error('Sign out error', error));
+        });
+    }
+};
 
-        // Call functions on page load
-        checkAuthState();
-        populateGenreFilter();
+// Add back button functionality
+const setupBackButton = () => {
+    const backToGenresBtn = document.getElementById('back-to-genres-btn');
+    if (backToGenresBtn) {
+        backToGenresBtn.addEventListener('click', () => {
+            document.getElementById('entries-view').style.display = 'none';
+            document.getElementById('genre-selection-view').style.display = 'block';
+        });
+    }
+};
+
+// Call functions on page load
+setupMobileMenu();
+handleLogout();
+setupBackButton();
+checkAuthState();
     </script>
 </body>
 </html>
