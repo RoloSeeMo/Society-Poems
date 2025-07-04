@@ -31,9 +31,9 @@
         <!-- Entries will be dynamically added here -->
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
         // Firebase configuration (replace with your actual config)
@@ -45,12 +45,12 @@
             storageBucket: "society-poems-97f4d.firebasestorage.app",
             messagingSenderId: "723670230106",
             appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-            };
+        };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const db = firebase.database();
 
         let currentUserIsAdmin = false;
         const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"]; // Replace with actual admin UIDs
@@ -67,7 +67,7 @@
                             currentUserIsAdmin = adminUIDs.includes(user.uid);
                             document.body.style.visibility = 'visible';
                             setupLiveEntriesListener(); 
-                    
+
                             // Check for topic parameter in URL and auto-load that topic
                             const urlParams = new URLSearchParams(window.location.search);
                             const topicParam = urlParams.get('topic');
@@ -87,16 +87,80 @@
 
         // Function to setup live listener for entries
         function setupLiveEntriesListener() {
-            db.collection("entries").orderBy("timestamp", "desc")
-                .onSnapshot((querySnapshot) => {
-                    const entriesContainer = document.getElementById("entries-container");
-                    entriesContainer.innerHTML = ""; // Clear existing entries
+            const entriesContainer = document.getElementById("entries-container");
+            const genreButtonsContainer = document.getElementById("genre-filter");
+            let genreCounts = {};
 
-                    querySnapshot.forEach((doc) => {
-                        const entryData = doc.data();
-                        const entryElement = createEntryElement(doc.id, entryData);
+            db.ref("entries").orderByChild("timestamp").on("value", (snapshot) => {
+                    entriesContainer.innerHTML = ""; // Clear existing entries
+                    genreCounts = {};
+
+                    snapshot.forEach((childSnapshot) => {
+                        const entryData = childSnapshot.val();
+                        const entryId = childSnapshot.key;
+                        const entryElement = createEntryElement(entryId, entryData);
                         entriesContainer.appendChild(entryElement);
+
+                        // Count genres
+                        const genre = entryData.genre;
+                        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+
+                        // Check for topic parameter in URL and auto-load that topic
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const topicParam = urlParams.get('topic');
                     });
+
+                    // Create genre buttons
+                    genreButtonsContainer.innerHTML = '';
+
+                    // Add sorting controls
+                    const sortingControls = document.createElement('div');
+                    sortingControls.className = 'sorting-controls';
+                    sortingControls.style.marginBottom = '20px';
+                    sortingControls.style.textAlign = 'center';
+
+                    const sortLabel = document.createElement('span');
+                    sortLabel.textContent = 'Sort by: ';
+                    sortLabel.style.marginRight = '10px';
+
+                    const alphabeticalBtn = document.createElement('button');
+                    alphabeticalBtn.textContent = 'Alphabetical';
+                    alphabeticalBtn.className = 'sort-btn';
+                    alphabeticalBtn.onclick = () => sortGenres('alphabetical');
+
+                    const countBtn = document.createElement('button');
+                    countBtn.textContent = 'Post Count';
+                    countBtn.className = 'sort-btn';
+                    countBtn.onclick = () => sortGenres('count');
+
+                    sortingControls.appendChild(sortLabel);
+                    sortingControls.appendChild(alphabeticalBtn);
+                    sortingControls.appendChild(countBtn);
+
+                    // Insert sorting controls before genre buttons
+                    genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
+
+                    for (const genre in genreCounts) {
+                        const button = document.createElement('button');
+                        button.dataset.genre = genre;
+                        button.textContent = `${genre} `;
+                        button.className = 'genre-button';
+
+                        const countSpan = document.createElement('span');
+                        countSpan.className = 'genre-count';
+                        countSpan.textContent = `(${genreCounts[genre]})`;
+                        button.appendChild(countSpan);
+
+                        button.addEventListener('click', () => loadEntriesByGenre(genre));
+                        genreButtonsContainer.appendChild(button);
+                    }
+
+                    // Auto-load topic if URL parameter exists
+                    if (topicParam && genreCounts[topicParam]) {
+                        setTimeout(() => {
+                            loadEntriesByGenre(topicParam);
+                        }, 1000);
+                    }
                 });
         }
 
@@ -122,7 +186,7 @@
             entryDiv.appendChild(authorElement);
 
             const timestampElement = document.createElement("p");
-            const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+            const date = data.timestamp ? new Date(data.timestamp) : new Date();
             timestampElement.textContent = `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
             entryDiv.appendChild(timestampElement);
 
@@ -140,7 +204,7 @@
         async function deleteEntry(docId) {
             if (confirm("Are you sure you want to delete this entry?")) {
                 try {
-                    await db.collection("entries").doc(docId).delete();
+                    await db.ref("entries").child(docId).remove();
                     console.log("Entry deleted successfully!");
                 } catch (error) {
                     console.error("Error deleting entry: ", error);
@@ -151,17 +215,18 @@
 
         // Function to load entries by genre
         function loadEntriesByGenre(genre) {
-            db.collection("entries")
-                .where("genre", "==", genre)
-                .orderBy("timestamp", "desc")
-                .get()
-                .then((querySnapshot) => {
+            db.ref("entries")
+                .orderByChild("genre")
+                .equalTo(genre)
+                .once("value")
+                .then((snapshot) => {
                     const entriesContainer = document.getElementById("entries-container");
                     entriesContainer.innerHTML = ""; // Clear existing entries
 
-                    querySnapshot.forEach((doc) => {
-                        const entryData = doc.data();
-                        const entryElement = createEntryElement(doc.id, entryData);
+                    snapshot.forEach((childSnapshot) => {
+                        const entryData = childSnapshot.val();
+                        const entryId = childSnapshot.key;
+                        const entryElement = createEntryElement(entryId, entryData);
                         entriesContainer.appendChild(entryElement);
                     });
                 })
@@ -169,6 +234,23 @@
                     console.error("Error getting entries by genre: ", error);
                 });
         }
+
+        const sortGenres = (sortType) => {
+            const buttons = Array.from(genreButtonsContainer.children);
+            
+            buttons.sort((a, b) => {
+                if (sortType === 'alphabetical') {
+                    return a.dataset.genre.localeCompare(b.dataset.genre);
+                } else if (sortType === 'count') {
+                    const countA = parseInt(a.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                    const countB = parseInt(b.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                    return countB - countA; // High to low
+                }
+            });
+            
+            genreButtonsContainer.innerHTML = '';
+            buttons.forEach(button => genreButtonsContainer.appendChild(button));
+        };
 
         // Function to populate genre filter options
         function populateGenreFilter() {
