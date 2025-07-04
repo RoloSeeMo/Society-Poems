@@ -2,34 +2,56 @@
 <html>
 <head>
     <title>Read Entries</title>
-    <style>
-        body {
-            visibility: hidden; /* Hide content until authentication is checked */
-        }
-        .entry {
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-        #genre-filter {
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Entries</h1>
+<body data-theme="night" style="visibility: hidden;">
 
-    <div id="genre-filter">
-        <label for="genre-select">Filter by Genre:</label>
-        <select id="genre-select">
-            <option value="">All Genres</option>
-            <!-- Genres will be dynamically added here -->
-        </select>
-    </div>
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <button id="menu-open-button" class="fas fa-bars"></button>
+            <ul class="nav-menu">
+                <button id="menu-close-button" class="fas fa-times"></button>
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="read.html" class="nav-link active">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="feedback.html" class="nav-link">Feedback</a></li>
+                <li><a id="logoutBtn" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div id="entries-container">
-        <!-- Entries will be dynamically added here -->
-    </div>
+    <main>
+        <section class="section-content">
+            
+            <div id="genre-selection-view">
+                <h1 class="section-title">Choose a Topic</h1>
+                <div id="genre-buttons-container" class="genre-buttons-container">
+                    <p>Loading genres...</p>
+                </div>
+            </div>
+
+            <div id="entries-view" style="display: none;">
+                <div class="entries-header">
+                    <button id="back-to-genres-btn" class="back-button">&larr; Back to Genres</button>
+                    <h1 id="entries-view-title" class="section-title" style="margin-top: 0;"></h1>
+                </div>
+                <div id="entriesContainer">
+                    <p>Loading entries...</p>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Society Poems</p>
+        <div class="footer-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <span>|</span>
+            <a href="tos.html">Terms of Service</a>
+        </div>
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -87,8 +109,8 @@
 
         // Function to setup live listener for entries
         function setupLiveEntriesListener() {
-            const entriesContainer = document.getElementById("entries-container");
-            const genreButtonsContainer = document.getElementById("genre-filter");
+            const entriesContainer = document.getElementById("entriesContainer");
+            const genreButtonsContainer = document.getElementById("genre-buttons-container");
             let genreCounts = {};
 
             db.ref("entries").orderByChild("timestamp").on("value", (snapshot) => {
@@ -220,7 +242,7 @@
                 .equalTo(genre)
                 .once("value")
                 .then((snapshot) => {
-                    const entriesContainer = document.getElementById("entries-container");
+                    const entriesContainer = document.getElementById("entriesContainer");
                     entriesContainer.innerHTML = ""; // Clear existing entries
 
                     snapshot.forEach((childSnapshot) => {
