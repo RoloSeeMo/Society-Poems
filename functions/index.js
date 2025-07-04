@@ -26,10 +26,10 @@ exports.sendFeedbackEmail = functions.database.ref("/feedback/{pushId}")
         return transporter.sendMail(mailOptions);
     });
 
-// Deletes a user's data when they are deleted from Firebase Auth.
+// Deletes a user's data from RTDB when they are deleted from FB Auth.
 exports.cleanupUser = functions.auth.user().onDelete((user) => {
-  const db = admin.database();
-  return db.ref(`/users/${user.uid}`).remove();
+    const db = admin.database();
+    return db.ref(`/users/${user.uid}`).remove();
 });
 
 

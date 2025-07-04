@@ -20,6 +20,21 @@
     "feedback": {
         // This rule remains unchanged.
         ".write": "auth != null"
+    },
+    "topics": {
+        // Allows any authenticated user to read all topics and their content.
+        ".read": "auth != null",
+        // Allows authenticated users to create new topics or add posts to existing ones.
+        ".write": "auth != null",
+        // Index on 'uploadCount' to enable efficient querying if topics need to be ordered by it.
+        ".indexOn": ["uploadCount"],
+        "$topicName": {
+            "posts": {
+                // Allows authenticated users to write posts under a specific topic.
+                // You might want to refine this to only allow the post's owner to delete their post later.
+                ".write": "auth != null"
+            }
+        }
     }
     }
 }
