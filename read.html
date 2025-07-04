@@ -27,20 +27,36 @@
     <main>
         <section class="section-content">
             
-            <div id="genre-selection-view">
-                <h1 class="section-title">Choose a Topic</h1>
-                <div id="genre-buttons-container" class="genre-buttons-container">
-                    <p>Loading genres...</p>
+            <!-- UPDATED: Renamed id for clarity -->
+            <div id="topic-selection-view">
+                <h1 class="section-title">Explore Topics</h1>
+
+                <!-- NEW: Search and Sort Controls -->
+                <div class="topic-controls">
+                    <input type="text" id="topicSearchInput" placeholder="Search topics..." class="form-control">
+                    <select id="topicSortSelect" class="form-control">
+                        <option value="uploadCountDesc">Sort by: Most Posts</option>
+                        <option value="alphaAsc">Sort by: A-Z</option>
+                        <option value="alphaDesc">Sort by: Z-A</option>
+                    </select>
+                </div>
+
+                <!-- UPDATED: Renamed id for clarity -->
+                <div id="topic-buttons-container" class="topic-buttons-container">
+                    <p>Loading topics...</p>
                 </div>
             </div>
 
             <div id="entries-view" style="display: none;">
                 <div class="entries-header">
-                    <button id="back-to-genres-btn" class="back-button">&larr; Back to Genres</button>
+                    <button id="back-to-topics-btn" class="back-button">&larr; Back to Topics</button>
                     <h1 id="entries-view-title" class="section-title" style="margin-top: 0;"></h1>
                 </div>
-                <div id="entriesContainer">
-                    <p>Loading entries...</p>
+                <!-- NEW: Added a container for posts to manage scrolling -->
+                <div id="postsContainerWrapper">
+                    <div id="entriesContainer">
+                        <p>Loading entries...</p>
+                    </div>
                 </div>
             </div>
 
@@ -56,188 +72,8 @@
         </div>
     </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const firebaseConfig = {
-                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-                authDomain: "society-poems-97f4d.firebaseapp.com",
-                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-                projectId: "society-poems-97f4d",
-                storageBucket: "society-poems-97f4d.firebasestorage.app",
-                messagingSenderId: "723670230106",
-                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-            };
-
-            const app = firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.database();
-            const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"];
-            let currentUserIsAdmin = false;
-            let allEntries = null;
-            let currentOpenGenre = null; // --- NEW: Tracks the currently viewed genre ---
-
-            const genreSelectionView = document.getElementById('genre-selection-view');
-            const entriesView = document.getElementById('entries-view');
-            const entriesContainer = document.getElementById('entriesContainer');
-            const genreButtonsContainer = document.getElementById('genre-buttons-container');
-            const backToGenresBtn = document.getElementById('back-to-genres-btn');
-            
-            // --- UPDATED: This is now the main live listener for all data changes ---
-            const setupLiveEntriesListener = () => {
-                const entriesRef = db.ref('uploads');
-                entriesRef.on('value', (snapshot) => {
-                    allEntries = snapshot.val(); 
-                    
-                    const genreCounts = {};
-                    if (allEntries) {
-                        for (const key in allEntries) {
-                            const genre = allEntries[key].genre || 'Uncategorized';
-                            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
-                        }
-                    }
-
-                    genreButtonsContainer.innerHTML = '';
-                    if (Object.keys(genreCounts).length > 0) {
-                        for (const genreName in genreCounts) {
-                            const count = genreCounts[genreName];
-                            const button = document.createElement('button');
-                            button.className = 'genre-button';
-                            button.dataset.genre = genreName;
-                            button.innerHTML = `${genreName} <span class="genre-count">Posts: ${count}</span>`;
-                            genreButtonsContainer.appendChild(button);
-                        }
-                    } else {
-                        genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
-                    }
-
-                    // --- NEW: If a genre is currently open, refresh its view ---
-                    if (currentOpenGenre) {
-                        loadEntriesByGenre(currentOpenGenre, true); // `true` indicates a refresh
-                    }
-                }, (error) => {
-                    console.error(error);
-                    genreButtonsContainer.innerHTML = '<p>Error loading genres.</p>';
-                });
-            };
-
-            const loadEntriesByGenre = (selectedGenre, isRefresh = false) => {
-                if (!isRefresh) {
-                    genreSelectionView.style.display = 'none';
-                    entriesView.style.display = 'block';
-                }
-                currentOpenGenre = selectedGenre; 
-                document.getElementById('entries-view-title').textContent = selectedGenre;
-                entriesContainer.innerHTML = '';
-
-                if (!allEntries) {
-                    entriesContainer.innerHTML = '<p>No entries found.</p>';
-                    return;
-                }
-                
-                const entriesForGenre = [];
-                for (const key in allEntries) {
-                    const entry = allEntries[key];
-                    if ((entry.genre || 'Uncategorized') === selectedGenre) {
-                        entry.dbKey = key;
-                        entriesForGenre.push(entry);
-                    }
-                }
-
-                entriesForGenre.sort((a, b) => b.timestamp - a.timestamp);
-
-                if (entriesForGenre.length === 0) {
-                    entriesContainer.innerHTML = `<p>No entries found for the genre "${selectedGenre}".</p>`;
-                    return;
-                }
-
-                entriesForGenre.forEach(entry => {
-                    const div = document.createElement('div');
-                    div.className = 'entry';
-                    const content = document.createElement('p');
-                    content.className = 'entry-content';
-                    content.innerText = entry.content;
-                    const meta = document.createElement('div');
-                    meta.className = 'entry-meta';
-                    const date = new Date(entry.timestamp).toLocaleString();
-                    meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
-                    
-                    if (currentUserIsAdmin) {
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.innerHTML = '&times;';
-                        deleteBtn.title = 'Delete this entry';
-                        deleteBtn.dataset.key = entry.dbKey;
-                        div.appendChild(deleteBtn);
-                    }
-
-                    div.appendChild(content);
-                    div.appendChild(meta);
-                    entriesContainer.appendChild(div);
-                });
-            };
-
-            const checkAuthState = () => {
-                auth.onAuthStateChanged(user => {
-                    if (!user) {
-                        window.location.href = 'login.html';
-                    } else {
-                        const userRef = db.ref('users/' + user.uid);
-                        userRef.once('value', (snapshot) => {
-                            if (snapshot.exists() && snapshot.val().username) {
-                                currentUserIsAdmin = adminUIDs.includes(user.uid);
-                                document.body.style.visibility = 'visible';
-                                setupLiveEntriesListener(); 
-                            } else {
-                                window.location.href = 'login.html';
-                            }
-                        });
-                    }
-                });
-            };
-
-            genreButtonsContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('.genre-button');
-                if (button) {
-                    loadEntriesByGenre(button.dataset.genre);
-                }
-            });
-
-            backToGenresBtn.addEventListener('click', () => {
-                currentOpenGenre = null; // --- NEW: Clear the current genre ---
-                entriesView.style.display = 'none';
-                genreSelectionView.style.display = 'block';
-            });
-
-            entriesContainer.addEventListener('click', (e) => {
-                if (e.target && e.target.classList.contains('delete-btn')) {
-                    const entryKey = e.target.dataset.key;
-                    if (entryKey && confirm('Are you sure you want to permanently delete this entry?')) {
-                        db.ref('uploads/' + entryKey).remove();
-                    }
-                }
-            });
-
-            const openBtn = document.getElementById('menu-open-button');
-            const closeBtn = document.getElementById('menu-close-button');
-            const navMenu = document.querySelector('.nav-menu');
-            if (openBtn && closeBtn && navMenu) {
-                openBtn.addEventListener('click', () => navMenu.classList.add('active'));
-                closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
-            }
-
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    auth.signOut().catch(error => console.error('Sign out error', error));
-                });
-            }
-            
-            checkAuthState();
-        });
-    </script>
+    <!-- REMOVED: Old Firebase SDK script tags -->
+    <!-- NEW: Single module script tag for database.js -->
+    <script type="module" src="database.js"></script>
 </body>
 </html>
