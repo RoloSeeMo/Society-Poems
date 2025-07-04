@@ -253,23 +253,20 @@
                         }
                     }
 
-                    const uploadsRef = db.ref('uploads');
-                    
+                    const uploadsRef = db.ref('uploads/' + selectedTopic);
+
                     uploadsRef.push({
                         uid: user.uid,
                         content: content,
-                        name: currentUsername, // Use the fetched username
-                        genre: selectedTopic, // Use the selected topic (existing or custom)
+                        name: currentUsername,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
-                        showMessage('success', 'Submitted successfully!');
-                        uploadForm.reset();
-                        // Reset to default state (existing topic selected)
-                        document.getElementById('existing-topic-radio').checked = true;
-                        document.getElementById('existing-topic-container').style.display = 'block';
-                        document.getElementById('custom-topic-container').style.display = 'none';
-                        document.getElementById('existing-topic').required = true;
-                        document.getElementById('custom-topic').required = false;
+                        showMessage('success', 'Submitted successfully! Redirecting to your topic...');
+    
+                        // Wait a moment to show the success message, then redirect
+                        setTimeout(() => {
+                            window.location.href = `read.html?topic=${encodeURIComponent(selectedTopic)}`;
+                        }, 1500);
                     }).catch(error => {
                         showMessage('error', `Submission failed: ${error.message}`);
                     });
