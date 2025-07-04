@@ -31,19 +31,36 @@
             <form id="uploadForm">
                 <p style="text-align: center; margin-bottom: 20px;">Posting as: <strong id="author-name">Loading...</strong></p>
 
-                <label for="genre">Genre:</label>
-                <select id="genre" required>
-                    <option value="" disabled selected>-- Select a Genre --</option>
-                    <option value="Poetry">Poetry</option>
-                    <option value="Prose">Prose</option>
-                    <option value="Freeform">Freeform</option>
-                    <option value="Short Story">Short Story</option>
-                    <option value="Musings">Musings</option>
-                </select>
-                
-                <label for="content">Your Writing:</label>
-                <textarea id="content" rows="10" placeholder="Let your soul speak..." required></textarea>
-                <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Submit</button>
+                <div id="topic-selection-section">
+                    <label>Choose Topic Option:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="chooseExisting" name="topicOption" value="existing" checked>
+                        <label for="chooseExisting">Select Existing Topic</label>
+                        <input type="radio" id="createNew" name="topicOption" value="new">
+                        <label for="createNew">Create New Topic</label>
+                    </div>
+
+                    <div id="existingTopicGroup" style="margin-top: 15px;">
+                        <label for="topicSelect">Select a Topic:</label>
+                        <select id="topicSelect" required>
+                            <option value="" disabled selected>-- Loading Topics --</option>
+                        </select>
+                    </div>
+
+                    <div id="newTopicGroup" style="display: none; margin-top: 15px;">
+                        <label for="topicInput">New Topic Name:</label>
+                        <input type="text" id="topicInput" placeholder="Enter new topic (e.g., 'NaturePoems')" maxlength="100">
+                        <small id="topicError" style="color: red; display: none;">Topic name rules: No blanks, max 100 characters, no duplicates (case-insensitive).</small>
+                    </div>
+
+                    <button type="button" id="proceedToPostBtn" class="form-button form-button-primary" style="margin-top: 20px;">Proceed to Post</button>
+                </div>
+
+                <div id="postContentSection" style="display: none;">
+                    <label for="content">Your Writing:</label>
+                    <textarea id="content" rows="10" placeholder="Let your soul speak..." required></textarea>
+                    <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Submit</button>
+                </div>
             </form>
         </div>
     </main>
@@ -57,6 +74,7 @@
         </div>
     </footer>
 
+    <script type="module" src="database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
