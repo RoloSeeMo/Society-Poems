@@ -109,82 +109,79 @@
 
         // Function to setup live listener for entries
         function setupLiveEntriesListener() {
-            const entriesContainer = document.getElementById("entriesContainer");
-            const genreButtonsContainer = document.getElementById("genre-buttons-container");
-            let genreCounts = {};
+    const genreButtonsContainer = document.getElementById("genre-buttons-container");
+    let genreCounts = {};
 
-            db.ref("entries").orderByChild("timestamp").on("value", (snapshot) => {
-                    entriesContainer.innerHTML = ""; // Clear existing entries
-                    genreCounts = {};
-
-                    snapshot.forEach((childSnapshot) => {
-                        const entryData = childSnapshot.val();
-                        const entryId = childSnapshot.key;
-                        const entryElement = createEntryElement(entryId, entryData);
-                        entriesContainer.appendChild(entryElement);
-
-                        // Count genres
-                        const genre = entryData.genre;
-                        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
-
-                        // Check for topic parameter in URL and auto-load that topic
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const topicParam = urlParams.get('topic');
-                    });
-
-                    // Create genre buttons
-                    genreButtonsContainer.innerHTML = '';
-
-                    // Add sorting controls
-                    const sortingControls = document.createElement('div');
-                    sortingControls.className = 'sorting-controls';
-                    sortingControls.style.marginBottom = '20px';
-                    sortingControls.style.textAlign = 'center';
-
-                    const sortLabel = document.createElement('span');
-                    sortLabel.textContent = 'Sort by: ';
-                    sortLabel.style.marginRight = '10px';
-
-                    const alphabeticalBtn = document.createElement('button');
-                    alphabeticalBtn.textContent = 'Alphabetical';
-                    alphabeticalBtn.className = 'sort-btn';
-                    alphabeticalBtn.onclick = () => sortGenres('alphabetical');
-
-                    const countBtn = document.createElement('button');
-                    countBtn.textContent = 'Post Count';
-                    countBtn.className = 'sort-btn';
-                    countBtn.onclick = () => sortGenres('count');
-
-                    sortingControls.appendChild(sortLabel);
-                    sortingControls.appendChild(alphabeticalBtn);
-                    sortingControls.appendChild(countBtn);
-
-                    // Insert sorting controls before genre buttons
-                    genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
-
-                    for (const genre in genreCounts) {
-                        const button = document.createElement('button');
-                        button.dataset.genre = genre;
-                        button.textContent = `${genre} `;
-                        button.className = 'genre-button';
-
-                        const countSpan = document.createElement('span');
-                        countSpan.className = 'genre-count';
-                        countSpan.textContent = `(${genreCounts[genre]})`;
-                        button.appendChild(countSpan);
-
-                        button.addEventListener('click', () => loadEntriesByGenre(genre));
-                        genreButtonsContainer.appendChild(button);
-                    }
-
-                    // Auto-load topic if URL parameter exists
-                    if (topicParam && genreCounts[topicParam]) {
-                        setTimeout(() => {
-                            loadEntriesByGenre(topicParam);
-                        }, 1000);
-                    }
-                });
+    // Listen to the uploads reference to get all topics
+    db.ref("uploads").on("value", (snapshot) => {
+        genreCounts = {};
+        
+        if (snapshot.exists()) {
+            snapshot.forEach((topicSnapshot) => {
+                const topicName = topicSnapshot.key;
+                const postsCount = topicSnapshot.numChildren();
+                genreCounts[topicName] = postsCount;
+            });
         }
+
+        // Create genre buttons
+        genreButtonsContainer.innerHTML = '';
+
+        if (Object.keys(genreCounts).length > 0) {
+            // Add sorting controls
+            const sortingControls = document.createElement('div');
+            sortingControls.className = 'sorting-controls';
+            sortingControls.style.marginBottom = '20px';
+            sortingControls.style.textAlign = 'center';
+
+            const sortLabel = document.createElement('span');
+            sortLabel.textContent = 'Sort by: ';
+            sortLabel.style.marginRight = '10px';
+
+            const alphabeticalBtn = document.createElement('button');
+            alphabeticalBtn.textContent = 'Alphabetical';
+            alphabeticalBtn.className = 'sort-btn';
+            alphabeticalBtn.onclick = () => sortGenres('alphabetical');
+
+            const countBtn = document.createElement('button');
+            countBtn.textContent = 'Post Count';
+            countBtn.className = 'sort-btn';
+            countBtn.onclick = () => sortGenres('count');
+
+            sortingControls.appendChild(sortLabel);
+            sortingControls.appendChild(alphabeticalBtn);
+            sortingControls.appendChild(countBtn);
+
+            genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
+
+            for (const genre in genreCounts) {
+                const button = document.createElement('button');
+                button.dataset.genre = genre;
+                button.textContent = `${genre} `;
+                button.className = 'genre-button';
+
+                const countSpan = document.createElement('span');
+                countSpan.className = 'genre-count';
+                countSpan.textContent = `Posts: ${genreCounts[genre]}`;
+                button.appendChild(countSpan);
+
+                button.addEventListener('click', () => loadEntriesByGenre(genre));
+                genreButtonsContainer.appendChild(button);
+            }
+        } else {
+            genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
+        }
+
+        // Auto-load topic if URL parameter exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicParam = urlParams.get('topic');
+        if (topicParam && genreCounts[topicParam]) {
+            setTimeout(() => {
+                loadEntriesByGenre(topicParam);
+            }, 1000);
+        }
+    });
+}
 
         // Function to create an entry element
         function createEntryElement(docId, data) {
@@ -236,26 +233,64 @@
         }
 
         // Function to load entries by genre
-        function loadEntriesByGenre(genre) {
-            db.ref("entries")
-                .orderByChild("genre")
-                .equalTo(genre)
-                .once("value")
-                .then((snapshot) => {
-                    const entriesContainer = document.getElementById("entriesContainer");
-                    entriesContainer.innerHTML = ""; // Clear existing entries
+        function loadEntriesByGenre(selectedGenre) {
+    const genreSelectionView = document.getElementById('genre-selection-view');
+    const entriesView = document.getElementById('entries-view');
+    const entriesContainer = document.getElementById('entriesContainer');
+    
+    genreSelectionView.style.display = 'none';
+    entriesView.style.display = 'block';
+    
+    document.getElementById('entries-view-title').textContent = selectedGenre;
+    entriesContainer.innerHTML = '';
 
-                    snapshot.forEach((childSnapshot) => {
-                        const entryData = childSnapshot.val();
-                        const entryId = childSnapshot.key;
-                        const entryElement = createEntryElement(entryId, entryData);
-                        entriesContainer.appendChild(entryElement);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error getting entries by genre: ", error);
-                });
+    db.ref('uploads/' + selectedGenre).orderByChild('timestamp').on('value', (snapshot) => {
+        entriesContainer.innerHTML = '';
+        
+        if (!snapshot.exists()) {
+            entriesContainer.innerHTML = `<p>No entries found for the topic "${selectedGenre}".</p>`;
+            return;
         }
+
+        const entriesForGenre = [];
+        snapshot.forEach((childSnapshot) => {
+            const entry = childSnapshot.val();
+            entry.dbKey = childSnapshot.key;
+            entriesForGenre.push(entry);
+        });
+
+        entriesForGenre.sort((a, b) => b.timestamp - a.timestamp);
+
+        entriesForGenre.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'entry';
+            const content = document.createElement('p');
+            content.className = 'entry-content';
+            content.innerText = entry.content;
+            const meta = document.createElement('div');
+            meta.className = 'entry-meta';
+            const date = new Date(entry.timestamp).toLocaleString();
+            meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+            
+            if (currentUserIsAdmin) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.title = 'Delete this entry';
+                deleteBtn.onclick = () => {
+                    if (confirm('Are you sure you want to permanently delete this entry?')) {
+                        db.ref('uploads/' + selectedGenre + '/' + entry.dbKey).remove();
+                    }
+                };
+                div.appendChild(deleteBtn);
+            }
+
+            div.appendChild(content);
+            div.appendChild(meta);
+            entriesContainer.appendChild(div);
+        });
+    });
+}
 
         const sortGenres = (sortType) => {
             const buttons = Array.from(genreButtonsContainer.children);
