@@ -2,8 +2,21 @@
 <html>
 <head>
     <title>Read Entries</title>
-    <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .genre-count {
+          position: absolute;
+          bottom: 4px;  /* Changed from 8px to 4px to move it down */
+          right: 12px;
+          font-size: 0.75rem;
+          font-weight: normal;
+          background-color: rgba(255, 255, 255, 0.15);
+          color: var(--text-secondary);
+          padding: 4px 8px;
+          border-radius: 10px;
+          line-height: 1;
+        }
+    </style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
 
@@ -191,6 +204,19 @@ if (Object.keys(genreCounts).length > 0) {
                 loadEntriesByGenre(topicParam);
             }, 1000);
         }
+
+        // Add sorting buttons
+        const alphabeticalBtn = document.createElement('button');
+        alphabeticalBtn.textContent = 'A-Z';
+        alphabeticalBtn.id = 'alphabetical-sort-btn';
+        alphabeticalBtn.className = 'sort-button';
+        alphabeticalBtn.addEventListener('click', () => toggleSort('alphabetical'));
+
+        const countBtn = document.createElement('button');
+        countBtn.textContent = 'Posts ↓';
+        countBtn.id = 'count-sort-btn';
+        countBtn.className = 'sort-button';
+        countBtn.addEventListener('click', () => toggleSort('count'));
     }, (error) => {
         console.error("Database error:", error); // Debug log
         genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
