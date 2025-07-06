@@ -18,31 +18,20 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* Root CSS Variables with New Color Scheme */
+/* Root CSS Variables for Theming and Consistency */
 :root {
-  /* New Color Palette */
-  --primary-color: #1a5db4; /* Blue accent for buttons, links */
-  --primary-hover: #1548a0; /* Darker blue for hover states */
-  --primary-light: #2b6bc5; /* Lighter blue for subtle accents */
-
-  --dark-bg: #0c050d; /* Very dark background */
-  --secondary-bg: #393231; /* Warm dark gray for cards */
-  --tertiary-bg: #4a4548; /* Slightly lighter for hover states */
-
-  --text-primary: #fffffe; /* Pure white for main text */
-  --text-secondary: #57565b; /* Medium gray for secondary text */
-  --text-muted: #6b696e; /* Lighter gray for muted text */
-
-  --border-color: #57565b; /* Medium gray for borders */
-  --border-light: #6b696e; /* Lighter borders */
-
-  --success-color: #22c55e; /* Green for success messages */
-  --error-color: #ef4444; /* Red for error messages */
-  --warning-color: #f59e0b; /* Orange for warnings */
-
-  --success-bg: rgba(34, 197, 94, 0.1);
-  --error-bg: rgba(239, 68, 68, 0.1);
-  --warning-bg: rgba(245, 158, 11, 0.1);
+  /* Color Palette */
+  --primary-color: #6b4226;
+  --secondary-color: #f2e8d5;
+  --black-color: #111111;
+  --dark-color: #353535;
+  --primary-color-200: #c97b63;
+  --primary-color-400: #3d2100;
+  --gray-color: #777f81;
+  --success-color: #155724;
+  --error-color: #dc3545;
+  --success-bg: #d4edda;
+  --error-bg: #f8d7da;
 
   /* Typography */
   --font-size-s: 0.9rem;
@@ -70,30 +59,36 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--secondary-bg) 100%);
+  background: var(--bg-primary);
   color: var(--text-primary);
   transition: background var(--transition-speed), color var(--transition-speed);
 }
 
-/* Theme Definitions - Simplified to single dark theme */
-[data-theme="day"],
+/* Theme Definitions */
+[data-theme="day"] {
+  --bg-primary: linear-gradient(to bottom, var(--secondary-color), white);
+  --bg-secondary: #ffffff;
+  --text-primary: var(--black-color);
+  --text-secondary: var(--gray-color);
+  --border-color: #e0e0e0;
+}
+
 [data-theme="night"] {
-  --bg-primary: linear-gradient(135deg, var(--dark-bg) 0%, var(--secondary-bg) 100%);
-  --bg-secondary: var(--secondary-bg);
-  --text-primary: var(--text-primary);
-  --text-secondary: var(--text-secondary);
-  --border-color: var(--border-color);
+  --bg-primary: linear-gradient(to bottom, var(--dark-color), var(--black-color));
+  --bg-secondary: #2a2a2a;
+  --text-primary: var(--secondary-color);
+  --text-secondary: #a0a0a0;
+  --border-color: #555;
 }
 
 /* Header & Navigation */
 header {
-  background: var(--secondary-bg);
-  box-shadow: 0 4px 20px rgba(12, 5, 13, 0.3);
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
   border-bottom: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
 }
 
 .navbar {
@@ -110,11 +105,6 @@ header {
   color: var(--primary-color);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-m);
-  transition: color var(--transition-speed);
-}
-
-.nav-logo:hover {
-  color: var(--primary-light);
 }
 
 .nav-menu {
@@ -133,14 +123,11 @@ header {
   background: none;
   border: none;
   font-size: var(--font-size-n);
-  padding: 8px 12px;
-  border-radius: var(--border-radius-s);
 }
 
 .nav-link:hover,
 .nav-link.active {
   color: var(--primary-color);
-  background: rgba(26, 93, 180, 0.1);
 }
 
 #menu-open-button,
@@ -169,17 +156,15 @@ main {
   font-size: var(--font-size-xxl);
   color: var(--text-primary);
   margin-bottom: 40px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Footer */
 footer {
-  background: var(--dark-bg);
-  color: var(--text-primary);
+  background: var(--black-color);
+  color: var(--secondary-color);
   text-align: center;
   padding: 20px;
   margin-top: auto;
-  border-top: 1px solid var(--border-color);
 }
 
 /*
@@ -191,10 +176,9 @@ Legal Pages (Privacy & TOS)
   max-width: 800px;
   margin: 40px auto;
   padding: 20px 40px;
-  background-color: var(--secondary-bg);
-  border-radius: var(--border-radius-m);
-  color: var(--text-primary);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background-color: var(--background-alt);
+  border-radius: 8px;
+  color: var(--text-color);
 }
 
 .legal-container h2 {
@@ -207,7 +191,7 @@ Legal Pages (Privacy & TOS)
 
 .legal-container h3 {
   font-size: 1.5em;
-  color: var(--text-primary);
+  color: var(--secondary-color);
   margin-top: 30px;
   margin-bottom: 15px;
 }
@@ -217,7 +201,6 @@ Legal Pages (Privacy & TOS)
   line-height: 1.7;
   font-size: 1em;
   margin-bottom: 15px;
-  color: var(--text-secondary);
 }
 
 .legal-container ul {
@@ -233,11 +216,9 @@ Legal Pages (Privacy & TOS)
 .legal-container a {
   color: var(--primary-color);
   text-decoration: none;
-  transition: color var(--transition-speed);
 }
 
 .legal-container a:hover {
-  color: var(--primary-light);
   text-decoration: underline;
 }
 
@@ -268,18 +249,12 @@ Legal Pages (Privacy & TOS)
   cursor: pointer;
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
-  transition: color var(--transition-speed);
-}
-
-.radio-label:hover {
-  color: var(--primary-color);
 }
 
 .radio-label input[type="radio"] {
   width: auto;
   margin: 0;
   cursor: pointer;
-  accent-color: var(--primary-color);
 }
 
 .topic-input-container {
@@ -300,12 +275,10 @@ Legal Pages (Privacy & TOS)
 
 #custom-topic:invalid {
   border-color: var(--error-color);
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 
 #custom-topic:valid {
   border-color: var(--success-color);
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
 }
 
 /*
@@ -322,7 +295,6 @@ Footer Links
   color: var(--text-muted);
   text-decoration: none;
   margin: 0 10px;
-  transition: color var(--transition-speed);
 }
 
 .footer-links a:hover {
@@ -346,12 +318,11 @@ Footer Links
 .form-container {
   width: 100%;
   max-width: 450px;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   padding: 40px;
   border-radius: var(--border-radius-m);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-top: 5px solid var(--primary-color);
 }
 
 .form-container h1 {
@@ -365,7 +336,6 @@ Footer Links
   display: block;
   margin-bottom: 8px;
   font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
 }
 
 .form-container input,
@@ -376,15 +346,23 @@ Footer Links
   margin-bottom: 20px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-s);
-  background: var(--dark-bg);
+  background: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--font-size-n);
-  transition: all var(--transition-speed);
 }
 
+/* --- NEW FIX for Dropdown Option Readability --- */
 .form-container select option {
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   color: var(--text-primary);
+}
+[data-theme="day"] .form-container select option {
+  background: #ffffff;
+  color: var(--black-color);
+}
+[data-theme="night"] .form-container select option {
+  background: var(--dark-color);
+  color: var(--secondary-color);
 }
 
 .form-container input:focus,
@@ -392,8 +370,7 @@ Footer Links
 .form-container select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(26, 93, 180, 0.2);
-  background: var(--secondary-bg);
+  box-shadow: 0 0 0 2px rgba(107, 66, 38, 0.2);
 }
 
 .form-button {
@@ -409,32 +386,24 @@ Footer Links
 }
 
 .form-button-primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  color: var(--text-primary);
-  box-shadow: 0 4px 15px rgba(26, 93, 180, 0.3);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
 }
-
 .form-button-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 93, 180, 0.4);
+  background-color: var(--primary-color-400);
 }
 
 .form-button-secondary {
-  background: var(--secondary-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background-color: #4285f4;
+  color: white;
 }
-
 .form-button-secondary:hover:not(:disabled) {
-  background: var(--tertiary-bg);
-  border-color: var(--primary-color);
+  background-color: #357ae8;
 }
 
 .form-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 /* Message Containers */
@@ -446,37 +415,29 @@ Footer Links
   width: 100%;
   box-sizing: border-box;
   text-align: center;
-  border: 1px solid;
 }
 
 .success-message {
   color: var(--success-color);
   background-color: var(--success-bg);
-  border-color: var(--success-color);
+  border: 1px solid var(--success-color);
 }
 
 .error-message {
   color: var(--error-color);
   background-color: var(--error-bg);
-  border-color: var(--error-color);
+  border: 1px solid var(--error-color);
 }
 
 /* Read Page Entry Styles */
 .entry {
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   margin-bottom: 30px;
   padding: 30px;
   border-radius: var(--border-radius-m);
-  border-left: 4px solid var(--primary-color);
+  border-left: 5px solid var(--primary-color);
   animation: fadeInUp 0.5s ease-out;
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: all var(--transition-speed);
-}
-
-.entry:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  position: relative; /* Needed for positioning the delete button */
 }
 
 .entry-content {
@@ -484,7 +445,6 @@ Footer Links
   line-height: 1.7;
   white-space: pre-wrap;
   margin-bottom: 20px;
-  color: var(--text-primary);
 }
 
 .entry-meta {
@@ -503,7 +463,7 @@ Footer Links
   top: 15px;
   right: 15px;
   background: var(--error-color);
-  color: var(--text-primary);
+  color: white;
   border: none;
   border-radius: 50%;
   width: 30px;
@@ -516,7 +476,7 @@ Footer Links
   justify-content: center;
   line-height: 1;
   transition: all 0.3s ease;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .entry:hover .delete-btn {
@@ -524,12 +484,12 @@ Footer Links
 }
 
 .delete-btn:hover {
-  background: #dc2626;
+  background: #a80012;
   transform: scale(1.1);
 }
 
 .password-requirements {
-  color: var(--error-color);
+  color: red;
 }
 
 /* Home Page specific styles */
@@ -540,7 +500,6 @@ Footer Links
   text-align: center;
   padding: 80px 20px;
 }
-
 .hero-buttons {
   display: flex;
   justify-content: center;
@@ -548,7 +507,6 @@ Footer Links
   gap: 20px;
   margin-top: 25px;
 }
-
 .hero-buttons .button {
   display: inline-block;
   padding: 15px 35px;
@@ -556,37 +514,33 @@ Footer Links
   border-radius: var(--border-radius-s);
   font-weight: var(--font-weight-bold);
   transition: all var(--transition-speed);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border: 1px solid transparent;
 }
-
 .hero-buttons .button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
-
 .read-here {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  color: var(--text-primary);
+  background: var(--primary-color);
+  color: var(--secondary-color);
 }
-
 .read-here:hover {
-  background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+  background: var(--primary-color-400);
 }
-
 .upload-here {
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   border-color: var(--border-color);
 }
-
 .upload-here:hover {
-  background: var(--tertiary-bg);
-  border-color: var(--primary-color);
+  background: var(--secondary-color);
+  color: var(--primary-color-400);
+  border-color: var(--secondary-color);
 }
 
 .genre-section {
-  margin-bottom: 60px;
+  margin-bottom: 60px; /* Adds space between genre groups */
 }
 
 .genre-title {
@@ -597,6 +551,7 @@ Footer Links
   border-bottom: 2px solid var(--border-color);
 }
 
+/* Minor adjustment to entry margin to look good within sections */
 .genre-section .entry {
   margin-bottom: 25px;
 }
@@ -614,35 +569,38 @@ Footer Links
   padding: 20px 40px;
   font-size: var(--font-size-m);
   font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
   border: 2px solid var(--primary-color);
   border-radius: var(--border-radius-m);
   cursor: pointer;
   transition: all var(--transition-speed);
   text-align: center;
-  position: relative;
-  padding-bottom: 35px;
-  box-shadow: 0 4px 15px rgba(26, 93, 180, 0.3);
 }
 
+.genre-button {
+  position: relative; /* This is crucial for positioning the count */
+  padding-bottom: 35px; /* Add extra padding at the bottom for the count */
+}
+
+/* Style for the count number itself */
 .genre-count {
   position: absolute;
   bottom: 8px;
   right: 12px;
-  font-size: 0.75rem;
-  font-weight: normal;
-  background-color: rgba(255, 255, 254, 0.2);
-  color: var(--text-primary);
+  font-size: 0.75rem; /* Made the font smaller as requested */
+  font-weight: normal; /* Less emphasis than bold */
+  background-color: rgba(255, 255, 255, 0.15); /* Slightly adjusted for contrast */
+  color: var(--text-secondary); /* Using a secondary text color */
   padding: 4px 8px;
   border-radius: 10px;
   line-height: 1;
 }
 
 .genre-button:hover {
-  background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+  background-color: var(--primary-color-400);
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(26, 93, 180, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* NEW Styles for Entries View Header */
@@ -662,7 +620,7 @@ Footer Links
 }
 
 .back-button {
-  background: var(--secondary-bg);
+  background: none;
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   padding: 8px 15px;
@@ -670,13 +628,70 @@ Footer Links
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: var(--font-weight-medium);
-  transition: all var(--transition-speed);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 .back-button:hover {
-  background: var(--primary-color);
-  color: var(--text-primary);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
   border-color: var(--primary-color);
+}
+
+[data-theme="night"] .upload-here:hover {
+  background: var(--primary-color-200);
+  color: var(--black-color);
+  border-color: var(--primary-color-200);
+}
+
+/* Responsive Design for Mobile Menu */
+@media screen and (max-width: 768px) {
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    background: var(--bg-secondary);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+    transition: left 0.4s ease-in-out;
+    z-index: 1100;
+  }
+  .nav-menu.active {
+    left: 0;
+  }
+  /* Rule to ensure mobile menu links have high contrast */
+  .nav-menu.active .nav-link {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+  }
+  #menu-open-button {
+    display: block;
+  }
+  #menu-close-button {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Genre Header Layout */
@@ -699,11 +714,10 @@ Footer Links
   align-items: center;
   gap: 10px;
   padding: 10px 15px;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   border-radius: var(--border-radius-s);
   border: 1px solid var(--border-color);
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .sort-label {
@@ -713,12 +727,13 @@ Footer Links
   white-space: nowrap;
 }
 
+/* Update existing sort-button styles */
 .sort-button {
   padding: 6px 12px;
   font-size: 0.8rem;
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
-  background: var(--dark-bg);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-s);
   cursor: pointer;
@@ -729,62 +744,19 @@ Footer Links
 
 .sort-button:hover {
   background: var(--primary-color);
-  color: var(--text-primary);
+  color: var(--secondary-color);
   border-color: var(--primary-color);
 }
 
 .sort-button.active {
   background: var(--primary-color);
-  color: var(--text-primary);
+  color: var(--secondary-color);
   border-color: var(--primary-color);
   font-weight: var(--font-weight-bold);
-  box-shadow: 0 2px 8px rgba(26, 93, 180, 0.3);
 }
 
-/* Responsive Design for Mobile Menu */
+/* Mobile responsive adjustments for the new header */
 @media screen and (max-width: 768px) {
-  .nav-menu {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 70%;
-    max-width: 300px;
-    height: 100vh;
-    flex-direction: column;
-    justify-content: center;
-    gap: 40px;
-    background: var(--secondary-bg);
-    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
-    transition: left 0.4s ease-in-out;
-    z-index: 1100;
-    border-right: 1px solid var(--border-color);
-  }
-
-  .nav-menu.active {
-    left: 0;
-  }
-
-  .nav-menu.active .nav-link {
-    color: var(--text-primary);
-    font-size: 1.2rem;
-  }
-
-  #menu-open-button {
-    display: block;
-  }
-
-  #menu-close-button {
-    display: block;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-  }
-
-  .radio-group {
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .genre-header {
     flex-direction: column;
     align-items: center;
@@ -799,7 +771,15 @@ Footer Links
   .sorting-controls-header {
     order: 2;
   }
+}
 
+/* Remove the old centered sorting controls styles */
+.sorting-controls {
+  display: none !important;
+}
+
+/* Mobile Responsive Improvements for Read Page */
+@media screen and (max-width: 768px) {
   .section-content {
     padding: 0 10px;
   }
@@ -819,6 +799,23 @@ Footer Links
     font-size: var(--font-size-s);
     min-width: 120px;
     max-width: 100%;
+  }
+
+  .sorting-controls {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .sorting-controls span {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+
+  .sort-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 80px;
   }
 
   .entries-header {
@@ -846,54 +843,4 @@ Footer Links
     padding: 18px 30px;
     font-size: var(--font-size-s);
   }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Remove old sorting controls styles */
-.sorting-controls {
-  display: none !important;
-}
-
-/* Additional polish and modern touches */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) var(--secondary-bg);
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--secondary-bg);
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-light);
-}
-
-/* Selection styling */
-::selection {
-  background: var(--primary-color);
-  color: var(--text-primary);
-}
-
-::-moz-selection {
-  background: var(--primary-color);
-  color: var(--text-primary);
 }
