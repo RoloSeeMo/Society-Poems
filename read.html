@@ -171,29 +171,10 @@
 function setupLiveEntriesListener() {
     const genreButtonsContainer = document.getElementById("genre-buttons-container");
     let genreCounts = {};
-    let sortingControlsAdded = false;
-
-    // Function to sort genres (moved inside for proper scope)
-    const sortGenres = (sortType) => {
-        const buttons = Array.from(genreButtonsContainer.children);
-        
-        buttons.sort((a, b) => {
-            if (sortType === 'alphabetical') {
-                return a.dataset.genre.localeCompare(b.dataset.genre);
-            } else if (sortType === 'count') {
-                const countA = parseInt(a.querySelector('.genre-count').textContent.match(/\d+/)[0]);
-                const countB = parseInt(b.querySelector('.genre-count').textContent.match(/\d+/)[0]);
-                return countB - countA; // High to low
-            }
-        });
-        
-        genreButtonsContainer.innerHTML = '';
-        buttons.forEach(button => genreButtonsContainer.appendChild(button));
-    };
 
     // Listen to the uploads reference to get all topics
     db.ref("uploads").on("value", (snapshot) => {
-        console.log("Database snapshot received:", snapshot.exists()); // Debug log
+        console.log("Database snapshot received:", snapshot.exists());
         genreCounts = {};
         
         if (snapshot.exists()) {
@@ -201,10 +182,10 @@ function setupLiveEntriesListener() {
                 const topicName = topicSnapshot.key;
                 const postsCount = topicSnapshot.numChildren();
                 genreCounts[topicName] = postsCount;
-                console.log(`Found topic: ${topicName} with ${postsCount} posts`); // Debug log
+                console.log(`Found topic: ${topicName} with ${postsCount} posts`);
             });
         } else {
-            console.log("No data found in uploads"); // Debug log
+            console.log("No data found in uploads");
         }
 
         // Clear existing content
@@ -212,12 +193,10 @@ function setupLiveEntriesListener() {
 
         if (Object.keys(genreCounts).length > 0) {
             // Show sorting controls once we have data
-const sortingControls = document.getElementById('sorting-controls');
-if (Object.keys(genreCounts).length > 0) {
-    sortingControls.style.display = 'flex';
-} else {
-    sortingControls.style.display = 'none';
-}
+            const sortingControls = document.getElementById('sorting-controls');
+            sortingControls.style.display = 'flex';
+            
+            // Create genre buttons
             for (const genre in genreCounts) {
                 const button = document.createElement('button');
                 button.dataset.genre = genre;
@@ -232,8 +211,13 @@ if (Object.keys(genreCounts).length > 0) {
                 button.addEventListener('click', () => loadEntriesByGenre(genre));
                 genreButtonsContainer.appendChild(button);
             }
+            
+            // Setup sorting functionality
+            setupSortingButtons(genreButtonsContainer);
         } else {
             genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
+            const sortingControls = document.getElementById('sorting-controls');
+            sortingControls.style.display = 'none';
         }
 
         // Auto-load topic if URL parameter exists
@@ -244,21 +228,8 @@ if (Object.keys(genreCounts).length > 0) {
                 loadEntriesByGenre(topicParam);
             }, 1000);
         }
-
-        // Add sorting buttons
-        const alphabeticalBtn = document.createElement('button');
-        alphabeticalBtn.textContent = 'A-Z';
-        alphabeticalBtn.id = 'alphabetical-sort-btn';
-        alphabeticalBtn.className = 'sort-button';
-        alphabeticalBtn.addEventListener('click', () => toggleSort('alphabetical'));
-
-        const countBtn = document.createElement('button');
-        countBtn.textContent = 'Posts ↓';
-        countBtn.id = 'count-sort-btn';
-        countBtn.className = 'sort-button';
-        countBtn.addEventListener('click', () => toggleSort('count'));
     }, (error) => {
-        console.error("Database error:", error); // Debug log
+        console.error("Database error:", error);
         genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
     });
 }
@@ -375,39 +346,72 @@ if (Object.keys(genreCounts).length > 0) {
         // Function to populate genre filter options
         // Function to populate genre filter options
 
-// Function to toggle sort with state tracking
-let currentSort = { type: null, ascending: true };
-
-const toggleSort = (sortType) => {
+// Function to setup sorting buttons
+function setupSortingButtons(container) {
     const alphabeticalBtn = document.getElementById('alphabetical-sort-btn');
     const countBtn = document.getElementById('count-sort-btn');
     
-    // Reset button styles
-    alphabeticalBtn.classList.remove('active');
-    countBtn.classList.remove('active');
+    if (!alphabeticalBtn || !countBtn) return;
     
-    // If clicking the same button, toggle direction
-    if (currentSort.type === sortType) {
-        currentSort.ascending = !currentSort.ascending;
-    } else {
-        currentSort.type = sortType;
-        currentSort.ascending = sortType === 'alphabetical' ? true : false; // Default: A-Z for alphabetical, high-to-low for count
-    }
+    // Remove existing event listeners by cloning and replacing
+    const newAlphabeticalBtn = alphabeticalBtn.cloneNode(true);
+    const newCountBtn = countBtn.cloneNode(true);
+    alphabeticalBtn.parentNode.replaceChild(newAlphabeticalBtn, alphabeticalBtn);
+    countBtn.parentNode.replaceChild(newCountBtn, countBtn);
     
-    // Update button text and active state
-    if (sortType === 'alphabetical') {
-        alphabeticalBtn.textContent = currentSort.ascending ? 'A-Z' : 'Z-A';
-        alphabeticalBtn.classList.add('active');
-    } else if (sortType === 'count') {
-        countBtn.textContent = currentSort.ascending ? 'Posts ↑' : 'Posts ↓';
-        countBtn.classList.add('active');
-    }
+    let currentSort = { type: null, ascending: true };
     
-    // Sort the buttons
-    const buttons = Array.from(genreButtonsContainer.children);
+    // Alphabetical sorting
+    newAlphabeticalBtn.addEventListener('click', () => {
+        // Reset other button
+        newCountBtn.classList.remove('active');
+        
+        // Toggle current sort
+        if (currentSort.type === 'alphabetical') {
+            currentSort.ascending = !currentSort.ascending;
+        } else {
+            currentSort.type = 'alphabetical';
+            currentSort.ascending = true;
+        }
+        
+        // Update button appearance
+        newAlphabeticalBtn.classList.add('active');
+        newAlphabeticalBtn.textContent = currentSort.ascending ? 'A-Z' : 'Z-A';
+        
+        // Sort buttons
+        sortButtons(container, 'alphabetical', currentSort.ascending);
+    });
+    
+    // Count sorting
+    newCountBtn.addEventListener('click', () => {
+        // Reset other button
+        newAlphabeticalBtn.classList.remove('active');
+        newAlphabeticalBtn.textContent = 'A-Z';
+        
+        // Toggle current sort
+        if (currentSort.type === 'count') {
+            currentSort.ascending = !currentSort.ascending;
+        } else {
+            currentSort.type = 'count';
+            currentSort.ascending = false; // Default to high-to-low for counts
+        }
+        
+        // Update button appearance
+        newCountBtn.classList.add('active');
+        newCountBtn.textContent = currentSort.ascending ? 'Posts ↑' : 'Posts ↓';
+        
+        // Sort buttons
+        sortButtons(container, 'count', currentSort.ascending);
+    });
+}
+
+// Function to actually sort the buttons
+function sortButtons(container, sortType, ascending) {
+    const buttons = Array.from(container.children);
     
     buttons.sort((a, b) => {
         let result = 0;
+        
         if (sortType === 'alphabetical') {
             result = a.dataset.genre.localeCompare(b.dataset.genre);
         } else if (sortType === 'count') {
@@ -416,12 +420,13 @@ const toggleSort = (sortType) => {
             result = countB - countA; // Default high to low
         }
         
-        return currentSort.ascending ? result : -result;
+        return ascending ? result : -result;
     });
     
-    genreButtonsContainer.innerHTML = '';
-    buttons.forEach(button => genreButtonsContainer.appendChild(button));
-};
+    // Clear container and re-add sorted buttons
+    container.innerHTML = '';
+    buttons.forEach(button => container.appendChild(button));
+}
 
 // Add mobile menu functionality
 const setupMobileMenu = () => {
