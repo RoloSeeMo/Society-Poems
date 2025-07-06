@@ -29,16 +29,12 @@
             <h1>📝 Feedback</h1>
             <div id="message-container"></div>
             <form id="feedbackForm">
-                <label for="name">Name:</label>
-                <input type="text" id="name" required>
-                
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
+                <p style="text-align: center; margin-bottom: 20px;">Submitting feedback as: <strong id="user-info">Loading...</strong></p>
                 
                 <label for="message">Message:</label>
-                <textarea id="message" rows="6" placeholder="Share your thoughts, suggestions, or report issues..." required></textarea>
+                <textarea id="message" rows="6" placeholder="We appreciate all your thoughts, suggestions, or report issues..." required></textarea>
                 
-                <button type="submit" class="form-button form-button-primary">Send Feedback</button>
+                <button type="submit" id="submit-btn" class="form-button form-button-primary" disabled>Send Feedback</button>
             </form>
         </div>
     </main>
@@ -109,7 +105,36 @@
                                 window.location.href = 'login.html';
                             }
                         });
+
+                        if (typeof fetchUserData === 'function') {
+                            fetchUserData(user.uid);
+                        }
                     }
+                });
+            };
+
+            let currentUserData = null;
+
+            const fetchUserData = (uid) => {
+                const userRef = db.ref('users/' + uid);
+                userRef.once('value', (snapshot) => {
+                    const userData = snapshot.val();
+                    const userInfoEl = document.getElementById('user-info');
+                    const submitBtn = document.getElementById('submit-btn');
+
+                    if (userData && userData.username) {
+                        currentUserData = {
+                            username: userData.username,
+                            email: auth.currentUser.email
+                        };
+                        userInfoEl.textContent = `${userData.username} (${auth.currentUser.email})`;
+                        submitBtn.disabled = false; // Enable submission
+                    } else {
+                        userInfoEl.textContent = "Error loading user data";
+                    }
+                }).catch(error => {
+                    console.error("Failed to fetch user data:", error);
+                    document.getElementById('user-info').textContent = "Error loading user data.";
                 });
             };
 
@@ -121,19 +146,24 @@
                 feedbackForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     
-                    const name = document.getElementById('name').value.trim();
-                    const email = document.getElementById('email').value.trim();
+                    const user = auth.currentUser;
+                    if (!user || !currentUserData) {
+                        showMessage('error', 'Cannot submit without valid user data.');
+                        return;
+                    }
+                    
                     const message = document.getElementById('message').value.trim();
                     
-                    if (!name || !email || !message) {
-                        showMessage('error', 'All fields are required.');
+                    if (!message) {
+                        showMessage('error', 'Message is required.');
                         return;
                     }
 
                     const feedbackRef = db.ref('feedback');
                     feedbackRef.push({
-                        name: name,
-                        email: email,
+                        uid: user.uid,
+                        username: currentUserData.username,
+                        email: currentUserData.email,
                         message: message,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
