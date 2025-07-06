@@ -694,23 +694,43 @@ Footer Links
   }
 }
 
-/* Sorting Controls Styles */
-.sorting-controls {
+/* Genre Header Layout */
+.genre-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.genre-header .section-title {
+  margin-bottom: 0;
+  flex-grow: 1;
+}
+
+.sorting-controls-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
-  padding: 15px;
+  padding: 10px 15px;
   background: var(--bg-secondary);
   border-radius: var(--border-radius-s);
   border: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
-.sort-button {
-  padding: 8px 16px;
+.sort-label {
   font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+/* Update existing sort-button styles */
+.sort-button {
+  padding: 6px 12px;
+  font-size: 0.8rem;
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   background: var(--bg-primary);
@@ -718,7 +738,8 @@ Footer Links
   border-radius: var(--border-radius-s);
   cursor: pointer;
   transition: all var(--transition-speed);
-  min-width: 70px;
+  min-width: 60px;
+  white-space: nowrap;
 }
 
 .sort-button:hover {
@@ -732,6 +753,29 @@ Footer Links
   color: var(--secondary-color);
   border-color: var(--primary-color);
   font-weight: var(--font-weight-bold);
+}
+
+/* Mobile responsive adjustments for the new header */
+@media screen and (max-width: 768px) {
+  .genre-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .genre-header .section-title {
+    text-align: center;
+  }
+
+  .sorting-controls-header {
+    order: 2;
+  }
+}
+
+/* Remove the old centered sorting controls styles */
+.sorting-controls {
+  display: none !important;
 }
 
 /* Mobile Responsive Improvements for Read Page */
