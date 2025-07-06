@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Read Entries</title>
-    <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="night" style="visibility: hidden;">
@@ -112,6 +111,25 @@
 function setupLiveEntriesListener() {
     const genreButtonsContainer = document.getElementById("genre-buttons-container");
     let genreCounts = {};
+    let sortingControlsAdded = false;
+
+    // Function to sort genres (moved inside for proper scope)
+    const sortGenres = (sortType) => {
+        const buttons = Array.from(genreButtonsContainer.children);
+        
+        buttons.sort((a, b) => {
+            if (sortType === 'alphabetical') {
+                return a.dataset.genre.localeCompare(b.dataset.genre);
+            } else if (sortType === 'count') {
+                const countA = parseInt(a.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                const countB = parseInt(b.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                return countB - countA; // High to low
+            }
+        });
+        
+        genreButtonsContainer.innerHTML = '';
+        buttons.forEach(button => genreButtonsContainer.appendChild(button));
+    };
 
     // Listen to the uploads reference to get all topics
     db.ref("uploads").on("value", (snapshot) => {
@@ -133,32 +151,41 @@ function setupLiveEntriesListener() {
         genreButtonsContainer.innerHTML = '';
 
         if (Object.keys(genreCounts).length > 0) {
-            // Add sorting controls
-            const sortingControls = document.createElement('div');
-            sortingControls.className = 'sorting-controls';
-            sortingControls.style.marginBottom = '20px';
-            sortingControls.style.textAlign = 'center';
+            // Add sorting controls only once
+            if (!sortingControlsAdded) {
+                const sortingControls = document.createElement('div');
+                sortingControls.className = 'sorting-controls';
+                sortingControls.style.marginBottom = '20px';
+                sortingControls.style.textAlign = 'center';
 
-            const sortLabel = document.createElement('span');
-            sortLabel.textContent = 'Sort by: ';
-            sortLabel.style.marginRight = '10px';
+                const sortLabel = document.createElement('span');
+                sortLabel.textContent = 'Sort by: ';
+                sortLabel.style.marginRight = '10px';
+                sortLabel.style.color = 'var(--text-primary)';
 
-            const alphabeticalBtn = document.createElement('button');
-            alphabeticalBtn.textContent = 'Alphabetical';
-            alphabeticalBtn.className = 'sort-btn';
-            alphabeticalBtn.onclick = () => sortGenres('alphabetical');
+                const alphabeticalBtn = document.createElement('button');
+                alphabeticalBtn.textContent = 'Alphabetical';
+                alphabeticalBtn.className = 'form-button form-button-secondary';
+                alphabeticalBtn.style.marginRight = '10px';
+                alphabeticalBtn.style.padding = '8px 16px';
+                alphabeticalBtn.style.fontSize = '0.9rem';
+                alphabeticalBtn.onclick = () => sortGenres('alphabetical');
 
-            const countBtn = document.createElement('button');
-            countBtn.textContent = 'Post Count';
-            countBtn.className = 'sort-btn';
-            countBtn.onclick = () => sortGenres('count');
+                const countBtn = document.createElement('button');
+                countBtn.textContent = 'Post Count';
+                countBtn.className = 'form-button form-button-secondary';
+                countBtn.style.padding = '8px 16px';
+                countBtn.style.fontSize = '0.9rem';
+                countBtn.onclick = () => sortGenres('count');
 
-            sortingControls.appendChild(sortLabel);
-            sortingControls.appendChild(alphabeticalBtn);
-            sortingControls.appendChild(countBtn);
+                sortingControls.appendChild(sortLabel);
+                sortingControls.appendChild(alphabeticalBtn);
+                sortingControls.appendChild(countBtn);
 
-            // Insert sorting controls before genre buttons
-            genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
+                // Insert sorting controls before genre buttons
+                genreButtonsContainer.parentNode.insertBefore(sortingControls, genreButtonsContainer);
+                sortingControlsAdded = true;
+            }
 
             for (const genre in genreCounts) {
                 const button = document.createElement('button');
@@ -301,24 +328,6 @@ function setupLiveEntriesListener() {
     });
 }
 
-        const sortGenres = (sortType) => {
-            const buttons = Array.from(genreButtonsContainer.children);
-            
-            buttons.sort((a, b) => {
-                if (sortType === 'alphabetical') {
-                    return a.dataset.genre.localeCompare(b.dataset.genre);
-                } else if (sortType === 'count') {
-                    const countA = parseInt(a.querySelector('.genre-count').textContent.match(/\d+/)[0]);
-                    const countB = parseInt(b.querySelector('.genre-count').textContent.match(/\d+/)[0]);
-                    return countB - countA; // High to low
-                }
-            });
-            
-            genreButtonsContainer.innerHTML = '';
-            buttons.forEach(button => genreButtonsContainer.appendChild(button));
-        };
-
-        // Function to populate genre filter options
         // Function to populate genre filter options
 
 // Add mobile menu functionality
