@@ -693,3 +693,110 @@ Footer Links
     transform: translateY(0);
   }
 }
+
+/* Sorting Controls Styles */
+.sorting-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-s);
+  border: 1px solid var(--border-color);
+}
+
+.sort-button {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-s);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  min-width: 70px;
+}
+
+.sort-button:hover {
+  background: var(--primary-color);
+  color: var(--secondary-color);
+  border-color: var(--primary-color);
+}
+
+.sort-button.active {
+  background: var(--primary-color);
+  color: var(--secondary-color);
+  border-color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Mobile Responsive Improvements for Read Page */
+@media screen and (max-width: 768px) {
+  .section-content {
+    padding: 0 10px;
+  }
+
+  .section-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: 25px;
+  }
+
+  .genre-buttons-container {
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .genre-button {
+    padding: 15px 25px;
+    font-size: var(--font-size-s);
+    min-width: 120px;
+    max-width: 100%;
+  }
+
+  .sorting-controls {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .sorting-controls span {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+
+  .sort-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 80px;
+  }
+
+  .entries-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .entries-header .section-title {
+    margin-bottom: 0;
+  }
+
+  .back-button {
+    align-self: flex-start;
+  }
+}
+
+/* Tablet responsive adjustments */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+  .genre-buttons-container {
+    gap: 18px;
+  }
+
+  .genre-button {
+    padding: 18px 30px;
+    font-size: var(--font-size-s);
+  }
+}
