@@ -4,152 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback - Society Poems</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/Images/Untitled1.png">
-
-    <script>
-        // --- IMPORTANT CONFIGURATION ---
-        const CLIENT_ID = '723670230106-h7lidt5s4psj74p83m0cl0ri98532492.apps.googleusercontent.com';
-        const API_KEY = 'AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM';
-        const TO_EMAIL = 'officialsocietypoems@gmail.com';
-    
-        // --- Firebase Config ---
-        const firebaseConfig = {
-            apiKey: API_KEY,
-            authDomain: "society-poems-97f4d.firebaseapp.com",
-            databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-            projectId: "society-poems-97f4d",
-            storageBucket: "society-poems-97f4d.firebasestorage.app",
-            messagingSenderId: "723670230106",
-            appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
-        };
-        
-        let app, auth, db, tokenClient;
-
-        function showMessage(type, text) {
-            const messageContainer = document.getElementById('message-container');
-            if (!messageContainer) return;
-            messageContainer.className = `message-container ${type}-message`;
-            messageContainer.textContent = text;
-            messageContainer.style.display = 'block';
-        }
-
-        // --- GOOGLE API CLIENT LOGIC ---
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
-        }
-
-        async function initializeGapiClient() {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"],
-            });
-        }
-
-        function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-                callback: '',
-            });
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            tokenClient.callback = async (resp) => {
-                if (resp.error !== undefined) { throw (resp); }
-                await sendEmailWithUserInfo();
-            };
-
-            if (gapi.client.getToken() === null) {
-                tokenClient.requestAccessToken({prompt: 'consent'});
-            } else {
-                tokenClient.requestAccessToken({prompt: ''});
-            }
-        }
-
-        async function sendEmailWithUserInfo() {
-            showMessage('info', 'Fetching user info...');
-            try {
-                const userInfoResponse = await gapi.client.request({
-                    'path': 'https://www.googleapis.com/oauth2/v3/userinfo'
-                });
-
-                const profile = userInfoResponse.result;
-                const name = profile.name;
-                const fromEmail = profile.email;
-                const message = document.getElementById('message').value;
-
-                showMessage('info', 'Sending email...');
-
-                const emailLines = [
-                    'Content-Type: text/plain; charset="UTF-8"',
-                    `To: ${TO_EMAIL}`,
-                    `From: "${name}" <${fromEmail}>`,
-                    `Subject: New Feedback from ${name}`,
-                    '',
-                    message
-                ].join('\r\n');
-
-                const base64EncodedEmail = btoa(unescape(encodeURIComponent(emailLines)));
-
-                await gapi.client.gmail.users.messages.send({
-                    'userId': 'me',
-                    'resource': { 'raw': base64EncodedEmail }
-                });
-                
-                showMessage('success', 'Thank you! Your feedback has been sent.');
-                document.getElementById('feedbackForm').reset();
-            } catch (error) {
-                console.error(error);
-                showMessage('error', `An error occurred. Please try again.`);
-            }
-        }
-        
-        // --- SHARED PAGE LOGIC ---
-        document.addEventListener('DOMContentLoaded', () => {
-            app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-
-            const handleLogout_impl = () => {
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', () => {
-                        auth.signOut().then(() => {
-                            window.location.href = 'index.html';
-                        }).catch(error => console.error('Sign out error', error));
-                    });
-                }
-            };
-            
-            const checkAuthState_impl = () => {
-                auth.onAuthStateChanged(user => {
-                    if (!user) {
-                        window.location.href = 'login.html';
-                    } else {
-                        document.body.style.visibility = 'visible';
-                    }
-                });
-            };
-
-            handleLogout_impl();
-            checkAuthState_impl();
-            document.getElementById('feedbackForm').addEventListener('submit', handleFormSubmit);
-        });
-    </script>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="night" style="visibility: hidden;">
 
     <header>
         <nav class="navbar">
             <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
+                <button id="menu-close-button" class="fas fa-times"></button>
                 <li><a href="index.html" class="nav-link">Home</a></li>
                 <li><a href="read.html" class="nav-link">Read</a></li>
                 <li><a href="upload.html" class="nav-link">Upload</a></li>
@@ -161,18 +26,19 @@
 
     <main>
         <div class="form-container" style="margin: auto;">
-            <h1>Feedback Form</h1>
-            <p style="text-align: center; font-size: 0.9em; opacity: 0.8;">
-                You will be asked to authorize with your Google account to send your feedback.
-            </p>
+            <h1>📝 Feedback</h1>
             <div id="message-container"></div>
             <form id="feedbackForm">
-                <p style="text-align: center; margin-bottom: 20px; line-height: 1.5;">
-                    Your thoughts help build this community. Please share any feedback, suggestions, or bugs you've found.
-                </p>
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                
                 <label for="message">Message:</label>
-                <textarea id="message" rows="5" required></textarea>
-                <button type="submit" class="form-button form-button-primary">Authorize & Send Feedback</button>
+                <textarea id="message" rows="6" placeholder="Share your thoughts, suggestions, or report issues..." required></textarea>
+                
+                <button type="submit" class="form-button form-button-primary">Send Feedback</button>
             </form>
         </div>
     </main>
@@ -186,5 +52,112 @@
         </div>
     </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            // --- Shared Logic ---
+            const setupMobileMenu_impl = () => {
+                const openBtn = document.getElementById('menu-open-button');
+                const closeBtn = document.getElementById('menu-close-button');
+                const navMenu = document.querySelector('.nav-menu');
+                if (openBtn && closeBtn && navMenu) {
+                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+                }
+            };
+
+            const handleLogout_impl = () => {
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut().catch(error => console.error('Sign out error', error));
+                    });
+                }
+            };
+            
+            const checkAuthState_impl = () => {
+                auth.onAuthStateChanged(user => {
+                    const isAuthPage = window.location.pathname.includes('login.html');
+                    if (!user && !isAuthPage) {
+                        window.location.href = 'login.html';
+                    } else if (user && isAuthPage) {
+                        window.location.href = 'index.html';
+                    } else if (user) {
+                        // --- !! NEW SECURITY CHECK !! ---
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                document.body.style.visibility = 'visible';
+                            } else {
+                                window.location.href = 'login.html';
+                            }
+                        });
+                    }
+                });
+            };
+
+            // --- Feedback Page Specific Logic ---
+            const setupFeedbackForm = () => {
+                const feedbackForm = document.getElementById('feedbackForm');
+                const messageContainer = document.getElementById('message-container');
+
+                feedbackForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('name').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const message = document.getElementById('message').value.trim();
+                    
+                    if (!name || !email || !message) {
+                        showMessage('error', 'All fields are required.');
+                        return;
+                    }
+
+                    const feedbackRef = db.ref('feedback');
+                    feedbackRef.push({
+                        name: name,
+                        email: email,
+                        message: message,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        showMessage('success', 'Thank you for your feedback! We appreciate your input.');
+                        feedbackForm.reset();
+                    }).catch(error => {
+                        showMessage('error', `Submission failed: ${error.message}`);
+                    });
+                });
+                
+                function showMessage(type, text) {
+                    if (!messageContainer) return;
+                    messageContainer.className = `message-container ${type}-message`;
+                    messageContainer.textContent = text;
+                    messageContainer.style.display = 'block';
+                }
+            };
+
+            // Initialize all page functions
+            setupMobileMenu_impl();
+            handleLogout_impl();
+            checkAuthState_impl();
+            setupFeedbackForm();
+        });
+    </script>
 </body>
 </html>
