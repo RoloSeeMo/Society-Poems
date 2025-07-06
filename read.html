@@ -5,21 +5,58 @@
     <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        .genre-count {
+.genre-count {
   position: absolute;
-  bottom: 8px;
-  right: 12px;
-  font-size: 0.7rem;
-  font-weight: normal;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--text-primary);
-  padding: 3px 8px;
-  border-radius: 12px;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.55rem;
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 2px 6px;
+  border-radius: 8px;
   line-height: 1;
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 35px;
+  text-align: center;
 }
-    </style>
+
+/* Fix title centering */
+.genre-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.genre-header .section-title {
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+}
+
+/* Mobile menu visibility and responsiveness fixes */
+@media screen and (max-width: 768px) {
+  .nav-menu {
+    visibility: visible !important;
+  }
+  
+  .genre-count {
+    font-size: 0.5rem;
+    padding: 1px 4px;
+    bottom: 3px;
+    right: 6px;
+    min-width: 30px;
+  }
+  
+  .genre-button {
+    padding: 15px 20px 28px 20px !important;
+    min-height: 65px;
+  }
+}
+</style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
 

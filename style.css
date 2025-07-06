@@ -586,15 +586,17 @@ Footer Links
 /* Style for the count number itself */
 .genre-count {
   position: absolute;
-  bottom: 8px;
-  right: 12px;
-  font-size: 0.75rem; /* Made the font smaller as requested */
-  font-weight: normal; /* Less emphasis than bold */
-  background-color: rgba(255, 255, 255, 0.15); /* Slightly adjusted for contrast */
-  color: var(--text-secondary); /* Using a secondary text color */
-  padding: 4px 8px;
-  border-radius: 10px;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.6rem;
+  font-weight: normal;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 8px;
   line-height: 1;
+  min-width: 35px;
+  text-align: center;
 }
 
 .genre-button:hover {
@@ -659,27 +661,55 @@ Footer Links
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
     transition: left 0.4s ease-in-out;
     z-index: 1100;
+    visibility: visible !important;
   }
+
   .nav-menu.active {
     left: 0;
   }
-  /* Rule to ensure mobile menu links have high contrast */
+
   .nav-menu.active .nav-link {
     color: var(--text-primary);
     font-size: 1.2rem;
   }
+
   #menu-open-button {
     display: block;
   }
+
   #menu-close-button {
     display: block;
     position: absolute;
     top: 20px;
     right: 20px;
   }
-  .radio-group {
+
+  .genre-header {
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .genre-header .section-title {
+    text-align: center;
+  }
+
+  .sorting-controls-header {
+    order: 2;
+  }
+
+  .genre-count {
+    font-size: 0.5rem;
+    padding: 1px 4px;
+    bottom: 3px;
+    right: 6px;
+    min-width: 30px;
+  }
+
+  .genre-button {
+    padding: 15px 20px 28px 20px;
+    min-height: 65px;
   }
 }
 
@@ -694,19 +724,20 @@ Footer Links
   }
 }
 
-/* Genre Header Layout */
+/* Genre Header Layout - Fixed centering */
 .genre-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   margin-bottom: 30px;
-  flex-wrap: wrap;
   gap: 20px;
+  text-align: center;
 }
 
 .genre-header .section-title {
   margin-bottom: 0;
-  flex-grow: 1;
+  text-align: center;
+  width: 100%;
 }
 
 .sorting-controls-header {
