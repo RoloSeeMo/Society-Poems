@@ -1,0 +1,29 @@
+# .github/workflows/syncUploads.yml
+# This workflow runs a script to sync user upload counts and data integrity.
+
+name: Sync User Uploads Data
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+  schedule:
+    # Runs every 6 hours - you can adjust this interval as needed
+    - cron: '0 */6 * * *'
+
+jobs:
+  sync-uploads:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run Upload Sync Script
+        run: |
+          cd UserManagement
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+          npm install firebase-admin
+          node syncUploads.js

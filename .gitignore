@@ -8,4 +8,5 @@ firebase.json
 
 Images/
 
-!Usermanagement/syncUsers.js
+!UserManagement/syncUsers.js
+!UserManagement/syncUploads.js
