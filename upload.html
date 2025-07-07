@@ -253,21 +253,45 @@
                         }
                     }
 
-                    const uploadsRef = db.ref('uploads/' + selectedTopic);
-
-                    uploadsRef.push({
+                    // Create the upload data
+                    const uploadData = {
                         uid: user.uid,
                         content: content,
                         name: currentUsername,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    // Use Firebase transaction to update both locations atomically
+                    const uploadsRef = db.ref('uploads/' + selectedTopic);
+                    const userUploadsRef = db.ref('users/' + user.uid + '/uploadCount');
+                    const userUploadsListRef = db.ref('users/' + user.uid + '/uploads');
+
+                    // First, add the upload to the main uploads collection
+                    uploadsRef.push(uploadData).then((uploadRef) => {
+                        const uploadKey = uploadRef.key;
+                        
+                        // Now update the user's upload count and track this specific upload
+                        return Promise.all([
+                            // Increment user's total upload count
+                            userUploadsRef.transaction((currentCount) => {
+                                return (currentCount || 0) + 1;
+                            }),
+                            // Add this upload to the user's personal uploads list
+                            userUploadsListRef.child(uploadKey).set({
+                                topic: selectedTopic,
+                                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                                content: content.substring(0, 100) + (content.length > 100 ? '...' : '') // Store preview
+                            })
+                        ]);
                     }).then(() => {
                         showMessage('success', 'Submitted successfully! Redirecting to your topic...');
-    
+
                         // Wait a moment to show the success message, then redirect
                         setTimeout(() => {
                             window.location.href = `read.html?topic=${encodeURIComponent(selectedTopic)}`;
                         }, 1500);
                     }).catch(error => {
+                        console.error('Upload error:', error);
                         showMessage('error', `Submission failed: ${error.message}`);
                     });
                 });
