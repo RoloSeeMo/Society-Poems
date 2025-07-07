@@ -330,7 +330,24 @@ function setupLiveEntriesListener() {
                 deleteBtn.title = 'Delete this entry';
                 deleteBtn.onclick = () => {
                     if (confirm('Are you sure you want to permanently delete this entry?')) {
-                        db.ref('uploads/' + selectedGenre + '/' + entry.dbKey).remove();
+                        // Delete the main entry
+                        db.ref('uploads/' + selectedGenre + '/' + entry.dbKey).remove().then(() => {
+                            // Also decrement the user's upload count and remove from their personal list
+                            const userUploadsRef = db.ref('users/' + entry.uid + '/uploadCount');
+                            const userUploadsListRef = db.ref('users/' + entry.uid + '/uploads/' + entry.dbKey);
+                            
+                            return Promise.all([
+                                // Decrement user's total upload count
+                                userUploadsRef.transaction((currentCount) => {
+                                    return Math.max((currentCount || 1) - 1, 0); // Ensure it doesn't go below 0
+                                }),
+                                // Remove from user's personal uploads list
+                                userUploadsListRef.remove()
+                            ]);
+                        }).catch(error => {
+                            console.error('Error deleting entry:', error);
+                            alert('Failed to delete entry completely.');
+                        });
                     }
                 };
                 div.appendChild(deleteBtn);
