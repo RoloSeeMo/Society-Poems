@@ -209,6 +209,49 @@
                         customTopicInput.setCustomValidity('');
                     }
                 });
+
+                // Add keydown event listener to prevent spacebar input
+                customTopicInput.addEventListener('keydown', (e) => {
+                    // Prevent spacebar (keyCode 32) from being entered
+                    if (e.keyCode === 32 || e.key === ' ') {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Add keypress event listener as additional prevention
+                customTopicInput.addEventListener('keypress', (e) => {
+                    // Prevent spacebar (keyCode 32) from being entered
+                    if (e.keyCode === 32 || e.key === ' ') {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Add paste event listener to remove spaces from pasted content
+                customTopicInput.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    
+                    // Get pasted text and remove all spaces and special characters
+                    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                    const cleanedText = pastedText.replace(/[^a-zA-Z0-9]/g, '');
+                    
+                    // Insert the cleaned text
+                    const currentValue = customTopicInput.value;
+                    const start = customTopicInput.selectionStart;
+                    const end = customTopicInput.selectionEnd;
+                    
+                    const newValue = currentValue.substring(0, start) + cleanedText + currentValue.substring(end);
+                    
+                    // Respect the maxlength attribute
+                    if (newValue.length <= 50) {
+                        customTopicInput.value = newValue;
+                        customTopicInput.setSelectionRange(start + cleanedText.length, start + cleanedText.length);
+                    }
+                    
+                    // Trigger input event to validate
+                    customTopicInput.dispatchEvent(new Event('input'));
+                });
             };
 
             // --- Upload Page Specific Logic ---
