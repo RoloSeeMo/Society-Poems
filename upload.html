@@ -135,6 +135,8 @@
                                 if(typeof fetchUsername === 'function') {
                                     fetchUsername(user.uid);
                                 }
+                                // NEW: Populate existing topics after authentication
+                                populateExistingTopics();
                                 document.body.style.visibility = 'visible';
                             } else {
                                 window.location.href = 'login.html';
@@ -164,6 +166,60 @@
                 }).catch(error => {
                     console.error("Failed to fetch username:", error);
                     document.getElementById('author-name').textContent = "Error loading username.";
+                });
+            };
+
+            // --- NEW: Function to populate existing topics dropdown ---
+            const populateExistingTopics = () => {
+                const existingTopicSelect = document.getElementById('existing-topic');
+                const uploadsRef = db.ref('uploads');
+                
+                uploadsRef.once('value', (snapshot) => {
+                    // Clear existing options except the first placeholder
+                    existingTopicSelect.innerHTML = '<option value="" disabled selected>-- Current Topics --</option>';
+                    
+                    if (snapshot.exists()) {
+                        const topics = Object.keys(snapshot.val());
+                        
+                        if (topics.length > 0) {
+                            // Sort topics alphabetically (case-insensitive)
+                            topics.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+                            
+                            // Add each topic as an option
+                            topics.forEach(topic => {
+                                const option = document.createElement('option');
+                                option.value = topic;
+                                option.textContent = topic;
+                                existingTopicSelect.appendChild(option);
+                            });
+                            
+                            console.log(`Loaded ${topics.length} existing topics:`, topics);
+                        } else {
+                            // No topics found
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No Existing Subjects';
+                            option.disabled = true;
+                            existingTopicSelect.appendChild(option);
+                            console.log('No existing topics found');
+                        }
+                    } else {
+                        // Database uploads node doesn't exist yet
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'No Existing Subjects';
+                        option.disabled = true;
+                        existingTopicSelect.appendChild(option);
+                        console.log('No uploads found in database');
+                    }
+                }).catch(error => {
+                    console.error('Error loading existing topics:', error);
+                    // Add error option
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Error loading topics';
+                    option.disabled = true;
+                    existingTopicSelect.appendChild(option);
                 });
             };
 
