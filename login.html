@@ -3,193 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Society Poems</title>
+    <title>Login - Society Poems</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="Images/Untitled1.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .form-container {
-            margin-top: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            text-align: left;
-            margin-bottom: 5px;
-            color: #666;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #5cb85c;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        button:hover {
-            background-color: #449d44;
-        }
-
-        .toggle-buttons {
-            margin-bottom: 20px;
-        }
-
-        .toggle-buttons button {
-            width: 48%;
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        .toggle-buttons button.active {
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-        }
-
-        #signup-form-container {
-            display: block; /* Initially show sign-up form */
-        }
-
-        #signin-form-container {
-            display: none; /* Initially hide sign-in form */
-        }
-
-        .switch-form {
-            color: #007bff;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .switch-form:hover {
-            text-decoration: underline;
-        }
+        .toggle-form-link{display:block;text-align:center;margin-top:20px;color:var(--primary-color);cursor:pointer;text-decoration:underline;}
+        .password-requirements{font-size:.8rem;color:var(--text-secondary);margin-top:-15px;margin-bottom:15px;line-height:1.4;}
+        .password-wrapper{position:relative;display:flex;align-items:center;margin-bottom:20px;}
+        .password-wrapper input{padding-right:45px;margin-bottom:0;}
+        .password-toggle-icon{position:absolute;right:15px;cursor:pointer;color:var(--text-secondary);}
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Join Society Poems</h1>
-        <div class="toggle-buttons">
-            <button id="signup-button" class="active">Sign Up</button>
-            <button id="signin-button">Sign In</button>
-        </div>
+<body data-theme="night">
+    <div class="form-page-container">
+        <div class="form-container">
+            <div id="login-view">
+                <h1>Society Poems</h1>
+                <div id="login-message-container" class="message-container"></div>
+                <form id="login-form" onsubmit="return false;">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required>
+                    <label for="login-password">Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
+                    </div>
+                    <button type="submit" class="form-button form-button-primary">Login</button>
+                </form>
+                <p class="toggle-form-link" id="show-signup">Don't have an account? Sign Up</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
+            </div>
 
-        <div id="signup-form-container" class="form-container">
-            <form id="signup-form">
-                <div class="form-group">
-                    <label for="signup-username">Username:</label>
-                    <input type="text" id="signup-username" name="signup-username" required>
-                </div>
-                <div class="form-group">
+            <div id="signup-view" style="display: none;">
+                <h1>Sign Up</h1>
+                <div id="signup-message-container" class="message-container"></div>
+                <form id="signup-form" onsubmit="return false;">
                     <label for="signup-email">Email:</label>
-                    <input type="email" id="signup-email" name="signup-email" required>
-                </div>
-                <div class="form-group">
+                    <input type="email" id="signup-email" required>
                     <label for="signup-password">Password:</label>
-                    <input type="password" id="signup-password" name="signup-password" required>
-                </div>
-                <button type="submit">Sign Up</button>
-            </form>
-            <p>Already have an account? <a href="#" class="switch-form" id="switch-to-signin">Sign In</a></p>
-        </div>
+                    <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
+                    <div class="password-requirements">Must: 6+ characters, contain a symbol, and a number.</div>
+                    <label for="confirm-password">Confirm Password:</label>
+                    <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
+                    <button type="submit" class="form-button form-button-primary">Sign Up</button>
+                </form>
+                <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign up with Google</button>
+            </div>
 
-        <div id="signin-form-container" class="form-container">
-            <form id="signin-form">
-                <div class="form-group">
-                    <label for="signin-email">Email:</label>
-                    <input type="email" id="signin-email" name="signin-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signin-password">Password:</label>
-                    <input type="password" id="signin-password" name="signin-password" required>
-                </div>
-                <button type="submit">Sign In</button>
-            </form>
-            <p>Need an account? <a href="#" class="switch-form" id="switch-to-signup">Sign Up</a></p>
+            <div id="create-username-view" style="display: none;">
+                <h1>Create a Username</h1>
+                <div id="username-message-container" class="message-container"></div>
+                <form id="create-username-form" onsubmit="return false;">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                    <button type="submit" class="form-button form-button-primary">Save Username</button>
+                </form>
+                <button id="back-to-login-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
+            </div>
+
         </div>
     </div>
 
+    <script type="module" src="auth.js"></script>
+
     <script>
-        let isSignUp = true; // Initially set to true for Sign Up
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginView = document.getElementById('login-view');
+            const signupView = document.getElementById('signup-view');
+            const createUsernameView = document.getElementById('create-username-view');
 
-        const signupButton = document.getElementById('signup-button');
-        const signinButton = document.getElementById('signin-button');
-        const signupFormContainer = document.getElementById('signup-form-container');
-        const signinFormContainer = document.getElementById('signin-form-container');
-        const switchToSignup = document.getElementById('switch-to-signup');
-        const switchToSignin = document.getElementById('switch-to-signin');
+            document.getElementById('show-signup').addEventListener('click', () => {
+                loginView.style.display = 'none';
+                signupView.style.display = 'block';
+            });
 
-        signupButton.addEventListener('click', () => {
-            showSignupForm();
+            document.getElementById('show-login').addEventListener('click', () => {
+                signupView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
+
+            // NEW: Back button functionality
+            document.getElementById('back-to-login-btn').addEventListener('click', () => {
+                createUsernameView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
+
+            // Re-link the Google button on the signup form
+            document.getElementById('google-signin-btn-signup').addEventListener('click', () => {
+                document.getElementById('google-signin-btn').click();
+            });
+
+            // Password visibility toggles
+            function setupPasswordToggle(inputId, toggleId) {
+                const passwordInput = document.getElementById(inputId);
+                const toggleIcon = document.getElementById(toggleId);
+                if (passwordInput && toggleIcon) {
+                    toggleIcon.addEventListener('click', () => {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+                        toggleIcon.classList.toggle('fa-eye');
+                        toggleIcon.classList.toggle('fa-eye-slash');
+                    });
+                }
+            }
+            setupPasswordToggle('login-password', 'toggle-login-password');
+            setupPasswordToggle('signup-password', 'toggle-signup-password');
+            setupPasswordToggle('confirm-password', 'toggle-confirm-password');
         });
-
-        signinButton.addEventListener('click', () => {
-            showSigninForm();
-        });
-
-        switchToSignup.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSignupForm();
-        });
-
-        switchToSignin.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSigninForm();
-        });
-
-        function showSignupForm() {
-            isSignUp = true;
-            signupFormContainer.style.display = 'block';
-            signinFormContainer.style.display = 'none';
-            signupButton.classList.add('active');
-            signinButton.classList.remove('active');
-        }
-
-        function showSigninForm() {
-            isSignUp = false;
-            signupFormContainer.style.display = 'none';
-            signinFormContainer.style.display = 'block';
-            signinButton.classList.add('active');
-            signupButton.classList.remove('active');
-        }
     </script>
+
+    <footer>
+        <p>&copy; 2025 Society Poems</p>
+        <div class="footer-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <span>|</span>
+            <a href="tos.html">Terms of Service</a>
+        </div>
+    </footer>
 </body>
 </html>
