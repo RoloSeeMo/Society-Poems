@@ -85,7 +85,9 @@
                 signupView.style.display = 'none';
                 loginView.style.display = 'block';
             });
+            
 
+            //Prevent Spaces
             passwordInput = document.getElementById('signup-password');
             passwordInput.addEventListener('keydown', (e) => {
                     // Prevent spacebar (keyCode 32) from being entered
@@ -94,7 +96,6 @@
                         return false;
                     }
             });
-
             passwordInput.addEventListener('keypress', (e) => {
                     // Prevent spacebar (keyCode 32) from being entered
                     if (e.keyCode === 32 || e.key === ' ') {
@@ -102,11 +103,32 @@
                         return false;
                     }
             });
-
             // Add paste event listener to remove spaces from pasted content
             passwordInput.addEventListener('paste', (e) => {
                     e.preventDefault();
             });
+
+            loginPassInput = document.getElementById('signup-password');
+            loginPassInput.addEventListener('keydown', (e) => {
+                    // Prevent spacebar (keyCode 32) from being entered
+                    if (e.keyCode === 32 || e.key === ' ') {
+                        e.preventDefault();
+                        return false;
+                    }
+            });
+            loginPassInput.addEventListener('keypress', (e) => {
+                    // Prevent spacebar (keyCode 32) from being entered
+                    if (e.keyCode === 32 || e.key === ' ') {
+                        e.preventDefault();
+                        return false;
+                    }
+            });
+            // Add paste event listener to remove spaces from pasted content
+            loginPassInput.addEventListener('paste', (e) => {
+                    e.preventDefault();
+            });
+
+
 
             // Updated: Back button now returns to signup (the new default)
             document.getElementById('back-to-signup-btn').addEventListener('click', () => {
