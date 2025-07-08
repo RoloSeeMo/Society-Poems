@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Society Poems</title>
+    <title>Join Society Poems</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,8 +18,8 @@
 <body data-theme="night">
     <div class="form-page-container">
         <div class="form-container">
-            <div id="login-view">
-                <h1>Society Poems</h1>
+            <div id="login-view" style="display: none;">
+                <h1>Welcome Back</h1>
                 <div id="login-message-container" class="message-container"></div>
                 <form id="login-form" onsubmit="return false;">
                     <label for="login-email">Email:</label>
@@ -31,13 +31,13 @@
                     </div>
                     <button type="submit" class="form-button form-button-primary">Login</button>
                 </form>
-                <p class="toggle-form-link" id="show-signup">Don't have an account? Sign Up</p>
+                <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
                 <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
             </div>
 
-            <div id="signup-view" style="display: none;">
-                <h1>Sign Up</h1>
+            <div id="signup-view">
+                <h1>Join Society Poems</h1>
                 <div id="signup-message-container" class="message-container"></div>
                 <form id="signup-form" onsubmit="return false;">
                     <label for="signup-email">Email:</label>
@@ -62,7 +62,7 @@
                     <input type="text" id="username" required>
                     <button type="submit" class="form-button form-button-primary">Save Username</button>
                 </form>
-                <button id="back-to-login-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
+                <button id="back-to-signup-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
             </div>
 
         </div>
@@ -86,10 +86,10 @@
                 loginView.style.display = 'block';
             });
 
-            // NEW: Back button functionality
-            document.getElementById('back-to-login-btn').addEventListener('click', () => {
+            // Updated: Back button now returns to signup (the new default)
+            document.getElementById('back-to-signup-btn').addEventListener('click', () => {
                 createUsernameView.style.display = 'none';
-                loginView.style.display = 'block';
+                signupView.style.display = 'block';
             });
 
             // Re-link the Google button on the signup form
