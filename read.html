@@ -168,7 +168,7 @@ gap: 20px;
             });
         };
 
-        const authorUID = userRef;
+        const authorUID = db.ref(user.uid);
         console.log('User ID is' + authorUID);
 
                 // Function to setup live listener for entries
