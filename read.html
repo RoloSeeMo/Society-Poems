@@ -168,72 +168,75 @@ gap: 20px;
             });
         };
 
-        // Function to setup live listener for entries
-function setupLiveEntriesListener() {
-    const genreButtonsContainer = document.getElementById("genre-buttons-container");
-    let genreCounts = {};
+        const authorUID = userRef;
+        console.log('User ID is' + authorUID);
 
-    // Listen to the uploads reference to get all topics
-    db.ref("uploads").on("value", (snapshot) => {
-        console.log("Database snapshot received:", snapshot.exists());
-        genreCounts = {};
-        
-        if (snapshot.exists()) {
-            snapshot.forEach((topicSnapshot) => {
-                const topicName = topicSnapshot.key;
-                const postsCount = topicSnapshot.numChildren();
-                genreCounts[topicName] = postsCount;
-                console.log(`Found topic: ${topicName} with ${postsCount} posts`);
+                // Function to setup live listener for entries
+        function setupLiveEntriesListener() {
+            const genreButtonsContainer = document.getElementById("genre-buttons-container");
+            let genreCounts = {};
+
+            // Listen to the uploads reference to get all topics
+            db.ref("uploads").on("value", (snapshot) => {
+                console.log("Database snapshot received:", snapshot.exists());
+                genreCounts = {};
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((topicSnapshot) => {
+                        const topicName = topicSnapshot.key;
+                        const postsCount = topicSnapshot.numChildren();
+                        genreCounts[topicName] = postsCount;
+                        console.log(`Found topic: ${topicName} with ${postsCount} posts`);
+                    });
+                } else {
+                    console.log("No data found in uploads");
+                }
+
+                // Clear existing content
+                genreButtonsContainer.innerHTML = '';
+
+                if (Object.keys(genreCounts).length > 0) {
+                    // Show sorting controls once we have data
+                    const sortingControls = document.getElementById('sorting-controls');
+                    sortingControls.style.display = 'flex';
+                    
+                    // Create genre buttons
+                    for (const genre in genreCounts) {
+                        const button = document.createElement('button');
+                        button.dataset.genre = genre;
+                        button.textContent = `${genre} `;
+                        button.className = 'genre-button';
+
+                        const countSpan = document.createElement('span');
+                        countSpan.className = 'genre-count';
+                        countSpan.textContent = `Posts: ${genreCounts[genre]}`;
+                        button.appendChild(countSpan);
+
+                        button.addEventListener('click', () => loadEntriesByGenre(genre));
+                        genreButtonsContainer.appendChild(button);
+                    }
+                    
+                    // Setup sorting functionality
+                    setupSortingButtons(genreButtonsContainer);
+                } else {
+                    genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
+                    const sortingControls = document.getElementById('sorting-controls');
+                    sortingControls.style.display = 'none';
+                }
+
+                // Auto-load topic if URL parameter exists
+                const urlParams = new URLSearchParams(window.location.search);
+                const topicParam = urlParams.get('topic');
+                if (topicParam && genreCounts[topicParam]) {
+                    setTimeout(() => {
+                        loadEntriesByGenre(topicParam);
+                    }, 1000);
+                }
+            }, (error) => {
+                console.error("Database error:", error);
+                genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
             });
-        } else {
-            console.log("No data found in uploads");
         }
-
-        // Clear existing content
-        genreButtonsContainer.innerHTML = '';
-
-        if (Object.keys(genreCounts).length > 0) {
-            // Show sorting controls once we have data
-            const sortingControls = document.getElementById('sorting-controls');
-            sortingControls.style.display = 'flex';
-            
-            // Create genre buttons
-            for (const genre in genreCounts) {
-                const button = document.createElement('button');
-                button.dataset.genre = genre;
-                button.textContent = `${genre} `;
-                button.className = 'genre-button';
-
-                const countSpan = document.createElement('span');
-                countSpan.className = 'genre-count';
-                countSpan.textContent = `Posts: ${genreCounts[genre]}`;
-                button.appendChild(countSpan);
-
-                button.addEventListener('click', () => loadEntriesByGenre(genre));
-                genreButtonsContainer.appendChild(button);
-            }
-            
-            // Setup sorting functionality
-            setupSortingButtons(genreButtonsContainer);
-        } else {
-            genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
-            const sortingControls = document.getElementById('sorting-controls');
-            sortingControls.style.display = 'none';
-        }
-
-        // Auto-load topic if URL parameter exists
-        const urlParams = new URLSearchParams(window.location.search);
-        const topicParam = urlParams.get('topic');
-        if (topicParam && genreCounts[topicParam]) {
-            setTimeout(() => {
-                loadEntriesByGenre(topicParam);
-            }, 1000);
-        }
-    }, (error) => {
-        console.error("Database error:", error);
-        genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
-    });
-}
 
         // Function to create an entry element
         function createEntryElement(docId, data) {
@@ -267,9 +270,9 @@ function setupLiveEntriesListener() {
                 deleteButton.addEventListener("click", () => deleteEntry(docId));
                 entryDiv.appendChild(deleteButton);
             }
-
             return entryDiv;
         }
+
 
         // Function to delete an entry
         async function deleteEntry(docId) {
