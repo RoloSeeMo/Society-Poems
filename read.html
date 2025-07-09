@@ -271,6 +271,13 @@ function setupLiveEntriesListener() {
             return entryDiv;
         }
 
+        let postAuthor = false;
+        const currentAuthor = () => {
+            const userUID = db.ref(user.uid);
+            
+        }
+
+
         // Function to delete an entry
         async function deleteEntry(docId) {
             if (confirm("Are you sure you want to delete this entry?")) {
