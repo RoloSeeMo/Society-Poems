@@ -258,7 +258,7 @@ function setupLiveEntriesListener() {
 
             const timestampElement = document.createElement("p");
             const date = data.timestamp ? new Date(data.timestamp) : new Date();
-            timestampElement.textContent = `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            timestampElement.textContent = `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
             entryDiv.appendChild(timestampElement);
 
             if (currentUserIsAdmin) {
