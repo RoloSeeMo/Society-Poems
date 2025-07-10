@@ -83,7 +83,7 @@ body {
 
 /* Header & Navigation */
 header {
-  background: var(--bg-secondary);
+  background: black;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -116,7 +116,7 @@ header {
 
 .nav-link {
   text-decoration: none;
-  color: var(--text-secondary);
+  color: white;
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-speed);
   cursor: pointer;
