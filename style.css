@@ -882,7 +882,7 @@ Footer Links
 
 /* Modern Comments Section */
 .comments-section {
-  background: white;
+  background: rgb(230, 230, 230);
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
