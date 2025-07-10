@@ -167,6 +167,28 @@
             }, 5000);
         }
 
+        // Function to generate user avatar initials
+        function generateAvatar(name) {
+            if (!name) return '?';
+            const initials = name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+            return initials || '?';
+        }
+
+        // Function to update avatars
+        function updateAvatars() {
+            // Update user's own avatar in comment form
+            const userAvatar = document.getElementById('user-avatar');
+            if (userAvatar && currentUsername) {
+                userAvatar.textContent = generateAvatar(currentUsername);
+            }
+            
+            // Update post author avatar
+            const postAvatar = document.getElementById('post-avatar');
+            if (postAvatar && postData) {
+                postAvatar.textContent = generateAvatar(postData.name);
+            }
+        }
+
         // Check authentication state
         const checkAuthState = () => {
             auth.onAuthStateChanged(user => {
@@ -182,6 +204,7 @@
                             document.body.style.visibility = 'visible';
                             loadPost();
                             setupEventListeners();
+                            updateAvatars(); // Add this line
                         } else {
                             window.location.href = 'login.html';
                         }
@@ -214,15 +237,18 @@
         function displayPost() {
             document.getElementById('topic-title').textContent = currentTopic;
             document.getElementById('post-content').textContent = postData.content;
-            document.getElementById('post-author').innerHTML = `<strong>${postData.name || 'Anonymous'}</strong>`;
+            document.getElementById('post-author').textContent = postData.name || 'Anonymous';
             
             const date = new Date(postData.timestamp);
-            document.getElementById('post-date').innerHTML = `<em>${date.toLocaleString()}</em>`;
+            document.getElementById('post-date').textContent = date.toLocaleString();
 
             // Set up back button
             document.getElementById('back-to-topic-btn').onclick = () => {
                 window.location.href = `read.html?topic=${encodeURIComponent(currentTopic)}`;
             };
+            
+            // Update avatars
+            updateAvatars();
         }
 
         // Setup admin actions
@@ -283,7 +309,7 @@
                 commentsList.innerHTML = '';
                 
                 if (!snapshot.exists()) {
-                    commentsList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                    commentsList.innerHTML = '<p style="padding: 20px; text-align: center; color: #65676b;">No comments yet. Be the first to comment!</p>';
                     commentCount.textContent = '0';
                     return;
                 }
@@ -305,11 +331,16 @@
                     const canDeleteComment = comment.uid === currentUserUID || currentUserIsAdmin;
                     
                     commentDiv.innerHTML = `
-                        <div class="comment-content">${comment.content}</div>
-                        <div class="comment-meta">
-                            <span class="comment-author">${comment.username}</span>
-                            <span>${new Date(comment.timestamp).toLocaleString()}</span>
-                            ${canDeleteComment ? `<button class="comment-delete" onclick="deleteComment('${comment.id}')">&times;</button>` : ''}
+                        <div class="comment-avatar-small">${generateAvatar(comment.username)}</div>
+                        <div class="comment-body">
+                            <div class="comment-bubble">
+                                <div class="comment-author">${comment.username}</div>
+                                <div class="comment-content">${comment.content}</div>
+                            </div>
+                            <div class="comment-meta">
+                                <span class="comment-time">${new Date(comment.timestamp).toLocaleString()}</span>
+                                ${canDeleteComment ? `<button class="comment-delete" onclick="deleteComment('${comment.id}')">Delete</button>` : ''}
+                            </div>
                         </div>
                     `;
                     
