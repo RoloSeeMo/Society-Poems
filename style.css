@@ -160,7 +160,7 @@ main {
 
 /* Footer */
 footer {
-  background: var(--black-color);
+  background: black;
   color: var(--secondary-color);
   text-align: center;
   padding: 20px;
