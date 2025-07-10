@@ -1238,7 +1238,7 @@ Footer Links
 @media screen and (max-width: 768px) {
   .post-detail-container {
     padding: 10px;
-    background: #f0f2f5;
+    background: var(--dark-color);
   }
 
   .post-detail {
