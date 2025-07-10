@@ -315,8 +315,8 @@ function setupLiveEntriesListener() {
         
         deleteBtn.onclick = (e) => {
             e.stopPropagation(); // Prevent navigation when clicking delete
-            const confirmMessage = entry.uid === currentUserUID 
-                ? 'Are you sure you want to delete your post?' 
+            const confirmMessage = entry.uid === currentUserUID
+                ? 'Are you sure you want to delete your post?'
                 : 'Are you sure you want to permanently delete this entry? (Admin action)';
                 
             if (confirm(confirmMessage)) {
