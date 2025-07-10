@@ -116,7 +116,7 @@ header {
 
 .nav-link {
   text-decoration: none;
-  color: var(--primary-color-200);
+  color: white;
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-speed);
   cursor: pointer;
