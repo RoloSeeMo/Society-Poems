@@ -102,7 +102,7 @@ header {
 
 .nav-logo {
   text-decoration: none;
-  color: var(--primary-color);
+  color: white;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-m);
 }
@@ -116,7 +116,7 @@ header {
 
 .nav-link {
   text-decoration: none;
-  color: white;
+  color: var(--primary-color-200);
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-speed);
   cursor: pointer;
