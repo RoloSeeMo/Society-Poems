@@ -862,6 +862,23 @@ Footer Links
   .back-button {
     align-self: flex-start;
   }
+  
+  .nav-menu {
+    visibility: visible !important;
+  }
+
+  .genre-count {
+    font-size: 0.5rem;
+    padding: 1px 4px;
+    bottom: 3px;
+    right: 6px;
+    min-width: 30px;
+  }
+
+  .genre-button {
+    padding: 15px 20px 28px 20px !important;
+    min-height: 65px;
+  }
 }
 
 /* Tablet responsive adjustments */

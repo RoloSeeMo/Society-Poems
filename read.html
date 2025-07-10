@@ -5,59 +5,6 @@
     <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-.genre-count {
-    position: absolute;
-    bottom: 4px;
-    right: 8px;
-    font-size: 0.55rem;
-    font-weight: 400;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: rgba(255, 255, 255, 0.95);
-    padding: 2px 6px;
-    border-radius: 8px;
-    line-height: 1;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    min-width: 35px;
-    text-align: center;
-}
-
-/* Fix title centering */
-.genre-header {
-display: flex;
-flex-direction: column;
-align-items: center;
-margin-bottom: 30px;
-gap: 20px;
-}
-
-.genre-header .section-title {
-  margin-bottom: 0;
-  text-align: center;
-  width: 100%;
-}
-
-/* Mobile menu visibility and responsiveness fixes */
-@media screen and (max-width: 768px) {
-  .nav-menu {
-    visibility: visible !important;
-  }
-  
-  .genre-count {
-    font-size: 0.5rem;
-    padding: 1px 4px;
-    bottom: 3px;
-    right: 6px;
-    min-width: 30px;
-  }
-  
-  .genre-button {
-    padding: 15px 20px 28px 20px !important;
-    min-height: 65px;
-  }
-}
-</style>
 </head>
 <body data-theme="night" style="visibility: hidden;">
 
@@ -136,6 +83,7 @@ gap: 20px;
         const db = firebase.database();
 
         let currentUserIsAdmin = false;
+        let currentUserUID = null; // Store current user's UID
         const adminUIDs = ["SAD2VGjLrtVA80Cg0ay71rDiijQ2"]; // Replace with actual admin UIDs
 
         // Function to check authentication state
@@ -144,6 +92,7 @@ gap: 20px;
                 if (!user) {
                     window.location.href = 'login.html';
                 } else {
+                    currentUserUID = user.uid; // Store the current user's UID
                     const userRef = db.ref('users/' + user.uid);
                     userRef.once('value', (snapshot) => {
                         if (snapshot.exists() && snapshot.val().username) {
@@ -261,22 +210,19 @@ function setupLiveEntriesListener() {
             timestampElement.textContent = `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
             entryDiv.appendChild(timestampElement);
 
-            if (currentUserIsAdmin) {
+            // Show delete button if user owns the post OR if user is admin
+            const canDelete = (data.uid && data.uid === currentUserUID) || currentUserIsAdmin;
+            
+            if (canDelete) {
                 const deleteButton = document.createElement("button");
                 deleteButton.textContent = "Delete";
+                deleteButton.className = "delete-btn";
                 deleteButton.addEventListener("click", () => deleteEntry(docId));
                 entryDiv.appendChild(deleteButton);
             }
 
             return entryDiv;
         }
-
-        let postAuthor = false;
-        const currentAuthor = () => {
-            const userUID = db.ref(user.uid);
-            
-        }
-
 
         // Function to delete an entry
         async function deleteEntry(docId) {
@@ -331,76 +277,90 @@ function setupLiveEntriesListener() {
             const date = new Date(entry.timestamp).toLocaleString();
             meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
             
-            if (currentUserIsAdmin) {
+            // Show delete button if user owns the post OR if user is admin
+            const canDelete = (entry.uid && entry.uid === currentUserUID) || currentUserIsAdmin;
+            
+            if (canDelete) {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
                 deleteBtn.innerHTML = '&times;';
-                deleteBtn.title = 'Delete this entry';
-                deleteBtn.onclick = () => {
-    if (confirm('Are you sure you want to permanently delete this entry?')) {
-        // Store the current topic for potential redirect
-        const currentTopic = selectedGenre;
-        
-        // First, check how many entries are in this topic
-        db.ref('uploads/' + selectedGenre).once('value', (topicSnapshot) => {
-            const entryCount = topicSnapshot.numChildren();
-            const isLastEntry = entryCount === 1;
-            
-            // Delete the main entry
-            db.ref('uploads/' + selectedGenre + '/' + entry.dbKey).remove().then(() => {
-                // Update user's upload count and remove from their personal list
-                const userUploadsRef = db.ref('users/' + entry.uid + '/uploadCount');
-                const userUploadsListRef = db.ref('users/' + entry.uid + '/uploads/' + entry.dbKey);
                 
-                return Promise.all([
-                    // Decrement user's total upload count
-                    userUploadsRef.transaction((currentCount) => {
-                        return Math.max((currentCount || 1) - 1, 0); // Ensure it doesn't go below 0
-                    }),
-                    // Remove from user's personal uploads list
-                    userUploadsListRef.remove()
-                ]);
-            }).then(() => {
-                console.log('Entry deleted successfully');
-                
-                // If this was the last entry in the topic, redirect back to genre selection
-                if (isLastEntry) {
-                    console.log('Last entry in topic deleted, redirecting to genre selection');
-                    document.getElementById('entries-view').style.display = 'none';
-                    document.getElementById('genre-selection-view').style.display = 'block';
-                    
-                    // Show a message about the topic being removed
-                    const genreButtonsContainer = document.getElementById("genre-buttons-container");
-                    const tempMessage = document.createElement('div');
-                    tempMessage.style.cssText = 'background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #c3e6cb;';
-                    tempMessage.textContent = `Topic "${currentTopic}" has been removed as it no longer contains any posts.`;
-                    genreButtonsContainer.parentNode.insertBefore(tempMessage, genreButtonsContainer);
-                    
-                    // Remove the message after 5 seconds
-                    setTimeout(() => {
-                        if (tempMessage.parentNode) {
-                            tempMessage.parentNode.removeChild(tempMessage);
-                        }
-                    }, 5000);
-                }
-            }).catch(error => {
-                console.error('Error during deletion process:', error);
-                
-                // More specific error handling
-                if (error.code === 'PERMISSION_DENIED') {
-                    alert('Permission denied. Unable to update user data.');
-                } else if (error.message.includes('disconnect')) {
-                    alert('Network error. Please check your connection and try again.');
+                // Different titles for user vs admin deletion
+                if (entry.uid === currentUserUID) {
+                    deleteBtn.title = 'Delete your post';
                 } else {
-                    alert('An error occurred during deletion. The post may have been deleted but user statistics may not have updated properly.');
+                    deleteBtn.title = 'Delete this entry (Admin)';
                 }
-            });
-        }).catch(error => {
-            console.error('Error checking topic entry count:', error);
-            alert('Failed to delete entry. Please try again.');
-        });
-    }
-};
+                
+                deleteBtn.onclick = () => {
+                    const confirmMessage = entry.uid === currentUserUID 
+                        ? 'Are you sure you want to delete your post?' 
+                        : 'Are you sure you want to permanently delete this entry? (Admin action)';
+                        
+                    if (confirm(confirmMessage)) {
+                        // Store the current topic for potential redirect
+                        const currentTopic = selectedGenre;
+                        
+                        // First, check how many entries are in this topic
+                        db.ref('uploads/' + selectedGenre).once('value', (topicSnapshot) => {
+                            const entryCount = topicSnapshot.numChildren();
+                            const isLastEntry = entryCount === 1;
+                            
+                            // Delete the main entry
+                            db.ref('uploads/' + selectedGenre + '/' + entry.dbKey).remove().then(() => {
+                                // Update user's upload count and remove from their personal list
+                                const userUploadsRef = db.ref('users/' + entry.uid + '/uploadCount');
+                                const userUploadsListRef = db.ref('users/' + entry.uid + '/uploads/' + entry.dbKey);
+                                
+                                return Promise.all([
+                                    // Decrement user's total upload count
+                                    userUploadsRef.transaction((currentCount) => {
+                                        return Math.max((currentCount || 1) - 1, 0); // Ensure it doesn't go below 0
+                                    }),
+                                    // Remove from user's personal uploads list
+                                    userUploadsListRef.remove()
+                                ]);
+                            }).then(() => {
+                                console.log('Entry deleted successfully');
+                                
+                                // If this was the last entry in the topic, redirect back to genre selection
+                                if (isLastEntry) {
+                                    console.log('Last entry in topic deleted, redirecting to genre selection');
+                                    document.getElementById('entries-view').style.display = 'none';
+                                    document.getElementById('genre-selection-view').style.display = 'block';
+                                    
+                                    // Show a message about the topic being removed
+                                    const genreButtonsContainer = document.getElementById("genre-buttons-container");
+                                    const tempMessage = document.createElement('div');
+                                    tempMessage.style.cssText = 'background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #c3e6cb;';
+                                    tempMessage.textContent = `Topic "${currentTopic}" has been removed as it no longer contains any posts.`;
+                                    genreButtonsContainer.parentNode.insertBefore(tempMessage, genreButtonsContainer);
+                                    
+                                    // Remove the message after 5 seconds
+                                    setTimeout(() => {
+                                        if (tempMessage.parentNode) {
+                                            tempMessage.parentNode.removeChild(tempMessage);
+                                        }
+                                    }, 5000);
+                                }
+                            }).catch(error => {
+                                console.error('Error during deletion process:', error);
+                                
+                                // More specific error handling
+                                if (error.code === 'PERMISSION_DENIED') {
+                                    alert('Permission denied. Unable to update user data.');
+                                } else if (error.message.includes('disconnect')) {
+                                    alert('Network error. Please check your connection and try again.');
+                                } else {
+                                    alert('An error occurred during deletion. The post may have been deleted but user statistics may not have updated properly.');
+                                }
+                            });
+                        }).catch(error => {
+                            console.error('Error checking topic entry count:', error);
+                            alert('Failed to delete entry. Please try again.');
+                        });
+                    }
+                };
                 div.appendChild(deleteBtn);
             }
 
