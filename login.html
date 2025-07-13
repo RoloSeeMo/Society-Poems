@@ -3,66 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Society Poems</title>
+    <title>Login - Society Poems | Unfiltered. Unedited. Unapologetically you.</title>
+    <meta name="description" content="Society Poems - The antidote to social anxiety. Meet like-minded people and share your best words with the world about whatever topic you want.">
+    <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="Images/Untitled1.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        .toggle-form-link{display:block;text-align:center;margin-top:20px;color:var(--primary-color);cursor:pointer;text-decoration:underline;}
-        .password-requirements{font-size:.8rem;color:var(--text-secondary);margin-top:-15px;margin-bottom:15px;line-height:1.4;}
-        .password-wrapper{position:relative;display:flex;align-items:center;margin-bottom:20px;}
-        .password-wrapper input{padding-right:45px;margin-bottom:0;}
-        .password-toggle-icon{position:absolute;right:15px;cursor:pointer;color:var(--text-secondary);}
-    </style>
 </head>
 <body data-theme="night">
     <div class="form-page-container">
         <div class="form-container">
-            <div id="login-view" style="display: none;">
-                <h1>Welcome Back</h1>
-                <div id="login-message-container" class="message-container"></div>
-                <form id="login-form" onsubmit="return false;">
-                    <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" required>
-                    <label for="login-password">Password:</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="login-password" required>
-                        <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
+            <div class="login-left">
+                <div class="brand-section">
+                    <div class="brand-logo">
+                        <img src="/Images/Untitled1.png" alt="Society Poems Logo">
                     </div>
-                    <button type="submit" class="form-button form-button-primary">Login</button>
-                </form>
-                <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
-            </div>
+                    <h1 class="brand-title">Society Poems</h1>
+                    <p class="brand-tagline">Unfiltered. Unedited. Unapologetically you.</p>
+                    <div id="login-view" style="display: none;">
+                        <h1>Welcome Back</h1>
+                        <div id="login-message-container" class="message-container"></div>
+                        <form id="login-form" onsubmit="return false;">
+                            <label for="login-email">Email:</label>
+                            <input type="email" id="login-email" required>
+                            <label for="login-password">Password:</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="login-password" required>
+                                <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
+                            </div>
+                            <button type="submit" class="form-button form-button-primary">Login</button>
+                        </form>
+                        <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
+                        <hr style="border-color: var(--border-color); margin: 20px 0;">
+                        <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
+                    </div>
+        
+                    <div id="signup-view">
+                        <div id="signup-message-container" class="message-container"></div>
+                        <form id="signup-form" onsubmit="return false;">
+                            <label for="signup-email">Email:</label>
+                            <input type="email" id="signup-email" required>
+                            <label for="signup-password">Password:</label>
+                            <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
+                            <div class="password-requirements">Must: 6+ characters, contain at LEAST 1 symbol and 1 number, and cannot have spaces.</div>
+                            <label for="confirm-password">Confirm Password:</label>
+                            <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
+                            <button type="submit" class="form-button form-button-primary">Sign Up</button>
+                            <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign in with Google</button>
+                        </form>
+                        <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
+                        <hr style="border-color: var(--border-color); margin: 20px 0;">
+                    </div>
+        
+                    <div id="create-username-view" style="display: none;">
+                        <h1>Create a Username</h1>
+                        <div id="username-message-container" class="message-container"></div>
+                        <form id="create-username-form" onsubmit="return false;">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" required>
+                            <button type="submit" class="form-button form-button-primary">Save Username</button>
+                        </form>
+                        <button id="back-to-signup-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
+                    </div>
+                    <p class="brand-description">
+                        Society Poems is meant to be the project that serves you the antidote to social anxiety. 
+                        A site for you to meet like-minded people, and to share your best words with the world— 
+                        about whatever topic you want.
+                    </p>
+                    
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">🔍</span>
+                            <span>Search for any topic you want, and if no one has posted about it yet, you can be the first!</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✍️</span>
+                            <span>Upload posts about whatever you want and have others join the discussion</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>Get really niche with your topics - there's a place for every interest</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">💬</span>
+                            <span>Connect with like-minded people through comments and discussions</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">❤️</span>
+                            <span>Show appreciation for content that resonates with you</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🛡️</span>
+                            <span>Safe, community-moderated environment with reporting features</span>
+                        </div>
+                    </div>
+    
+                    <div class="contact-info">
+                        <p><strong>Questions or Support?</strong></p>
+                        <p>Contact us: <a href="mailto:officialsocietypoems@gmail.com">officialsocietypoems@gmail.com</a></p>
+                        <p><strong><a href="https://societypoems.com/">societypoems.com</a></strong></p>
+                    </div>
+                    <!-- App Information Section -->
+                <div class="app-info-section">
+                    <h2 class="app-info-title">How We Use Your Information</h2>
+                    
+                    <div class="data-usage-info">
+                        <div class="data-usage-title">We collect the following data to provide our service:</div>
+                        <ul class="data-usage-list">
+                            <li><strong>Email & Username:</strong> For account creation, security, and content management</li>
+                            <li><strong>Uploaded Content:</strong> Your posts, poems, and writings that you choose to share</li>
+                            <li><strong>Comments:</strong> Your interactions and discussions with other users</li>
+                            <li><strong>Liked Posts:</strong> Content you've appreciated to improve recommendations</li>
+                            <li><strong>Reports:</strong> Community safety and moderation purposes</li>
+                        </ul>
+                    </div>
 
-            <div id="signup-view">
-                <h1>Join Society Poems</h1>
-                <div id="signup-message-container" class="message-container"></div>
-                <form id="signup-form" onsubmit="return false;">
-                    <label for="signup-email">Email:</label>
-                    <input type="email" id="signup-email" required>
-                    <label for="signup-password">Password:</label>
-                    <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
-                    <div class="password-requirements">Must: 6+ characters, contain at LEAST 1 symbol and 1 number, and cannot have spaces.</div>
-                    <label for="confirm-password">Confirm Password:</label>
-                    <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
-                    <button type="submit" class="form-button form-button-primary">Sign Up</button>
-                </form>
-                <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign in with Google</button>
-            </div>
+                    <div class="data-usage-info">
+                        <div class="data-usage-title">Why we collect this data:</div>
+                        <ul class="data-usage-list">
+                            <li>Maintain a fluid database that makes using the site as easy as possible</li>
+                            <li>Improve the site and better manage user data over time</li>
+                            <li>Power community features like reporting, likes, and commenting</li>
+                            <li>Prevent identity impersonation through user individualization</li>
+                            <li>Enable topic-based discussions and content discovery</li>
+                        </ul>
+                    </div>
 
-            <div id="create-username-view" style="display: none;">
-                <h1>Create a Username</h1>
-                <div id="username-message-container" class="message-container"></div>
-                <form id="create-username-form" onsubmit="return false;">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" required>
-                    <button type="submit" class="form-button form-button-primary">Save Username</button>
-                </form>
-                <button id="back-to-signup-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
+                    <div class="data-usage-info">
+                        <div class="data-usage-title">Data sharing & storage:</div>
+                        <ul class="data-usage-list">
+                            <li>Data is shared with Firebase (Google's development platform) for backend services</li>
+                            <li>Your username and posts are publicly visible to other users</li>
+                            <li>Data is stored indefinitely or until deleted due to database maintenance</li>
+                            <li>We never sell your personal information to third parties</li>
+                        </ul>
+                    </div>
+
+                    <p style="text-align: center; color: #65676b; font-size: 0.9rem; margin-top: 20px;">
+                        By signing in, you agree to our <a href="tos.html" style="color: var(--primary-color);">Terms of Service</a> 
+                        and acknowledge our <a href="privacy-policy.html" style="color: var(--primary-color);">Privacy Policy</a>.
+                    </p>
+                </div>
+
+                <!-- Footer Links -->
+                <div class="footer-links">
+                    <a href="privacy-policy.html">Privacy Policy</a>
+                    <a href="tos.html">Terms of Service</a>
+                    <a href="index.html">About Us</a>
+                    <a href="feedback.html">Contact Support</a>
+                </div>
+            </div>
+                </div>
             </div>
 
         </div>
@@ -71,74 +161,56 @@
     <script type="module" src="auth.js"></script>
 
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+            authDomain: "society-poems-97f4d.firebaseapp.com",
+            databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+            projectId: "society-poems-97f4d",
+            storageBucket: "society-poems-97f4d.firebasestorage.app",
+            messagingSenderId: "723670230106",
+            appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Show message function
+        function showMessage(type, text, containerId) {
+            const messageContainer = document.getElementById(containerId);
+            messageContainer.className = `${type}-message`;
+            messageContainer.textContent = text;
+            messageContainer.style.display = 'block';
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 5000);
+        }
+
+        // View toggling logic
         document.addEventListener('DOMContentLoaded', () => {
             const loginView = document.getElementById('login-view');
             const signupView = document.getElementById('signup-view');
             const createUsernameView = document.getElementById('create-username-view');
 
-            document.getElementById('show-signup').addEventListener('click', () => {
+            document.getElementById('show-signup').addEventListener('click', (e) => {
+                e.preventDefault();
                 loginView.style.display = 'none';
                 signupView.style.display = 'block';
+                createUsernameView.style.display = 'none';
             });
 
-            document.getElementById('show-login').addEventListener('click', () => {
+            document.getElementById('show-login').addEventListener('click', (e) => {
+                e.preventDefault();
                 signupView.style.display = 'none';
                 loginView.style.display = 'block';
-            });
-            
-
-            //Prevent Spaces
-            passwordInput = document.getElementById('signup-password');
-            passwordInput.addEventListener('keydown', (e) => {
-                    // Prevent spacebar (keyCode 32) from being entered
-                    if (e.keyCode === 32 || e.key === ' ') {
-                        e.preventDefault();
-                        return false;
-                    }
-            });
-            passwordInput.addEventListener('keypress', (e) => {
-                    // Prevent spacebar (keyCode 32) from being entered
-                    if (e.keyCode === 32 || e.key === ' ') {
-                        e.preventDefault();
-                        return false;
-                    }
-            });
-            // Add paste event listener to remove spaces from pasted content
-            passwordInput.addEventListener('paste', (e) => {
-                    e.preventDefault();
+                createUsernameView.style.display = 'none';
             });
 
-            loginPassInput = document.getElementById('login-password');
-            loginPassInput.addEventListener('keydown', (e) => {
-                    // Prevent spacebar (keyCode 32) from being entered
-                    if (e.keyCode === 32 || e.key === ' ') {
-                        e.preventDefault();
-                        return false;
-                    }
-            });
-            loginPassInput.addEventListener('keypress', (e) => {
-                    // Prevent spacebar (keyCode 32) from being entered
-                    if (e.keyCode === 32 || e.key === ' ') {
-                        e.preventDefault();
-                        return false;
-                    }
-            });
-            // Add paste event listener to remove spaces from pasted content
-            loginPassInput.addEventListener('paste', (e) => {
-                    e.preventDefault();
-            });
-
-
-
-            // Updated: Back button now returns to signup (the new default)
             document.getElementById('back-to-signup-btn').addEventListener('click', () => {
                 createUsernameView.style.display = 'none';
                 signupView.style.display = 'block';
-            });
-
-            // Re-link the Google button on the signup form
-            document.getElementById('google-signin-btn-signup').addEventListener('click', () => {
-                document.getElementById('google-signin-btn').click();
             });
 
             // Password visibility toggles
@@ -157,16 +229,225 @@
             setupPasswordToggle('login-password', 'toggle-login-password');
             setupPasswordToggle('signup-password', 'toggle-signup-password');
             setupPasswordToggle('confirm-password', 'toggle-confirm-password');
+
+            // Username input: prevent spaces and pasting spaces
+            const usernameInput = document.getElementById('username'); // Corrected ID to 'username'
+            if (usernameInput) {
+                usernameInput.addEventListener('keydown', (e) => {
+                    if (e.key === ' ' || e.code === 'Space') {
+                        e.preventDefault();
+                    }
+                });
+                usernameInput.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = e.clipboardData.getData('text/plain');
+                    document.execCommand('insertText', false, text.replace(/\s/g, ''));
+                });
+            }
+
+            // Login form submission
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const loginBtn = document.getElementById('loginBtn');
+                
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Signing In...';
+                
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    const userRef = db.ref('users/' + user.uid);
+                    const snapshot = await userRef.once('value');
+                    
+                    if (snapshot.exists() && snapshot.val().username) {
+                        showMessage('success', 'Welcome back! Redirecting...', 'login-message-container');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
+                    } else {
+                        showMessage('success', 'Please complete your profile setup...', 'login-message-container');
+                        createUsernameView.style.display = 'block';
+                        loginView.style.display = 'none';
+                        signupView.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    let errorMessage = 'Login failed. Please try again.';
+                    switch (error.code) {
+                        case 'auth/user-not-found': errorMessage = 'No account found with this email address.'; break;
+                        case 'auth/wrong-password': errorMessage = 'Incorrect password. Please try again.'; break;
+                        case 'auth/invalid-email': errorMessage = 'Please enter a valid email address.'; break;
+                        case 'auth/user-disabled': errorMessage = 'This account has been disabled. Please contact support.'; break;
+                        case 'auth/too-many-requests': errorMessage = 'Too many failed attempts. Please try again later.'; break;
+                    }
+                    showMessage('error', errorMessage, 'login-message-container');
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            });
+
+            // Signup form submission
+            document.getElementById('signup-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('signup-username').value.trim();
+                const email = document.getElementById('signup-email').value.trim();
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const agreeTerms = document.getElementById('agreeTerms').checked;
+                const signupBtn = document.getElementById('signupBtn');
+                
+                if (!agreeTerms) {
+                    showMessage('error', 'Please agree to the Terms of Service and Privacy Policy.', 'signup-message-container');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showMessage('error', 'Passwords do not match.', 'signup-message-container');
+                    return;
+                }
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?~`]).{6,}$/;
+                if (!passwordRegex.test(password)) {
+                    showMessage('error', 'Password must be at least 6 characters long and include at least one uppercase letter, one number, and one special character (e.g., !@#$%^&*).', 'signup-message-container');
+                    return;
+                }
+                if (username.length < 3) {
+                    showMessage('error', 'Username must be at least 3 characters long.', 'signup-message-container');
+                    return;
+                }
+                if (/\s/.test(username)) {
+                    showMessage('error', 'Username cannot contain spaces.', 'signup-message-container');
+                    return;
+                }
+                
+                signupBtn.disabled = true;
+                signupBtn.textContent = 'Creating Account...';
+                
+                try {
+                    const usernameCheck = await db.ref('usernames/' + username.toLowerCase()).once('value');
+                    if (usernameCheck.exists()) {
+                        throw new Error('Username is already taken. Please choose a different one.');
+                    }
+                    
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    await db.ref('users/' + user.uid).set({
+                        username: username,
+                        email: email,
+                        joinDate: firebase.database.ServerValue.TIMESTAMP,
+                        uploadCount: 0,
+                        uploads: {}
+                    });
+                    
+                    await db.ref('usernames/' + username.toLowerCase()).set(user.uid);
+                    
+                    showMessage('success', 'Account created successfully! Welcome to Society Poems!', 'signup-message-container');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    let errorMessage = 'Account creation failed. Please try again.';
+                    if (error.message.includes('Username is already taken')) {
+                        errorMessage = error.message;
+                    } else {
+                        switch (error.code) {
+                            case 'auth/email-already-in-use': errorMessage = 'An account with this email already exists.'; break;
+                            case 'auth/invalid-email': errorMessage = 'Please enter a valid email address.'; break;
+                            case 'auth/weak-password': errorMessage = 'Password is too weak. Please choose a stronger password.'; break;
+                        }
+                    }
+                    showMessage('error', errorMessage, 'signup-message-container');
+                } finally {
+                    signupBtn.disabled = false;
+                    signupBtn.textContent = 'Create Account';
+                }
+            });
+
+            // Create username form submission (for users coming from login with incomplete profile)
+            document.getElementById('create-username-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim(); // Corrected ID to 'username'
+                const saveUsernameBtn = document.getElementById('saveUsernameBtn');
+                
+                if (username.length < 3) {
+                    showMessage('error', 'Username must be at least 3 characters long.', 'username-message-container');
+                    return;
+                }
+                if (/\s/.test(username)) {
+                    showMessage('error', 'Username cannot contain spaces.', 'username-message-container');
+                    return;
+                }
+
+                saveUsernameBtn.disabled = true;
+                saveUsernameBtn.textContent = 'Saving Username...';
+
+                try {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        throw new Error('No authenticated user found.');
+                    }
+
+                    const usernameCheck = await db.ref('usernames/' + username.toLowerCase()).once('value');
+                    if (usernameCheck.exists()) {
+                        throw new Error('Username is already taken. Please choose a different one.');
+                    }
+
+                    await db.ref('users/' + user.uid).update({
+                        username: username
+                    });
+                    await db.ref('usernames/' + username.toLowerCase()).set(user.uid);
+
+                    showMessage('success', 'Username saved successfully! Redirecting...', 'username-message-container');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('Error saving username:', error);
+                    let errorMessage = 'Failed to save username. Please try again.';
+                    if (error.message.includes('Username is already taken')) {
+                        errorMessage = error.message;
+                    }
+                    showMessage('error', errorMessage, 'username-message-container');
+                } finally {
+                    saveUsernameBtn.disabled = false;
+                    saveUsernameBtn.textContent = 'Save Username';
+                }
+            });
+
+            // Check auth state on page load to handle redirects and username creation flow
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    db.ref('users/' + user.uid).once('value', (snapshot) => {
+                        if (snapshot.exists() && snapshot.val().username) {
+                            // User is signed in and has a username, redirect to main app
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.get('step') !== 'profile') { // Only redirect if not explicitly in profile setup flow
+                                window.location.href = 'index.html';
+                            }
+                        } else {
+                            // User is signed in but no username, show create username view
+                            createUsernameView.style.display = 'block';
+                            loginView.style.display = 'none';
+                            signupView.style.display = 'none';
+                        }
+                    });
+                } else {
+                    // No user signed in, show login view by default
+                    loginView.style.display = 'block';
+                    signupView.style.display = 'none';
+                    createUsernameView.style.display = 'none';
+                }
+            });
         });
     </script>
 
     <footer>
         <p>&copy; 2025 Society Poems</p>
-        <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
-            <span>|</span>
-            <a href="tos.html">Terms of Service</a>
-        </div>
     </footer>
 </body>
 </html>

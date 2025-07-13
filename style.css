@@ -62,6 +62,7 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background var(--transition-speed), color var(--transition-speed);
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Theme Definitions */
@@ -309,7 +310,7 @@ Footer Links
 /* Forms (Login, Upload, Feedback) */
 .form-page-container {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
@@ -317,7 +318,8 @@ Footer Links
 
 .form-container {
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
+  min-height: auto;
   background: var(--bg-secondary);
   padding: 40px;
   border-radius: var(--border-radius-m);
@@ -486,10 +488,6 @@ Footer Links
 .delete-btn:hover {
   background: #a80012;
   transform: scale(1.1);
-}
-
-.password-requirements {
-  color: red;
 }
 
 /* Home Page specific styles */
@@ -1072,8 +1070,7 @@ Footer Links
 
 /* Message Container */
 .message-container {
-  margin-bottom: 20px;
-  padding: 12px 16px;
+  padding: 15px;
   border-radius: 8px;
   font-weight: 500;
   text-align: center;
@@ -1293,7 +1290,6 @@ Footer Links
   }
 }
 
-
 /* Responsive Design for Mobile Menu */
 @media screen and (max-width: 768px) {
   .nav-menu {
@@ -1511,7 +1507,7 @@ Footer Links
   .back-button {
     align-self: flex-start;
   }
-  
+
   .nav-menu {
     visibility: visible !important;
   }
@@ -1540,4 +1536,380 @@ Footer Links
     padding: 18px 30px;
     font-size: var(--font-size-s);
   }
+}
+
+/* Login page specific styles (consolidated from inline styles) */
+.login-container {
+  min-height: auto; /* Ensure it's at least viewport height */
+  display: flex;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2c1810 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Removed scroll-snap properties */
+}
+
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 40px;
+  color: white;
+  text-align: center;
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  min-height: auto; /* Ensure it's at least viewport height */
+  /* Removed scroll-snap properties */
+}
+
+.login-right {
+  /* This class is defined but not used in the provided HTML structure */
+  flex: 1;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Content starts from the top */
+  padding: 40px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  min-height: 100vh; /* Ensure it's at least viewport height */
+  /* Removed scroll-snap properties */
+}
+
+.brand-section {
+  max-width: 500px;
+}
+
+.brand-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 30px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.brand-logo img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.brand-tagline {
+  font-size: 1.3rem;
+  font-style: italic;
+  margin-bottom: 25px;
+  opacity: 0.95;
+  font-weight: 300;
+}
+
+.brand-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 35px;
+  opacity: 0.9;
+}
+
+.features-list {
+  text-align: left;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  margin-right: 15px;
+  width: 30px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.login-form-container {
+  max-width: 400px;
+  min-height: auto;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Keep content centered vertically */
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  color: #1c1e21;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: #65676b;
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #1c1e21;
+}
+
+.form-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e4e6ea;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.1);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.login-btn:hover {
+  background: var(--primary-color-400);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(107, 66, 38, 0.3);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.divider {
+  text-align: center;
+  margin: 25px 0;
+  position: relative;
+  color: #65676b;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e4e6ea;
+}
+
+.divider span {
+  background: white;
+  padding: 0 20px;
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.signup-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+.app-info-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 12px;
+  margin: 30px 0;
+  border-left: 4px solid var(--primary-color);
+}
+
+.app-info-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1c1e21;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.data-usage-info {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.data-usage-title {
+  font-weight: 600;
+  color: #1c1e21;
+  margin-bottom: 10px;
+}
+
+.data-usage-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.data-usage-list li {
+  padding: 5px 0;
+  color: #65676b;
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.4;
+}
+
+.data-usage-list li::before {
+  content: "•";
+  color: var(--primary-color);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.contact-info {
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.contact-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.contact-info a {
+  color: white;
+  text-decoration: none;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile responsive for login page */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    min-height: auto; /* Allow container to grow on mobile */
+    height: auto; /* Explicitly set height to auto */
+    align-items: stretch; /* Stretch items to fill width */
+  }
+
+  .login-left {
+    padding: 30px 20px;
+    min-height: auto; /* Allow left side to take only content height */
+    overflow-y: visible; /* Ensure content flows out, no internal scroll */
+  }
+
+  .login-right {
+    /* This class is defined but not used in the provided HTML structure */
+    padding: 30px 20px;
+    box-shadow: none;
+    min-height: auto; /* Allow right side to take only content height */
+    overflow-y: visible; /* Ensure content flows out, no internal scroll */
+  }
+
+  .brand-title {
+    font-size: 2.2rem;
+  }
+
+  .brand-logo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+
+  .brand-logo img {
+    width: 130px;
+    height: 130px;
+  }
+
+  .features-list {
+    text-align: center;
+  }
+
+  .feature-item {
+    justify-content: center;
+    text-align: left;
+  }
+}
+
+/* Additional styles for password toggles and requirements */
+.toggle-form-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--primary-color);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.password-requirements {
+  font-size: .8rem;
+  color: var(--text-secondary);
+  margin-top: -15px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.password-wrapper input {
+  padding-right: 45px;
+  margin-bottom: 0;
+}
+.password-toggle-icon {
+  position: absolute;
+  right: 15px;
+  cursor: pointer;
+  color: var(--text-secondary);
 }
