@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
         const createUsernameForm = document.getElementById('create-username-form');
-        const googleBtn = document.getElementById('google-signin-btn');
+        const googleBtn = document.getElementById('google-signin-btn-signup');
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
