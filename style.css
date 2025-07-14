@@ -1798,7 +1798,7 @@ Footer Links
 
 .data-usage-list li {
   padding: 5px 0;
-  color: #65676b;
+  color: white;
   position: relative;
   padding-left: 20px;
   line-height: 1.4;
@@ -1806,7 +1806,7 @@ Footer Links
 
 .data-usage-list li::before {
   content: "•";
-  color: var(--primary-color);
+  color: white;
   position: absolute;
   left: 0;
   font-weight: bold;
