@@ -325,6 +325,7 @@ Footer Links
   border-radius: var(--border-radius-m);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   border-top: 5px solid var(--primary-color);
+  border-bottom: 5px solid var(--primary-color);
 }
 
 .form-container h1 {
