@@ -1769,12 +1769,11 @@ Footer Links
 }
 
 .app-info-section p {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: white;
+  color: black;
   padding: 25px;
   border-radius: 12px;
   margin: 30px 0;
-  border-left: 4px solid rgba(78, 77, 77, 0.1);
 }
 
 .app-info-title {
