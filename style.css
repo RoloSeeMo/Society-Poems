@@ -1923,3 +1923,113 @@ Footer Links
   cursor: pointer;
   color: var(--text-secondary);
 }
+
+/* User Profile Styles */
+.user-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-secondary);
+  padding: 30px;
+  border-radius: var(--border-radius-m);
+  margin-bottom: 30px;
+  border-left: 5px solid var(--primary-color);
+}
+
+.user-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-profile-details {
+  flex: 1;
+}
+
+.user-profile-details h2 {
+  margin: 0 0 10px 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+}
+
+.user-profile-details p {
+  margin: 5px 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-n);
+}
+
+/* Clickable author names */
+.clickable-author {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.clickable-author:hover {
+  color: var(--primary-color) !important;
+  text-decoration: underline;
+}
+
+/* Topic badge for user posts */
+.topic-badge {
+  display: inline-block;
+  background: var(--primary-color);
+  color: var(--secondary-color);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.user-post-entry {
+  position: relative;
+}
+
+.user-post-entry .topic-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1;
+}
+
+.user-post-entry .entry-content {
+  margin-top: 35px; /* Add space for the topic badge */
+}
+
+/* Mobile responsive adjustments for user profile */
+@media screen and (max-width: 768px) {
+  .user-profile-info {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .user-avatar-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .user-profile-details h2 {
+    font-size: var(--font-size-l);
+  }
+
+  .user-post-entry .topic-badge {
+    position: static;
+    margin-bottom: 10px;
+  }
+
+  .user-post-entry .entry-content {
+    margin-top: 15px;
+  }
+}
