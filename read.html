@@ -50,10 +50,22 @@
             </div>
 
             <div id="user-posts-view" style="display: none;">
-                <div class="entries-header">
-                </div>
-            </div>
-
+    <div class="entries-header">
+        <button id="back-from-user-posts-btn" class="back-button">&larr; Back</button>
+        <h1 id="user-posts-title" class="section-title" style="margin-top: 0;"></h1>
+    </div>
+    <div class="user-profile-info">
+        <div class="user-avatar-large" id="user-profile-avatar">?</div>
+        <div class="user-profile-details">
+            <h2 id="user-profile-name">Loading...</h2>
+            <p id="user-profile-stats">Loading stats...</p>
+            <p id="user-profile-joined">Member since: Loading...</p>
+        </div>
+    </div>
+    <div id="user-posts-container">
+        <p>Loading user posts...</p>
+    </div>
+</div>
 
         </section>
     </main>
@@ -293,7 +305,7 @@ function setupLiveEntriesListener() {
     const meta = document.createElement('div');
     meta.className = 'entry-meta';
     const date = new Date(entry.timestamp).toLocaleString();
-    meta.innerHTML = `&mdash; <strong>${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+    meta.innerHTML = `&mdash; <strong class="clickable-author" data-author-uid="${entry.uid}" data-author-name="${entry.name || 'Anonymous'}">${entry.name || 'Anonymous'}</strong>, <em>${date}</em>`;
     
     // Add interaction stats
     const statsDiv = document.createElement('div');
@@ -321,8 +333,8 @@ function setupLiveEntriesListener() {
         
         deleteBtn.onclick = (e) => {
             e.stopPropagation(); // Prevent navigation when clicking delete
-            const confirmMessage = entry.uid === currentUserUID
-                ? 'Are you sure you want to delete your post?'
+            const confirmMessage = entry.uid === currentUserUID 
+                ? 'Are you sure you want to delete your post?' 
                 : 'Are you sure you want to permanently delete this entry? (Admin action)';
                 
             if (confirm(confirmMessage)) {
@@ -479,6 +491,223 @@ function sortButtons(container, sortType, ascending) {
     buttons.forEach(button => container.appendChild(button));
 }
 
+// Function to load user posts
+function loadUserPosts(userUID, userName) {
+    const genreSelectionView = document.getElementById('genre-selection-view');
+    const entriesView = document.getElementById('entries-view');
+    const userPostsView = document.getElementById('user-posts-view');
+    const userPostsContainer = document.getElementById('user-posts-container');
+    
+    // Hide other views and show user posts view
+    genreSelectionView.style.display = 'none';
+    entriesView.style.display = 'none';
+    userPostsView.style.display = 'block';
+    
+    // Set up the header
+    document.getElementById('user-posts-title').textContent = `${userName}'s Posts`;
+    
+    // Load user profile info
+    loadUserProfile(userUID, userName);
+    
+    // Clear container
+    userPostsContainer.innerHTML = '<p>Loading posts...</p>';
+    
+    // Load all user posts from all topics
+    const allUserPosts = [];
+    
+    db.ref('uploads').once('value', (topicsSnapshot) => {
+        if (!topicsSnapshot.exists()) {
+            userPostsContainer.innerHTML = '<p>No posts found for this user.</p>';
+            return;
+        }
+        
+        const promises = [];
+        
+        topicsSnapshot.forEach((topicSnapshot) => {
+            const topicName = topicSnapshot.key;
+            
+            topicSnapshot.forEach((postSnapshot) => {
+                const post = postSnapshot.val();
+                if (post.uid === userUID) {
+                    post.dbKey = postSnapshot.key;
+                    post.topic = topicName;
+                    allUserPosts.push(post);
+                }
+            });
+        });
+        
+        // Sort posts by timestamp (newest first)
+        allUserPosts.sort((a, b) => b.timestamp - a.timestamp);
+        
+        if (allUserPosts.length === 0) {
+            userPostsContainer.innerHTML = '<p>This user hasn\'t posted anything yet.</p>';
+            return;
+        }
+        
+        // Display posts
+        userPostsContainer.innerHTML = '';
+        allUserPosts.forEach(post => {
+            const div = document.createElement('div');
+            div.className = 'entry clickable-post user-post-entry';
+            div.dataset.postId = post.dbKey;
+            div.dataset.topic = post.topic;
+            
+            // Add click handler to navigate to post detail page
+            div.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn')) {
+                    return;
+                }
+                window.location.href = `post.html?topic=${encodeURIComponent(post.topic)}&postId=${encodeURIComponent(post.dbKey)}`;
+            });
+            
+            // Topic badge
+            const topicBadge = document.createElement('div');
+            topicBadge.className = 'topic-badge';
+            topicBadge.textContent = post.topic;
+            
+            const content = document.createElement('p');
+            content.className = 'entry-content';
+            content.innerText = post.content;
+            
+            const meta = document.createElement('div');
+            meta.className = 'entry-meta';
+            const date = new Date(post.timestamp).toLocaleString();
+            meta.innerHTML = `<em>${date}</em>`;
+            
+            // Add interaction stats
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'post-stats';
+            statsDiv.innerHTML = `
+                <span class="stat-item">💬 <span class="comment-count">0</span></span>
+                <span class="stat-item">❤️ <span class="like-count">0</span></span>
+                <span class="click-hint">Click to view details</span>
+            `;
+            
+            // Show delete button if current user owns the post OR if current user is admin
+            const canDelete = (post.uid === currentUserUID) || currentUserIsAdmin;
+            
+            if (canDelete) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.title = post.uid === currentUserUID ? 'Delete your post' : 'Delete this entry (Admin)';
+                
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const confirmMessage = post.uid === currentUserUID 
+                        ? 'Are you sure you want to delete your post?' 
+                        : 'Are you sure you want to permanently delete this entry? (Admin action)';
+                        
+                    if (confirm(confirmMessage)) {
+                        deleteUserPost(post, userUID, userName);
+                    }
+                };
+                div.appendChild(deleteBtn);
+            }
+            
+            div.appendChild(topicBadge);
+            div.appendChild(content);
+            div.appendChild(meta);
+            div.appendChild(statsDiv);
+            userPostsContainer.appendChild(div);
+            
+            // Load stats for this post
+            loadPostStats(post.dbKey, post.topic);
+        });
+    });
+}
+
+// Function to load user profile information
+function loadUserProfile(userUID, userName) {
+    const userProfileAvatar = document.getElementById('user-profile-avatar');
+    const userProfileName = document.getElementById('user-profile-name');
+    const userProfileStats = document.getElementById('user-profile-stats');
+    const userProfileJoined = document.getElementById('user-profile-joined');
+    
+    // Generate avatar
+    const initials = userName.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+    userProfileAvatar.textContent = initials || '?';
+    
+    // Set name
+    userProfileName.textContent = userName;
+    
+    // Load user data from database
+    db.ref('users/' + userUID).once('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            const joinDate = userData.joinDate ? new Date(userData.joinDate).toLocaleDateString() : 'Unknown';
+            const uploadCount = userData.uploadCount || 0;
+            
+            userProfileStats.textContent = `${uploadCount} posts`;
+            userProfileJoined.textContent = `Member since: ${joinDate}`;
+        } else {
+            userProfileStats.textContent = '0 posts';
+            userProfileJoined.textContent = 'Member since: Unknown';
+        }
+    });
+}
+
+// Function to delete a post from user profile view
+function deleteUserPost(post, userUID, userName) {
+    db.ref('uploads/' + post.topic).once('value', (topicSnapshot) => {
+        const entryCount = topicSnapshot.numChildren();
+        const isLastEntry = entryCount === 1;
+        
+        db.ref('uploads/' + post.topic + '/' + post.dbKey).remove().then(() => {
+            const userUploadsRef = db.ref('users/' + post.uid + '/uploadCount');
+            const userUploadsListRef = db.ref('users/' + post.uid + '/uploads/' + post.dbKey);
+            
+            return Promise.all([
+                userUploadsRef.transaction((currentCount) => {
+                    return Math.max((currentCount || 1) - 1, 0);
+                }),
+                userUploadsListRef.remove()
+            ]);
+        }).then(() => {
+            console.log('Entry deleted successfully');
+            // Reload the user posts to reflect the deletion
+            loadUserPosts(userUID, userName);
+        }).catch(error => {
+            console.error('Error during deletion process:', error);
+            alert('An error occurred during deletion. Please try again.');
+        });
+    });
+}
+
+// Function to setup user profile navigation
+function setupUserProfileNavigation() {
+    // Back button from user posts view
+    const backFromUserPostsBtn = document.getElementById('back-from-user-posts-btn');
+    if (backFromUserPostsBtn) {
+        backFromUserPostsBtn.addEventListener('click', () => {
+            const userPostsView = document.getElementById('user-posts-view');
+            const genreSelectionView = document.getElementById('genre-selection-view');
+            const entriesView = document.getElementById('entries-view');
+            
+            userPostsView.style.display = 'none';
+            
+            // Check if we came from entries view or genre selection
+            if (entriesView.style.display === 'block' || document.getElementById('entries-view-title').textContent) {
+                entriesView.style.display = 'block';
+            } else {
+                genreSelectionView.style.display = 'block';
+            }
+        });
+    }
+    
+    // Add click handlers to author names
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('clickable-author')) {
+            const authorUID = e.target.dataset.authorUid;
+            const authorName = e.target.dataset.authorName;
+            
+            if (authorUID && authorName && authorUID !== 'undefined') {
+                loadUserPosts(authorUID, authorName);
+            }
+        }
+    });
+}
+
 // Add mobile menu functionality
 const setupMobileMenu = () => {
     const openBtn = document.getElementById('menu-open-button');
@@ -538,6 +767,7 @@ function loadPostStats(postId, topic) {
 setupMobileMenu();
 handleLogout();
 setupBackButton();
+setupUserProfileNavigation();
 checkAuthState();
     </script>
 </body>
