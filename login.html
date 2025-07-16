@@ -19,54 +19,10 @@
                     </div>
                     <h1 class="brand-title">Society Poems</h1>
                     <p class="brand-tagline">Unfiltered. Unedited. Unapologetically you.</p>
-                    <div id="login-view" style="display: none;">
-                        <h1>Welcome Back</h1>
-                        <div id="login-message-container" class="message-container"></div>
-                        <form id="login-form" onsubmit="return false;">
-                            <label for="login-email">Email:</label>
-                            <input type="email" id="login-email" required>
-                            <label for="login-password">Password:</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="login-password" required>
-                                <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
-                            </div>
-                            <button type="submit" class="form-button form-button-primary">Login</button>
-                        </form>
-                        <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
-                        <hr style="border-color: var(--border-color); margin: 20px 0;">
-                        <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
-                    </div>
-        
-                    <div id="signup-view">
-                        <div id="signup-message-container" class="message-container"></div>
-                        <form id="signup-form" onsubmit="return false;">
-                            <label for="signup-email">Email:</label>
-                            <input type="email" id="signup-email" required>
-                            <label for="signup-password">Password:</label>
-                            <div class="password-wrapper"><input type="password" id="signup-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i></div>
-                            <div class="password-requirements">Must: 6+ characters, contain at LEAST 1 symbol and 1 number, and cannot have spaces.</div>
-                            <label for="confirm-password">Confirm Password:</label>
-                            <div class="password-wrapper"><input type="password" id="confirm-password" required><i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i></div>
-                            <button type="submit" class="form-button form-button-primary">Sign Up</button>
-                            <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign In/Up with Google</button>
-                        </form>
-                        <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
-                        <hr style="border-color: var(--border-color); margin: 20px 0;">
-                    </div>
-        
-                    <div id="create-username-view" style="display: none;">
-                        <h1>Create a Username</h1>
-                        <div id="username-message-container" class="message-container"></div>
-                        <form id="create-username-form" onsubmit="return false;">
-                            <label for="username">Username:</label>
-                            <input type="text" id="username" placeholder="Letters and Numbers only- No Special Characters." required>
-                            <button type="submit" class="form-button form-button-primary">Save Username</button>
-                        </form>
-                        <button id="back-to-signup-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
-                    </div>
                     <p class="brand-description">
-                        Society Poems is the project that serves you the antidote to social anxiety.
-                        A site for you to meet like-minded people (NOT A.I.) and to share your best ideas with the world— about whatever topic you want.
+                        Society Poems is the project that serves you the antidote to social anxiety. 
+                        A site for you to meet like-minded people, and to share your best words with the world— 
+                        about whatever topic you want.
                     </p>
                     
                     <div class="features-list">
@@ -99,64 +55,85 @@
                     <div class="contact-info">
                         <p><strong>Questions or Support?</strong></p>
                         <p>Contact us: <a href="mailto:officialsocietypoems@gmail.com">officialsocietypoems@gmail.com</a></p>
-                        <p><strong><a href="https://societypoems.com/">societypoems.com</a></strong></p>
+                        <p>Hosted on: <strong>societypoems.com</strong></p>
                     </div>
-                    <!-- App Information Section -->
-                <div class="app-info-section">
-                    <h2 class="app-info-title">How We Use Your Information</h2>
-                    
-                    <div class="data-usage-info">
-                        <div class="data-usage-title">We collect the following data to provide our service:</div>
-                        <ul class="data-usage-list">
-                            <li><strong>Email & Username:</strong> For account creation, security, and content management</li>
-                            <li><strong>Uploaded Content:</strong> Your posts, poems, and writings that you choose to share</li>
-                            <li><strong>Comments:</strong> Your interactions and discussions with other users</li>
-                            <li><strong>Liked Posts:</strong> Content you've appreciated to improve recommendations</li>
-                            <li><strong>Reports:</strong> Community safety and moderation purposes</li>
-                        </ul>
-                    </div>
-
-                    <div class="data-usage-info">
-                        <div class="data-usage-title">Why we collect this data:</div>
-                        <ul class="data-usage-list">
-                            <li>Maintain a fluid database that makes using the site as easy as possible</li>
-                            <li>Improve the site and better manage user data over time</li>
-                            <li>Power community features like reporting, likes, and commenting</li>
-                            <li>Prevent identity impersonation through user individualization</li>
-                            <li>Enable topic-based discussions and content discovery</li>
-                        </ul>
-                    </div>
-
-                    <div class="data-usage-info">
-                        <div class="data-usage-title">Data sharing & storage:</div>
-                        <ul class="data-usage-list">
-                            <li>Data is shared with Firebase (Google's development platform) for backend services</li>
-                            <li>Your username and posts are publicly visible to other users</li>
-                            <li>Data is stored indefinitely or until deleted due to database maintenance</li>
-                            <li>We never sell your personal information to third parties</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <p style="text-align: center; color: #65676b; font-size: 0.9rem; margin-top: 20px;">
-                    By <i>signing in</i>, you agree to our <a href="tos.html" style="color: var(--primary-color);">Terms of Service</a> 
-                    and acknowledge our <a href="privacy-policy.html" style="color: var(--primary-color);">Privacy Policy</a>.
-                </p>
-                <!-- Footer Links -->
-                <div class="footer-links">
-                    <a href="privacy-policy.html">Privacy Policy</a>
-                    <a href="tos.html">Terms of Service</a>
-                    <a href="index.html">About Us</a>
-                    <a href="feedback.html">Contact Support</a>
                 </div>
             </div>
-                </div>
+            
+            <div id="login-view" style="display: none;">
+                <h1>Welcome Back</h1>
+                <div id="login-message-container" class="message-container"></div>
+                <form id="login-form" onsubmit="return false;">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required>
+                    <label for="login-password">Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-login-password"></i>
+                    </div>
+                    <button type="submit" id="loginBtn" class="form-button form-button-primary">Login</button>
+                </form>
+                <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
+            </div>
+
+            <div id="signup-view">
+                <h1>Join Society Poems</h1>
+                <div id="signup-message-container" class="message-container"></div>
+                <form id="signup-form" onsubmit="return false;">
+                    <label for="signup-username">Username:</label>
+                    <input type="text" id="signup-username" required>
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" required>
+                    <label for="signup-password">Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="signup-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-signup-password"></i>
+                    </div>
+                    <div class="password-requirements">Must: 6+ characters, contain at LEAST 1 symbol and 1 number, and cannot have spaces.</div>
+                    <label for="confirm-password">Confirm Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirm-password" required>
+                        <i class="fas fa-eye password-toggle-icon" id="toggle-confirm-password"></i>
+                    </div>
+                    
+                    <div class="terms-agreement">
+                        <label>
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>
+                                I agree to the <a href="tos.html" target="_blank">Terms of Service</a> 
+                                and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>. 
+                                I understand that my email and username will be used to create my account, 
+                                and my posts will be publicly visible with my username.
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" id="signupBtn" class="form-button form-button-primary">Sign Up</button>
+                </form>
+                <p class="toggle-form-link" id="show-login">Already have an account? Login</p>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign in with Google</button>
+            </div>
+
+            <div id="create-username-view" style="display: none;">
+                <h1>Create a Username</h1>
+                <div id="username-message-container" class="message-container"></div>
+                <form id="create-username-form" onsubmit="return false;">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                    <button type="submit" id="saveUsernameBtn" class="form-button form-button-primary">Save Username</button>
+                </form>
+                <button id="back-to-signup-btn" class="form-button" style="background: #555; color: white; margin-top: 10px;">Back</button>
             </div>
 
         </div>
     </div>
 
-    <script type="module" src="auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
         // Firebase configuration
@@ -229,19 +206,21 @@
             setupPasswordToggle('confirm-password', 'toggle-confirm-password');
 
             // Username input: prevent spaces and pasting spaces
-            const usernameInput = document.getElementById('username'); // Corrected ID to 'username'
-            if (usernameInput) {
-                usernameInput.addEventListener('keydown', (e) => {
-                    if (e.key === ' ' || e.code === 'Space') {
+            const usernameInputs = [document.getElementById('signup-username'), document.getElementById('username')];
+            usernameInputs.forEach(usernameInput => {
+                if (usernameInput) {
+                    usernameInput.addEventListener('keydown', (e) => {
+                        if (e.key === ' ' || e.code === 'Space') {
+                            e.preventDefault();
+                        }
+                    });
+                    usernameInput.addEventListener('paste', (e) => {
                         e.preventDefault();
-                    }
-                });
-                usernameInput.addEventListener('paste', (e) => {
-                    e.preventDefault();
-                    const text = e.clipboardData.getData('text/plain');
-                    document.execCommand('insertText', false, text.replace(/\s/g, ''));
-                });
-            }
+                        const text = e.clipboardData.getData('text/plain');
+                        document.execCommand('insertText', false, text.replace(/\s/g, ''));
+                    });
+                }
+            });
 
             // Login form submission
             document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -284,7 +263,7 @@
                     showMessage('error', errorMessage, 'login-message-container');
                 } finally {
                     loginBtn.disabled = false;
-                    loginBtn.textContent = 'Sign In';
+                    loginBtn.textContent = 'Login';
                 }
             });
 
@@ -361,14 +340,14 @@
                     showMessage('error', errorMessage, 'signup-message-container');
                 } finally {
                     signupBtn.disabled = false;
-                    signupBtn.textContent = 'Create Account';
+                    signupBtn.textContent = 'Sign Up';
                 }
             });
 
             // Create username form submission (for users coming from login with incomplete profile)
             document.getElementById('create-username-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = document.getElementById('username').value.trim(); // Corrected ID to 'username'
+                const username = document.getElementById('username').value.trim();
                 const saveUsernameBtn = document.getElementById('saveUsernameBtn');
                 
                 if (username.length < 3) {
@@ -435,9 +414,9 @@
                         }
                     });
                 } else {
-                    // No user signed in, show login view by default
-                    loginView.style.display = 'block';
-                    signupView.style.display = 'none';
+                    // No user signed in, show signup view by default
+                    loginView.style.display = 'none';
+                    signupView.style.display = 'block';
                     createUsernameView.style.display = 'none';
                 }
             });
@@ -446,6 +425,11 @@
 
     <footer>
         <p>&copy; 2025 Society Poems</p>
+        <div class="footer-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <span>|</span>
+            <a href="tos.html">Terms of Service</a>
+        </div>
     </footer>
 </body>
 </html>
