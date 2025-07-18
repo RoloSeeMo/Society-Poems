@@ -697,6 +697,119 @@ Footer Links
   }
 }
 
+/* Read-only banner styles */
+.readonly-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0;
+  position: sticky;
+  top: 70px; /* Adjust based on your header height */
+  z-index: 999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+.readonly-banner-content {
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.readonly-banner a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.readonly-banner a:hover {
+  color: #f0f0f0;
+}
+
+.readonly-banner-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+  margin-left: 15px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.readonly-banner-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Hide elements that require authentication */
+.auth-required {
+  display: none;
+}
+
+.guest-only {
+  display: block;
+}
+
+/* Style for disabled buttons/forms for guests */
+.guest-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.guest-disabled::after {
+  content: "Sign in required";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.guest-disabled:hover::after {
+  opacity: 1;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+  .readonly-banner-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 15px 20px;
+  }
+
+  .readonly-banner-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    margin: 0;
+  }
+}
+
+
 /* Clickable post styles */
 .clickable-post {
   cursor: pointer;
