@@ -4,6 +4,7 @@
     <title>Read Entries</title>
     <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="readonly-styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body data-theme="night" style="visibility: hidden;">
@@ -104,6 +105,7 @@
 
         let currentUserUID = null;
         let currentUserIsAdmin = false;
+        let currentSelectedGenre = null;
 
         // Initialize authentication with read-only support
         AuthUtils.initReadOnlyAuth(firebase, auth, db, {
@@ -123,7 +125,7 @@
             // Initialize page functionality after auth check
             setupLiveEntriesListener();
             setupMobileMenu();
-            setupBackButton();
+            setupBackButtons();
             setupUserProfileNavigation();
             
             // Check for topic parameter in URL and auto-load that topic
@@ -136,7 +138,119 @@
             }
         });
 
-        // Modified delete entry function to check authentication
+        // Setup live entries listener for genre buttons
+        function setupLiveEntriesListener() {
+            const genreButtonsContainer = document.getElementById("genre-buttons-container");
+            let genreCounts = {};
+
+            db.ref("uploads").on("value", (snapshot) => {
+                console.log("Database snapshot received:", snapshot.exists());
+                genreCounts = {};
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((topicSnapshot) => {
+                        const topicName = topicSnapshot.key;
+                        const postsCount = topicSnapshot.numChildren();
+                        genreCounts[topicName] = postsCount;
+                        console.log(`Found topic: ${topicName} with ${postsCount} posts`);
+                    });
+                } else {
+                    console.log("No data found in uploads");
+                }
+
+                genreButtonsContainer.innerHTML = '';
+
+                if (Object.keys(genreCounts).length > 0) {
+                    const sortingControls = document.getElementById('sorting-controls');
+                    sortingControls.style.display = 'flex';
+                    
+                    for (const genre in genreCounts) {
+                        const button = document.createElement('button');
+                        button.dataset.genre = genre;
+                        button.textContent = `${genre} `;
+                        button.className = 'genre-button';
+
+                        const countSpan = document.createElement('span');
+                        countSpan.className = 'genre-count';
+                        countSpan.textContent = `Posts: ${genreCounts[genre]}`;
+                        button.appendChild(countSpan);
+
+                        button.addEventListener('click', () => {
+                            console.log(`Genre button clicked: ${genre}`);
+                            loadEntriesByGenre(genre);
+                        });
+                        genreButtonsContainer.appendChild(button);
+                    }
+                    
+                    setupSortingButtons(genreButtonsContainer);
+                } else {
+                    genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
+                    const sortingControls = document.getElementById('sorting-controls');
+                    sortingControls.style.display = 'none';
+                }
+
+                // Auto-load topic from URL if present
+                const urlParams = new URLSearchParams(window.location.search);
+                const topicParam = urlParams.get('topic');
+                if (topicParam && genreCounts[topicParam]) {
+                    setTimeout(() => {
+                        loadEntriesByGenre(topicParam);
+                    }, 1000);
+                }
+            }, (error) => {
+                console.error("Database error:", error);
+                genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
+            });
+        }
+
+        // Load entries by genre - MAIN FUNCTION
+        function loadEntriesByGenre(selectedGenre) {
+            console.log(`Loading entries for genre: ${selectedGenre}`);
+            currentSelectedGenre = selectedGenre;
+            
+            // Switch views
+            document.getElementById('genre-selection-view').style.display = 'none';
+            document.getElementById('entries-view').style.display = 'block';
+            document.getElementById('user-posts-view').style.display = 'none';
+            
+            // Update title
+            document.getElementById('entries-view-title').textContent = `${selectedGenre} Posts`;
+            
+            const entriesContainer = document.getElementById('entriesContainer');
+            entriesContainer.innerHTML = '<p>Loading entries...</p>';
+
+            // Load entries from Firebase
+            db.ref(`uploads/${selectedGenre}`).orderByChild('timestamp').once('value', (snapshot) => {
+                entriesContainer.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const entries = [];
+                    snapshot.forEach((childSnapshot) => {
+                        entries.push({
+                            id: childSnapshot.key,
+                            data: childSnapshot.val()
+                        });
+                    });
+                    
+                    // Sort by timestamp (newest first)
+                    entries.sort((a, b) => (b.data.timestamp || 0) - (a.data.timestamp || 0));
+                    
+                    entries.forEach(entry => {
+                        const entryElement = createEntryElement(entry.id, entry.data, selectedGenre);
+                        entriesContainer.appendChild(entryElement);
+                    });
+                    
+                    console.log(`Loaded ${entries.length} entries for ${selectedGenre}`);
+                } else {
+                    entriesContainer.innerHTML = '<p>No entries found for this topic.</p>';
+                }
+            }, (error) => {
+                console.error('Error loading entries:', error);
+                entriesContainer.innerHTML = '<p>Error loading entries. Please try again.</p>';
+            });
+        }
+
+        // Create entry element
         function createEntryElement(docId, data, selectedGenre) {
             const div = document.createElement('div');
             div.className = 'entry clickable-post';
@@ -153,12 +267,15 @@
             
             const content = document.createElement('p');
             content.className = 'entry-content';
-            content.innerText = data.content;
+            content.innerText = data.content || 'No content available';
             
             const meta = document.createElement('div');
             meta.className = 'entry-meta';
-            const date = new Date(data.timestamp).toLocaleString();
-            meta.innerHTML = `&mdash; <strong class="clickable-author" data-author-uid="${data.uid}" data-author-name="${data.name || 'Anonymous'}">${data.name || 'Anonymous'}</strong>, <em>${date}</em>`;
+            const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown date';
+            const authorName = data.name || 'Anonymous';
+            const authorUID = data.uid || '';
+            
+            meta.innerHTML = `&mdash; <strong class="clickable-author" data-author-uid="${authorUID}" data-author-name="${authorName}">${authorName}</strong>, <em>${date}</em>`;
             
             // Add interaction stats
             const statsDiv = document.createElement('div');
@@ -201,126 +318,41 @@
             return div;
         }
 
-        // Rest of your existing functions remain the same, but update them to use AuthUtils.canWrite()
-        // for any write operations and currentUserUID for user checks
-
-        // [Include all your existing functions here - setupLiveEntriesListener, loadEntriesByGenre, etc.]
-        // Just make sure to replace direct auth checks with AuthUtils methods
-
-        function setupLiveEntriesListener() {
-            const genreButtonsContainer = document.getElementById("genre-buttons-container");
-            let genreCounts = {};
-
-            db.ref("uploads").on("value", (snapshot) => {
-                console.log("Database snapshot received:", snapshot.exists());
-                genreCounts = {};
-                
-                if (snapshot.exists()) {
-                    snapshot.forEach((topicSnapshot) => {
-                        const topicName = topicSnapshot.key;
-                        const postsCount = topicSnapshot.numChildren();
-                        genreCounts[topicName] = postsCount;
-                        console.log(`Found topic: ${topicName} with ${postsCount} posts`);
-                    });
-                } else {
-                    console.log("No data found in uploads");
-                }
-
-                genreButtonsContainer.innerHTML = '';
-
-                if (Object.keys(genreCounts).length > 0) {
-                    const sortingControls = document.getElementById('sorting-controls');
-                    sortingControls.style.display = 'flex';
-                    
-                    for (const genre in genreCounts) {
-                        const button = document.createElement('button');
-                        button.dataset.genre = genre;
-                        button.textContent = `${genre} `;
-                        button.className = 'genre-button';
-
-                        const countSpan = document.createElement('span');
-                        countSpan.className = 'genre-count';
-                        countSpan.textContent = `Posts: ${genreCounts[genre]}`;
-                        button.appendChild(countSpan);
-
-                        button.addEventListener('click', () => loadEntriesByGenre(genre));
-                        genreButtonsContainer.appendChild(button);
-                    }
-                    
-                    setupSortingButtons(genreButtonsContainer);
-                } else {
-                    genreButtonsContainer.innerHTML = '<p>No submissions yet.</p>';
-                    const sortingControls = document.getElementById('sorting-controls');
-                    sortingControls.style.display = 'none';
-                }
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const topicParam = urlParams.get('topic');
-                if (topicParam && genreCounts[topicParam]) {
-                    setTimeout(() => {
-                        loadEntriesByGenre(topicParam);
-                    }, 1000);
-                }
-            }, (error) => {
-                console.error("Database error:", error);
-                genreButtonsContainer.innerHTML = '<p>Error loading topics. Please refresh the page.</p>';
-            });
-        }
-
-        // Add your other existing functions here...
-        // [All the other functions from your original read.html]
-
-        const setupMobileMenu = () => {
-            const openBtn = document.getElementById('menu-open-button');
-            const closeBtn = document.getElementById('menu-close-button');
-            const navMenu = document.querySelector('.nav-menu');
-            if (openBtn && closeBtn && navMenu) {
-                openBtn.addEventListener('click', () => navMenu.classList.add('active'));
-                closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
-            }
-        };
-
-        const setupBackButton = () => {
-            const backToGenresBtn = document.getElementById('back-to-genres-btn');
-            if (backToGenresBtn) {
-                backToGenresBtn.addEventListener('click', () => {
-                    document.getElementById('entries-view').style.display = 'none';
-                    document.getElementById('genre-selection-view').style.display = 'block';
-                });
-            }
-        };
-
-        function setupUserProfileNavigation() {
-            const backFromUserPostsBtn = document.getElementById('back-from-user-posts-btn');
-            if (backFromUserPostsBtn) {
-                backFromUserPostsBtn.addEventListener('click', () => {
-                    const userPostsView = document.getElementById('user-posts-view');
-                    const genreSelectionView = document.getElementById('genre-selection-view');
-                    const entriesView = document.getElementById('entries-view');
-                    
-                    userPostsView.style.display = 'none';
-                    
-                    if (entriesView.style.display === 'block' || document.getElementById('entries-view-title').textContent) {
-                        entriesView.style.display = 'block';
-                    } else {
-                        genreSelectionView.style.display = 'block';
-                    }
-                });
-            }
+        // Delete entry function
+        function deleteEntryFromTopic(data, docId, selectedGenre) {
+            console.log(`Attempting to delete entry ${docId} from ${selectedGenre}`);
             
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('clickable-author')) {
-                    e.stopPropagation();
-                    const authorUID = e.target.dataset.authorUid;
-                    const authorName = e.target.dataset.authorName;
+            if (!AuthUtils.canWrite()) {
+                alert('You must be signed in to delete posts.');
+                return;
+            }
+
+            const entryRef = db.ref(`uploads/${selectedGenre}/${docId}`);
+            
+            entryRef.remove().then(() => {
+                console.log('Entry deleted successfully');
+                
+                // Update user's upload count if it's their own post
+                if (data.uid === currentUserUID) {
+                    const userRef = db.ref(`users/${currentUserUID}`);
+                    userRef.child('uploadCount').transaction((currentCount) => {
+                        return Math.max(0, (currentCount || 1) - 1);
+                    });
                     
-                    if (authorUID && authorName && authorUID !== 'undefined') {
-                        loadUserPosts(authorUID, authorName);
-                    }
+                    // Remove from user's uploads list
+                    userRef.child(`uploads/${docId}`).remove();
                 }
+                
+                // Reload the entries for this genre
+                loadEntriesByGenre(selectedGenre);
+                
+            }).catch((error) => {
+                console.error('Error deleting entry:', error);
+                alert('Failed to delete entry. Please try again.');
             });
         }
 
+        // Load post stats (comments and likes)
         function loadPostStats(postId, topic) {
             const interactionsRef = db.ref(`interactions/${topic}/${postId}`);
             
@@ -340,6 +372,265 @@
                 }
             });
         }
+
+        // Setup sorting buttons
+        function setupSortingButtons(container) {
+            const alphabeticalBtn = document.getElementById('alphabetical-sort-btn');
+            const countBtn = document.getElementById('count-sort-btn');
+            
+            if (alphabeticalBtn) {
+                alphabeticalBtn.addEventListener('click', () => {
+                    sortGenreButtons(container, 'alphabetical');
+                    alphabeticalBtn.classList.add('active');
+                    countBtn.classList.remove('active');
+                });
+            }
+            
+            if (countBtn) {
+                countBtn.addEventListener('click', () => {
+                    sortGenreButtons(container, 'count');
+                    countBtn.classList.add('active');
+                    alphabeticalBtn.classList.remove('active');
+                });
+            }
+        }
+
+        // Sort genre buttons
+        function sortGenreButtons(container, sortType) {
+            const buttons = Array.from(container.querySelectorAll('.genre-button'));
+            
+            buttons.sort((a, b) => {
+                if (sortType === 'alphabetical') {
+                    return a.dataset.genre.localeCompare(b.dataset.genre);
+                } else if (sortType === 'count') {
+                    const countA = parseInt(a.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                    const countB = parseInt(b.querySelector('.genre-count').textContent.match(/\d+/)[0]);
+                    return countB - countA;
+                }
+            });
+            
+            container.innerHTML = '';
+            buttons.forEach(button => container.appendChild(button));
+        }
+
+        // Load user posts
+        function loadUserPosts(authorUID, authorName) {
+            console.log(`Loading posts for user: ${authorName} (${authorUID})`);
+            
+            // Switch to user posts view
+            document.getElementById('genre-selection-view').style.display = 'none';
+            document.getElementById('entries-view').style.display = 'none';
+            document.getElementById('user-posts-view').style.display = 'block';
+            
+            // Update title and profile info
+            document.getElementById('user-posts-title').textContent = `Posts by ${authorName}`;
+            document.getElementById('user-profile-name').textContent = authorName;
+            document.getElementById('user-profile-avatar').textContent = authorName.charAt(0).toUpperCase();
+            
+            const userPostsContainer = document.getElementById('user-posts-container');
+            userPostsContainer.innerHTML = '<p>Loading user posts...</p>';
+            
+            // Load user profile data
+            db.ref(`users/${authorUID}`).once('value', (userSnapshot) => {
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.val();
+                    const joinDate = userData.joinDate ? new Date(userData.joinDate).toLocaleDateString() : 'Unknown';
+                    const uploadCount = userData.uploadCount || 0;
+                    
+                    document.getElementById('user-profile-stats').textContent = `${uploadCount} posts`;
+                    document.getElementById('user-profile-joined').textContent = `Member since: ${joinDate}`;
+                }
+            });
+            
+            // Load all user posts from all topics
+            const allUserPosts = [];
+            
+            db.ref('uploads').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((topicSnapshot) => {
+                        const topicName = topicSnapshot.key;
+                        topicSnapshot.forEach((postSnapshot) => {
+                            const postData = postSnapshot.val();
+                            if (postData.uid === authorUID) {
+                                allUserPosts.push({
+                                    id: postSnapshot.key,
+                                    data: postData,
+                                    topic: topicName
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Sort by timestamp (newest first)
+                    allUserPosts.sort((a, b) => (b.data.timestamp || 0) - (a.data.timestamp || 0));
+                    
+                    userPostsContainer.innerHTML = '';
+                    
+                    if (allUserPosts.length > 0) {
+                        allUserPosts.forEach(post => {
+                            const postElement = createUserPostElement(post.id, post.data, post.topic);
+                            userPostsContainer.appendChild(postElement);
+                        });
+                    } else {
+                        userPostsContainer.innerHTML = '<p>This user hasn\'t posted anything yet.</p>';
+                    }
+                } else {
+                    userPostsContainer.innerHTML = '<p>No posts found.</p>';
+                }
+            });
+        }
+
+        // Create user post element
+        function createUserPostElement(postId, data, topic) {
+            const div = document.createElement('div');
+            div.className = 'entry clickable-post user-post';
+            div.dataset.postId = postId;
+            div.dataset.topic = topic;
+            
+            // Add click handler
+            div.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn')) {
+                    return;
+                }
+                window.location.href = `post.html?topic=${encodeURIComponent(topic)}&postId=${encodeURIComponent(postId)}`;
+            });
+            
+            const topicLabel = document.createElement('div');
+            topicLabel.className = 'post-topic-label';
+            topicLabel.textContent = `Topic: ${topic}`;
+            
+            const content = document.createElement('p');
+            content.className = 'entry-content';
+            content.innerText = data.content || 'No content available';
+            
+            const meta = document.createElement('div');
+            meta.className = 'entry-meta';
+            const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown date';
+            meta.innerHTML = `<em>${date}</em>`;
+            
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'post-stats';
+            statsDiv.innerHTML = `
+                <span class="stat-item">💬 <span class="comment-count">0</span></span>
+                <span class="stat-item">❤️ <span class="like-count">0</span></span>
+                <span class="click-hint">Click to view details</span>
+            `;
+            
+            // Show delete button if user owns the post or is admin
+            const canDelete = AuthUtils.canWrite() && ((data.uid && data.uid === currentUserUID) || currentUserIsAdmin);
+            
+            if (canDelete) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.title = 'Delete this post';
+                
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm('Are you sure you want to delete this post?')) {
+                        deleteEntryFromTopic(data, postId, topic);
+                        // Reload user posts after deletion
+                        setTimeout(() => {
+                            loadUserPosts(data.uid, data.name);
+                        }, 1000);
+                    }
+                };
+                div.appendChild(deleteBtn);
+            }
+            
+            div.appendChild(topicLabel);
+            div.appendChild(content);
+            div.appendChild(meta);
+            div.appendChild(statsDiv);
+            
+            // Load stats
+            loadPostStats(postId, topic);
+            
+            return div;
+        }
+
+        // Setup back buttons
+        function setupBackButtons() {
+            const backToGenresBtn = document.getElementById('back-to-genres-btn');
+            if (backToGenresBtn) {
+                backToGenresBtn.addEventListener('click', () => {
+                    console.log('Back to genres clicked');
+                    document.getElementById('entries-view').style.display = 'none';
+                    document.getElementById('user-posts-view').style.display = 'none';
+                    document.getElementById('genre-selection-view').style.display = 'block';
+                    currentSelectedGenre = null;
+                });
+            }
+
+            const backFromUserPostsBtn = document.getElementById('back-from-user-posts-btn');
+            if (backFromUserPostsBtn) {
+                backFromUserPostsBtn.addEventListener('click', () => {
+                    console.log('Back from user posts clicked');
+                    const userPostsView = document.getElementById('user-posts-view');
+                    const genreSelectionView = document.getElementById('genre-selection-view');
+                    const entriesView = document.getElementById('entries-view');
+                    
+                    userPostsView.style.display = 'none';
+                    
+                    // Go back to entries view if we were viewing a specific genre
+                    if (currentSelectedGenre) {
+                        entriesView.style.display = 'block';
+                    } else {
+                        genreSelectionView.style.display = 'block';
+                    }
+                });
+            }
+        }
+
+        // Setup user profile navigation
+        function setupUserProfileNavigation() {
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('clickable-author')) {
+                    e.stopPropagation();
+                    const authorUID = e.target.dataset.authorUid;
+                    const authorName = e.target.dataset.authorName;
+                    
+                    console.log(`Author clicked: ${authorName} (${authorUID})`);
+                    
+                    if (authorUID && authorName && authorUID !== 'undefined' && authorUID !== '') {
+                        loadUserPosts(authorUID, authorName);
+                    } else {
+                        console.log('Invalid author data, cannot load profile');
+                    }
+                }
+            });
+        }
+
+        // Setup mobile menu
+        const setupMobileMenu = () => {
+            const openBtn = document.getElementById('menu-open-button');
+            const closeBtn = document.getElementById('menu-close-button');
+            const navMenu = document.querySelector('.nav-menu');
+            if (openBtn && closeBtn && navMenu) {
+                openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+            }
+        };
+
+        // Handle logout functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    if (AuthUtils.canWrite()) {
+                        // User is logged in, perform logout
+                        auth.signOut().then(() => {
+                            window.location.href = 'login.html';
+                        }).catch((error) => {
+                            console.error('Logout error:', error);
+                        });
+                    } else {
+                        // User is not logged in, redirect to login
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

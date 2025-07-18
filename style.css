@@ -792,6 +792,81 @@ Footer Links
   opacity: 1;
 }
 
+/* User post specific styles */
+.user-post {
+  border-left: 3px solid var(--primary-color);
+}
+
+.post-topic-label {
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.user-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.user-profile-details h2 {
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+
+.user-profile-details p {
+  margin: 4px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Sorting controls */
+.sorting-controls-header {
+  display: flex;
+  gap: 10px;
+}
+
+.sort-button {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.sort-button:hover {
+  background: var(--bg-secondary);
+}
+
+.sort-button.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
 /* Mobile responsive */
 @media screen and (max-width: 768px) {
   .readonly-banner-content {
@@ -807,7 +882,19 @@ Footer Links
     right: 15px;
     margin: 0;
   }
+
+  .user-profile-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .sorting-controls-header {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
+
 
 
 /* Clickable post styles */
