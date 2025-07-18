@@ -75,7 +75,10 @@
                 </form>
                 <p class="toggle-form-link" id="show-signup">New here? Sign Up</p>
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <button id="google-signin-btn" class="form-button form-button-secondary">Sign in with Google</button>
+                <button id="google-signin-btn" class="form-button form-button-secondary">
+                    <i class="fab fa-google" style="margin-right: 8px;"></i>
+                    Sign in with Google
+                </button>
             </div>
 
             <div id="signup-view">
@@ -112,7 +115,10 @@
                     <button type="submit" id="signupBtn" class="form-button form-button-primary">Sign Up</button>
                 </form>
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <button id="google-signin-btn-signup" class="form-button form-button-secondary">Sign in with Google</button>
+                <button id="google-signin-btn-signup" class="form-button form-button-secondary">
+                    <i class="fab fa-google" style="margin-right: 8px;"></i>
+                    Sign in with Google
+                </button>
             </div>
 
             <div id="create-username-view" style="display: none;">
@@ -150,15 +156,89 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
+        // Initialize Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
         // Show message function
         function showMessage(type, text, containerId) {
             const messageContainer = document.getElementById(containerId);
-            messageContainer.className = `${type}-message`;
+            if (!messageContainer) return;
+            
+            messageContainer.className = `message-container ${type}-message`;
             messageContainer.textContent = text;
             messageContainer.style.display = 'block';
             setTimeout(() => {
                 messageContainer.style.display = 'none';
             }, 5000);
+        }
+
+        // Google Sign-In function
+        async function signInWithGoogle() {
+            try {
+                console.log('Starting Google sign-in...');
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                console.log('Google sign-in successful:', user.email);
+                
+                // Check if user has a username in database
+                const userRef = db.ref('users/' + user.uid);
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists() && snapshot.val().username) {
+                    // User exists with username, redirect to main app
+                    showMessage('success', 'Welcome back! Redirecting...', getCurrentMessageContainer());
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    // New user or user without username, show username creation
+                    showMessage('success', 'Please create a username to complete your profile...', getCurrentMessageContainer());
+                    showCreateUsernameView();
+                }
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                let errorMessage = 'Google sign-in failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Sign-in was cancelled. Please try again.';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Pop-up was blocked by your browser. Please allow pop-ups and try again.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your connection and try again.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Please wait a moment and try again.';
+                        break;
+                }
+                
+                showMessage('error', errorMessage, getCurrentMessageContainer());
+            }
+        }
+
+        // Helper function to get current message container
+        function getCurrentMessageContainer() {
+            const loginView = document.getElementById('login-view');
+            const signupView = document.getElementById('signup-view');
+            
+            if (loginView.style.display !== 'none') {
+                return 'login-message-container';
+            } else if (signupView.style.display !== 'none') {
+                return 'signup-message-container';
+            }
+            return 'signup-message-container'; // default
+        }
+
+        // Show create username view
+        function showCreateUsernameView() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('signup-view').style.display = 'none';
+            document.getElementById('create-username-view').style.display = 'block';
         }
 
         // View toggling logic
@@ -167,6 +247,7 @@
             const signupView = document.getElementById('signup-view');
             const createUsernameView = document.getElementById('create-username-view');
 
+            // View switching
             document.getElementById('show-signup').addEventListener('click', (e) => {
                 e.preventDefault();
                 loginView.style.display = 'none';
@@ -185,6 +266,26 @@
                 createUsernameView.style.display = 'none';
                 signupView.style.display = 'block';
             });
+
+            // Google Sign-In button event listeners
+            const googleSignInBtn = document.getElementById('google-signin-btn');
+            const googleSignInBtnSignup = document.getElementById('google-signin-btn-signup');
+            
+            if (googleSignInBtn) {
+                googleSignInBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Google sign-in button clicked (login view)');
+                    signInWithGoogle();
+                });
+            }
+            
+            if (googleSignInBtnSignup) {
+                googleSignInBtnSignup.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Google sign-in button clicked (signup view)');
+                    signInWithGoogle();
+                });
+            }
 
             // Password visibility toggles
             function setupPasswordToggle(inputId, toggleId) {
@@ -244,9 +345,7 @@
                         }, 1500);
                     } else {
                         showMessage('success', 'Please complete your profile setup...', 'login-message-container');
-                        createUsernameView.style.display = 'block';
-                        loginView.style.display = 'none';
-                        signupView.style.display = 'none';
+                        showCreateUsernameView();
                     }
                 } catch (error) {
                     console.error('Login error:', error);
@@ -372,7 +471,11 @@
                     }
 
                     await db.ref('users/' + user.uid).update({
-                        username: username
+                        username: username,
+                        email: user.email,
+                        joinDate: firebase.database.ServerValue.TIMESTAMP,
+                        uploadCount: 0,
+                        uploads: {}
                     });
                     await db.ref('usernames/' + username.toLowerCase()).set(user.uid);
 
@@ -406,9 +509,7 @@
                             }
                         } else {
                             // User is signed in but no username, show create username view
-                            createUsernameView.style.display = 'block';
-                            loginView.style.display = 'none';
-                            signupView.style.display = 'none';
+                            showCreateUsernameView();
                         }
                     });
                 } else {
