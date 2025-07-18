@@ -106,6 +106,7 @@
         let currentUserUID = null;
         let currentUserIsAdmin = false;
         let currentSelectedGenre = null;
+        let hasAutoLoadedFromURL = false; // Flag to prevent multiple auto-loads
 
         // Initialize authentication with read-only support
         AuthUtils.initReadOnlyAuth(firebase, auth, db, {
@@ -128,15 +129,40 @@
             setupBackButtons();
             setupUserProfileNavigation();
             
-            // Check for topic parameter in URL and auto-load that topic
+            // Check for topic parameter in URL and auto-load that topic ONCE
+            checkAndHandleURLParams();
+        });
+
+        // Handle URL parameters more intelligently
+        function checkAndHandleURLParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const topicParam = urlParams.get('topic');
-            if (topicParam) {
-                setTimeout(() => {
-                    loadEntriesByGenre(topicParam);
-                }, 1500);
+            const fromPost = urlParams.get('from'); // Check if coming from post detail
+            
+            console.log('URL params:', { topic: topicParam, from: fromPost });
+            
+            if (topicParam && !hasAutoLoadedFromURL) {
+                hasAutoLoadedFromURL = true;
+                
+                if (fromPost === 'post') {
+                    // Coming from post detail page - load topic directly without showing genre selection
+                    console.log('Coming from post detail, loading topic directly');
+                    setTimeout(() => {
+                        loadEntriesByGenre(topicParam, true); // true = skip genre view
+                    }, 1000);
+                } else {
+                    // Fresh load with topic parameter - show genre selection briefly then load
+                    console.log('Fresh load with topic parameter');
+                    setTimeout(() => {
+                        loadEntriesByGenre(topicParam);
+                    }, 1500);
+                }
+                
+                // Clean up URL after handling
+                const newURL = window.location.pathname;
+                window.history.replaceState({}, document.title, newURL);
             }
-        });
+        }
 
         // Setup live entries listener for genre buttons
         function setupLiveEntriesListener() {
@@ -203,13 +229,15 @@
             });
         }
 
-        // Load entries by genre - MAIN FUNCTION
-        function loadEntriesByGenre(selectedGenre) {
-            console.log(`Loading entries for genre: ${selectedGenre}`);
+        // Load entries by genre - MAIN FUNCTION (updated to handle skip genre view)
+        function loadEntriesByGenre(selectedGenre, skipGenreView = false) {
+            console.log(`Loading entries for genre: ${selectedGenre}, skipGenreView: ${skipGenreView}`);
             currentSelectedGenre = selectedGenre;
             
-            // Switch views
-            document.getElementById('genre-selection-view').style.display = 'none';
+            // Switch views - skip genre view if specified
+            if (!skipGenreView) {
+                document.getElementById('genre-selection-view').style.display = 'none';
+            }
             document.getElementById('entries-view').style.display = 'block';
             document.getElementById('user-posts-view').style.display = 'none';
             
@@ -250,19 +278,20 @@
             });
         }
 
-        // Create entry element
+        // Create entry element (updated to include from parameter)
         function createEntryElement(docId, data, selectedGenre) {
             const div = document.createElement('div');
             div.className = 'entry clickable-post';
             div.dataset.postId = docId;
             div.dataset.topic = selectedGenre;
             
-            // Add click handler to navigate to post detail page
+            // Add click handler to navigate to post detail page with from parameter
             div.addEventListener('click', (e) => {
                 if (e.target.classList.contains('delete-btn') || e.target.classList.contains('clickable-author')) {
                     return;
                 }
-                window.location.href = `post.html?topic=${encodeURIComponent(selectedGenre)}&postId=${encodeURIComponent(docId)}`;
+                // Add from=post parameter to indicate we're coming from a post list
+                window.location.href = `post.html?topic=${encodeURIComponent(selectedGenre)}&postId=${encodeURIComponent(docId)}&from=topic`;
             });
             
             const content = document.createElement('p');
@@ -344,7 +373,7 @@
                 }
                 
                 // Reload the entries for this genre
-                loadEntriesByGenre(selectedGenre);
+                loadEntriesByGenre(selectedGenre, true); // Skip genre view since we're already in topic view
                 
             }).catch((error) => {
                 console.error('Error deleting entry:', error);
@@ -492,7 +521,7 @@
                 if (e.target.classList.contains('delete-btn')) {
                     return;
                 }
-                window.location.href = `post.html?topic=${encodeURIComponent(topic)}&postId=${encodeURIComponent(postId)}`;
+                window.location.href = `post.html?topic=${encodeURIComponent(topic)}&postId=${encodeURIComponent(postId)}&from=user`;
             });
             
             const topicLabel = document.createElement('div');
@@ -549,7 +578,7 @@
             return div;
         }
 
-        // Setup back buttons
+        // Setup back buttons (updated to handle navigation properly)
         function setupBackButtons() {
             const backToGenresBtn = document.getElementById('back-to-genres-btn');
             if (backToGenresBtn) {
@@ -559,6 +588,10 @@
                     document.getElementById('user-posts-view').style.display = 'none';
                     document.getElementById('genre-selection-view').style.display = 'block';
                     currentSelectedGenre = null;
+                    
+                    // Clean up URL to prevent auto-loading
+                    const newURL = window.location.pathname;
+                    window.history.replaceState({}, document.title, newURL);
                 });
             }
 

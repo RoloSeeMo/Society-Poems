@@ -4,6 +4,7 @@
     <title>Live Chat Rooms - Society Poems</title>
     <link rel="icon" href="/Images/Untitled1.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="readonly-styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body data-theme="night" style="visibility: hidden;">
@@ -112,9 +113,34 @@
             <span class="btn-icon">+</span>
             <span class="btn-text">New Live Chat</span>
         </button>
+
+        <!-- New Chat Modal -->
+        <div id="new-chat-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create New Chat Room</h2>
+                    <button id="close-modal-btn" class="close-modal-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="new-chat-form">
+                        <label for="chat-topic">Chat Topic:</label>
+                        <input type="text" id="chat-topic" placeholder="Enter a topic for discussion..." maxlength="100" required>
+                        <div class="form-help">Choose a topic that others can easily find and join</div>
+                        <button type="submit" id="create-chat-btn" class="form-button form-button-primary">Create Chat Room</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- Rest of your existing modal and footer code... -->
+    <footer>
+        <p>&copy; 2025 Society Poems</p>
+        <div class="footer-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <span>|</span>
+            <a href="tos.html">Terms of Service</a>
+        </div>
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -142,6 +168,8 @@
         let currentUsername = null;
         let currentUserIsAdmin = false;
         let currentChatRoom = null;
+        let messageListener = null;
+        let usersListener = null;
 
         // Initialize authentication with read-only support
         AuthUtils.initReadOnlyAuth(firebase, auth, db, {
@@ -171,8 +199,89 @@
             setupEventListeners();
         });
 
-        // Modified joinChatRoom function to handle guests
+        // Initialize chat rooms
+        function initializeChatRooms() {
+            console.log('Initializing chat rooms...');
+            loadChatRooms();
+        }
+
+        // Load chat rooms
+        function loadChatRooms() {
+            const chatRoomsGrid = document.getElementById('chat-rooms-grid');
+            const emptyState = document.getElementById('empty-state');
+            const activeRoomsCount = document.getElementById('active-rooms-count');
+            const totalUsersCount = document.getElementById('total-users-count');
+
+            db.ref('chatRooms').on('value', (snapshot) => {
+                console.log('Chat rooms snapshot received:', snapshot.exists());
+                chatRoomsGrid.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    let roomCount = 0;
+                    let totalUsers = 0;
+                    
+                    snapshot.forEach((roomSnapshot) => {
+                        const roomData = roomSnapshot.val();
+                        const roomId = roomSnapshot.key;
+                        
+                        // Count active users in this room
+                        const activeUsers = roomData.activeUsers ? Object.keys(roomData.activeUsers).length : 0;
+                        totalUsers += activeUsers;
+                        roomCount++;
+                        
+                        const roomElement = createChatRoomElement(roomId, roomData, activeUsers);
+                        chatRoomsGrid.appendChild(roomElement);
+                    });
+                    
+                    activeRoomsCount.textContent = roomCount;
+                    totalUsersCount.textContent = totalUsers;
+                    emptyState.style.display = 'none';
+                } else {
+                    console.log('No chat rooms found');
+                    activeRoomsCount.textContent = '0';
+                    totalUsersCount.textContent = '0';
+                    emptyState.style.display = 'block';
+                }
+            }, (error) => {
+                console.error('Error loading chat rooms:', error);
+                chatRoomsGrid.innerHTML = '<p>Error loading chat rooms. Please refresh the page.</p>';
+            });
+        }
+
+        // Create chat room element
+        function createChatRoomElement(roomId, roomData, activeUsers) {
+            const div = document.createElement('div');
+            div.className = 'chat-room-card';
+            div.dataset.roomId = roomId;
+            
+            const topic = roomData.topic || 'Untitled Chat';
+            const creator = roomData.createdBy || 'Unknown';
+            const createdAt = roomData.createdAt ? new Date(roomData.createdAt).toLocaleString() : 'Unknown';
+            const lastActivity = roomData.lastActivity ? new Date(roomData.lastActivity).toLocaleString() : createdAt;
+            
+            div.innerHTML = `
+                <div class="room-header">
+                    <h3 class="room-topic">${topic}</h3>
+                    <div class="room-users-badge">${activeUsers} users</div>
+                </div>
+                <div class="room-meta">
+                    <p>Created by: <strong>${creator}</strong></p>
+                    <p>Last activity: ${lastActivity}</p>
+                </div>
+                <div class="room-actions">
+                    <button class="join-room-btn" onclick="joinChatRoom('${roomId}', '${topic}')">
+                        ${AuthUtils.canWrite() ? 'Join Room' : 'View Room'}
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Join chat room
         function joinChatRoom(roomId, topic) {
+            console.log(`Joining chat room: ${roomId} - ${topic}`);
+            
             if (!AuthUtils.canWrite()) {
                 // Guest user - show read-only view
                 showMessage('info', 'Sign in to participate in chat rooms. You can view messages but cannot send them.');
@@ -189,6 +298,14 @@
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
             });
             
+            // Update last activity
+            db.ref(`chatRooms/${roomId}/lastActivity`).set(firebase.database.ServerValue.TIMESTAMP);
+            
+            showChatRoomView(roomId, topic);
+        }
+
+        // Show chat room view (for authenticated users)
+        function showChatRoomView(roomId, topic) {
             document.getElementById('chat-rooms-view').style.display = 'none';
             document.getElementById('chat-room-view').style.display = 'block';
             document.getElementById('current-room-topic').textContent = topic;
@@ -203,7 +320,7 @@
             }
         }
 
-        // New function for read-only chat room view
+        // Show read-only chat room view (for guests)
         function showChatRoomReadOnly(roomId, topic) {
             document.getElementById('chat-rooms-view').style.display = 'none';
             document.getElementById('chat-room-view').style.display = 'block';
@@ -214,9 +331,198 @@
             setupUsersListener(roomId);
         }
 
-        // Rest of your existing chat functions...
-        // [Include all your existing chat functions but modify them to check AuthUtils.canWrite()]
+        // Load chat room data
+        function loadChatRoomData(roomId) {
+            db.ref(`chatRooms/${roomId}`).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const roomData = snapshot.val();
+                    document.getElementById('room-creator').textContent = roomData.createdBy || 'Unknown';
+                }
+            });
+        }
 
+        // Setup message listener
+        function setupMessageListener(roomId) {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Clear existing listener
+            if (messageListener) {
+                messageListener.off();
+            }
+            
+            messageListener = db.ref(`chatRooms/${roomId}/messages`).orderByChild('timestamp');
+            
+            messageListener.on('value', (snapshot) => {
+                // Clear messages except welcome message
+                const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+                messagesContainer.innerHTML = '';
+                if (welcomeMessage) {
+                    messagesContainer.appendChild(welcomeMessage);
+                }
+                
+                if (snapshot.exists()) {
+                    const messages = [];
+                    snapshot.forEach((messageSnapshot) => {
+                        messages.push({
+                            id: messageSnapshot.key,
+                            data: messageSnapshot.val()
+                        });
+                    });
+                    
+                    // Sort by timestamp
+                    messages.sort((a, b) => (a.data.timestamp || 0) - (b.data.timestamp || 0));
+                    
+                    messages.forEach(message => {
+                        const messageElement = createMessageElement(message.data);
+                        messagesContainer.appendChild(messageElement);
+                    });
+                    
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            });
+        }
+
+        // Setup users listener
+        function setupUsersListener(roomId) {
+            // Clear existing listener
+            if (usersListener) {
+                usersListener.off();
+            }
+            
+            usersListener = db.ref(`chatRooms/${roomId}/activeUsers`);
+            
+            usersListener.on('value', (snapshot) => {
+                const userCount = snapshot.exists() ? snapshot.numChildren() : 0;
+                document.getElementById('room-users-count').textContent = userCount;
+            });
+        }
+
+        // Create message element
+        function createMessageElement(messageData) {
+            const div = document.createElement('div');
+            div.className = 'chat-message';
+            
+            const isOwnMessage = messageData.uid === currentUserUID;
+            if (isOwnMessage) {
+                div.classList.add('own-message');
+            }
+            
+            const timestamp = messageData.timestamp ? new Date(messageData.timestamp).toLocaleTimeString() : '';
+            const username = messageData.username || 'Anonymous';
+            const content = messageData.content || '';
+            
+            div.innerHTML = `
+                <div class="message-header">
+                    <span class="message-username">${username}</span>
+                    <span class="message-timestamp">${timestamp}</span>
+                </div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            return div;
+        }
+
+        // Send message
+        function sendMessage() {
+            if (!AuthUtils.canWrite() || !currentChatRoom) {
+                return;
+            }
+            
+            const messageInput = document.getElementById('chat-message-input');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                return;
+            }
+            
+            const messageData = {
+                content: message,
+                uid: currentUserUID,
+                username: currentUsername,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            db.ref(`chatRooms/${currentChatRoom}/messages`).push(messageData).then(() => {
+                messageInput.value = '';
+                updateCharCount();
+                
+                // Update room's last activity
+                db.ref(`chatRooms/${currentChatRoom}/lastActivity`).set(firebase.database.ServerValue.TIMESTAMP);
+            }).catch((error) => {
+                console.error('Error sending message:', error);
+                showMessage('error', 'Failed to send message. Please try again.');
+            });
+        }
+
+        // Create new chat room
+        function createNewChatRoom(topic) {
+            if (!AuthUtils.canWrite()) {
+                showMessage('error', 'You must be signed in to create chat rooms.');
+                return;
+            }
+            
+            const roomData = {
+                topic: topic,
+                createdBy: currentUsername,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                lastActivity: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            db.ref('chatRooms').push(roomData).then((ref) => {
+                console.log('Chat room created:', ref.key);
+                closeNewChatModal();
+                joinChatRoom(ref.key, topic);
+            }).catch((error) => {
+                console.error('Error creating chat room:', error);
+                showMessage('error', 'Failed to create chat room. Please try again.');
+            });
+        }
+
+        // Leave chat room
+        function leaveChatRoom() {
+            if (currentChatRoom && currentUserUID) {
+                db.ref(`chatRooms/${currentChatRoom}/activeUsers/${currentUserUID}`).remove();
+            }
+            
+            // Clear listeners
+            if (messageListener) {
+                messageListener.off();
+                messageListener = null;
+            }
+            if (usersListener) {
+                usersListener.off();
+                usersListener = null;
+            }
+            
+            currentChatRoom = null;
+            
+            document.getElementById('chat-room-view').style.display = 'none';
+            document.getElementById('chat-rooms-view').style.display = 'block';
+        }
+
+        // Update character count
+        function updateCharCount() {
+            const messageInput = document.getElementById('chat-message-input');
+            const charCount = document.getElementById('char-count');
+            
+            if (messageInput && charCount) {
+                charCount.textContent = messageInput.value.length;
+            }
+        }
+
+        // Show/hide new chat modal
+        function showNewChatModal() {
+            document.getElementById('new-chat-modal').style.display = 'flex';
+            document.getElementById('chat-topic').focus();
+        }
+
+        function closeNewChatModal() {
+            document.getElementById('new-chat-modal').style.display = 'none';
+            document.getElementById('chat-topic').value = '';
+        }
+
+        // Show message
         function showMessage(type, text) {
             const messageContainer = document.getElementById('message-container');
             messageContainer.className = `message-container ${type}-message`;
@@ -227,7 +533,107 @@
             }, 5000);
         }
 
-        // [Include all your other existing functions...]
+        // Setup event listeners
+        function setupEventListeners() {
+            // New chat button
+            const newChatBtn = document.getElementById('new-chat-btn');
+            if (newChatBtn) {
+                newChatBtn.addEventListener('click', showNewChatModal);
+            }
+
+            // Modal controls
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeNewChatModal);
+            }
+
+            // New chat form
+            const newChatForm = document.getElementById('new-chat-form');
+            if (newChatForm) {
+                newChatForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const topic = document.getElementById('chat-topic').value.trim();
+                    if (topic) {
+                        createNewChatRoom(topic);
+                    }
+                });
+            }
+
+            // Back to rooms button
+            const backToRoomsBtn = document.getElementById('back-to-rooms-btn');
+            if (backToRoomsBtn) {
+                backToRoomsBtn.addEventListener('click', leaveChatRoom);
+            }
+
+            // Leave room button
+            const leaveRoomBtn = document.getElementById('leave-room-btn');
+            if (leaveRoomBtn) {
+                leaveRoomBtn.addEventListener('click', leaveChatRoom);
+            }
+
+            // Send message button
+            const sendMessageBtn = document.getElementById('send-message-btn');
+            if (sendMessageBtn) {
+                sendMessageBtn.addEventListener('click', sendMessage);
+            }
+
+            // Message input
+            const messageInput = document.getElementById('chat-message-input');
+            if (messageInput) {
+                messageInput.addEventListener('input', updateCharCount);
+                messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+
+            // Mobile menu
+            const openBtn = document.getElementById('menu-open-button');
+            const closeBtn = document.getElementById('menu-close-button');
+            const navMenu = document.querySelector('.nav-menu');
+            if (openBtn && closeBtn && navMenu) {
+                openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+            }
+
+            // Modal click outside to close
+            const modal = document.getElementById('new-chat-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeNewChatModal();
+                    }
+                });
+            }
+
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    if (AuthUtils.canWrite()) {
+                        // Leave current room before logout
+                        if (currentChatRoom) {
+                            leaveChatRoom();
+                        }
+                        auth.signOut().then(() => {
+                            window.location.href = 'login.html';
+                        }).catch((error) => {
+                            console.error('Logout error:', error);
+                        });
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (currentChatRoom && currentUserUID) {
+                db.ref(`chatRooms/${currentChatRoom}/activeUsers/${currentUserUID}`).remove();
+            }
+        });
     </script>
 </body>
 </html>
