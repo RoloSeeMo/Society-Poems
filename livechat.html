@@ -425,16 +425,21 @@
                 div.classList.add('own-message');
             }
             
-            const timestamp = messageData.timestamp ? new Date(messageData.timestamp).toLocaleTimeString() : '';
+            // Format timestamp as HH:MM only
+            const timestamp = messageData.timestamp ? 
+                new Date(messageData.timestamp).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                }) : '';
+            
             const username = messageData.username || 'Anonymous';
             const content = messageData.content || '';
             
             div.innerHTML = `
-                <div class="message-header">
-                    <span class="message-username">${username}</span>
-                    <span class="message-timestamp">${timestamp}</span>
-                </div>
+                <div class="message-username-header">${username}</div>
                 <div class="message-content">${content}</div>
+                <div class="message-timestamp">${timestamp}</div>
             `;
             
             return div;
