@@ -895,6 +895,155 @@ Footer Links
   }
 }
 
+/* System message styles for live chat */
+.system-message {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.system-message-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 80%;
+}
+
+.system-icon {
+  font-size: 1rem;
+}
+
+.guest-system-message .system-message-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.guest-system-message a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.guest-system-message a:hover {
+  color: #f0f0f0;
+}
+
+/* Chat message animations */
+.chat-message {
+  transition: all 0.3s ease;
+}
+
+/* Welcome message styling */
+.welcome-message {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 15px;
+}
+
+.welcome-message p {
+  margin: 0;
+}
+
+/* Chat messages container improvements */
+.chat-messages {
+  padding: 15px;
+  min-height: 200px;
+}
+
+/* Individual chat message styling */
+.chat-message {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--primary-color);
+}
+
+.chat-message.own-message {
+  background: var(--primary-color);
+  color: white;
+  border-left-color: var(--bg-primary);
+  margin-left: 20%;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 0.8rem;
+}
+
+.message-username {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.own-message .message-username {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-timestamp {
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.message-content {
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Mobile responsive adjustments */
+@media screen and (max-width: 768px) {
+  .system-message-content {
+    max-width: 95%;
+    flex-direction: column;
+    text-align: center;
+    gap: 5px;
+  }
+
+  .chat-message.own-message {
+    margin-left: 10%;
+  }
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+  .readonly-banner-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 15px 20px;
+  }
+
+  .readonly-banner-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    margin: 0;
+  }
+
+  .user-profile-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .sorting-controls-header {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
 
 
 /* Clickable post styles */
