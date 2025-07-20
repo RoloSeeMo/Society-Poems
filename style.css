@@ -961,58 +961,78 @@ Footer Links
 
 /* Individual chat message styling */
 .chat-message {
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 12px;
   background: var(--bg-secondary);
   border-left: 3px solid var(--primary-color);
+  max-width: 75%;
+  position: relative;
 }
 
 .chat-message.own-message {
   background: var(--primary-color);
   color: white;
   border-left-color: var(--bg-primary);
-  margin-left: 20%;
+  margin-left: auto;
+  margin-right: 0;
+  border-left: none;
+  border-right: 3px solid var(--bg-primary);
 }
 
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-  font-size: 0.8rem;
-}
-
-.message-username {
+.message-username-header {
   font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
   color: var(--primary-color);
+  text-transform: capitalize;
 }
 
-.own-message .message-username {
+.own-message .message-username-header {
   color: rgba(255, 255, 255, 0.9);
-}
-
-.message-timestamp {
-  opacity: 0.7;
-  font-size: 0.75rem;
 }
 
 .message-content {
   word-wrap: break-word;
   line-height: 1.4;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.message-timestamp {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-align: right;
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.own-message .message-timestamp {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Remove old message header styles */
+.message-header {
+  display: none;
 }
 
 /* Mobile responsive adjustments */
 @media screen and (max-width: 768px) {
-  .system-message-content {
-    max-width: 95%;
-    flex-direction: column;
-    text-align: center;
-    gap: 5px;
+  .chat-message {
+    max-width: 85%;
+    padding: 10px 12px;
   }
 
   .chat-message.own-message {
-    margin-left: 10%;
+    margin-left: 15%;
+  }
+
+  .message-username-header {
+    font-size: 0.8rem;
+  }
+
+  .message-content {
+    font-size: 0.9rem;
   }
 }
 
