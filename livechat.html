@@ -292,6 +292,7 @@
             // Authenticated user - full functionality
             currentChatRoom = roomId;
             
+            // Add user to active users list
             const userRef = db.ref(`chatRooms/${roomId}/activeUsers/${currentUserUID}`);
             userRef.set({
                 username: currentUsername,
@@ -320,15 +321,27 @@
             }
         }
 
-        // Show read-only chat room view (for guests)
+        // Show read-only chat room view (for guests) - also live-only
         function showChatRoomReadOnly(roomId, topic) {
             document.getElementById('chat-rooms-view').style.display = 'none';
             document.getElementById('chat-room-view').style.display = 'block';
             document.getElementById('current-room-topic').textContent = topic;
             
             loadChatRoomData(roomId);
-            setupMessageListener(roomId);
+            setupMessageListener(roomId); // This will now only show new messages
             setupUsersListener(roomId);
+            
+            // Show guest system message
+            const messagesContainer = document.getElementById('chat-messages');
+            const guestSystemMessage = document.createElement('div');
+            guestSystemMessage.className = 'system-message guest-system-message';
+            guestSystemMessage.innerHTML = `
+                <div class="system-message-content">
+                    <span class="system-icon">👀</span>
+                    <span>You're viewing this chat as a guest. <a href="login.html">Sign in</a> to participate and see new messages as they arrive.</span>
+                </div>
+            `;
+            messagesContainer.appendChild(guestSystemMessage);
         }
 
         // Load chat room data
@@ -341,7 +354,7 @@
             });
         }
 
-        // Setup message listener
+        // Setup message listener (only shows messages after joining)
         function setupMessageListener(roomId) {
             const messagesContainer = document.getElementById('chat-messages');
             
@@ -350,52 +363,56 @@
                 messageListener.off();
             }
             
-            messageListener = db.ref(`chatRooms/${roomId}/messages`).orderByChild('timestamp');
+            // Clear all messages except welcome message
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+            messagesContainer.innerHTML = '';
+            if (welcomeMessage) {
+                messagesContainer.appendChild(welcomeMessage);
+            }
             
-            messageListener.on('value', (snapshot) => {
-                // Clear messages except welcome message
-                const welcomeMessage = messagesContainer.querySelector('.welcome-message');
-                messagesContainer.innerHTML = '';
-                if (welcomeMessage) {
-                    messagesContainer.appendChild(welcomeMessage);
-                }
+            // Get current timestamp as the "join time"
+            const joinTime = Date.now();
+            console.log(`User joined room at: ${new Date(joinTime).toLocaleString()}`);
+            
+            // Only listen for messages with timestamp greater than join time
+            messageListener = db.ref(`chatRooms/${roomId}/messages`).orderByChild('timestamp').startAt(joinTime);
+            
+            messageListener.on('child_added', (snapshot) => {
+                const messageData = snapshot.val();
                 
-                if (snapshot.exists()) {
-                    const messages = [];
-                    snapshot.forEach((messageSnapshot) => {
-                        messages.push({
-                            id: messageSnapshot.key,
-                            data: messageSnapshot.val()
-                        });
-                    });
-                    
-                    // Sort by timestamp
-                    messages.sort((a, b) => (a.data.timestamp || 0) - (b.data.timestamp || 0));
-                    
-                    messages.forEach(message => {
-                        const messageElement = createMessageElement(message.data);
-                        messagesContainer.appendChild(messageElement);
-                    });
+                // Double-check that this message was sent after we joined
+                if (messageData.timestamp && messageData.timestamp >= joinTime) {
+                    console.log('New message received:', messageData);
+                    const messageElement = createMessageElement(messageData);
+                    messagesContainer.appendChild(messageElement);
                     
                     // Scroll to bottom
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    // Add a subtle animation for new messages
+                    messageElement.style.opacity = '0';
+                    messageElement.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        messageElement.style.transition = 'all 0.3s ease';
+                        messageElement.style.opacity = '1';
+                        messageElement.style.transform = 'translateY(0)';
+                    }, 50);
                 }
             });
-        }
-
-        // Setup users listener
-        function setupUsersListener(roomId) {
-            // Clear existing listener
-            if (usersListener) {
-                usersListener.off();
+            
+            // Show a system message indicating live chat has started
+            if (AuthUtils.canWrite()) {
+                const systemMessage = document.createElement('div');
+                systemMessage.className = 'system-message';
+                systemMessage.innerHTML = `
+                    <div class="system-message-content">
+                        <span class="system-icon">🔴</span>
+                        <span>You joined the live chat. You'll see new messages as they arrive.</span>
+                    </div>
+                `;
+                messagesContainer.appendChild(systemMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-            
-            usersListener = db.ref(`chatRooms/${roomId}/activeUsers`);
-            
-            usersListener.on('value', (snapshot) => {
-                const userCount = snapshot.exists() ? snapshot.numChildren() : 0;
-                document.getElementById('room-users-count').textContent = userCount;
-            });
         }
 
         // Create message element
