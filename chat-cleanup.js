@@ -177,14 +177,20 @@ const ChatCleanup = {
 
   // Update room activity (call this when users send messages, join, etc.)
   updateRoomActivity(roomId, db, firebase) {
+    if (!roomId || !db || !firebase) {
+      console.error("Missing parameters for updateRoomActivity:", { roomId, db, firebase })
+      return Promise.resolve() // Don't block other operations
+    }
+
     const activityRef = db.ref(`chatRooms/${roomId}/lastActivity`)
-    activityRef
+    return activityRef
       .set(firebase.database.ServerValue.TIMESTAMP)
       .then(() => {
         console.log(`Updated activity for room ${roomId}`)
       })
       .catch((error) => {
         console.error("Error updating room activity:", error)
+        // Don't throw - we don't want this to block room joining
       })
   },
 
