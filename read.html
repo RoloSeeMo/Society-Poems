@@ -278,10 +278,26 @@
             });
         }
 
-        // Create entry element (updated to include from parameter)
+        // Truncate text for preview
+        function truncateText(text, maxLength = 150) {
+            if (!text) return 'No content available';
+            if (text.length <= maxLength) return text;
+            
+            // Find the last space before the max length to avoid cutting words
+            const truncated = text.substring(0, maxLength);
+            const lastSpace = truncated.lastIndexOf(' ');
+            
+            if (lastSpace > maxLength * 0.8) { // If last space is reasonably close to max length
+                return text.substring(0, lastSpace) + '...';
+            } else {
+                return truncated + '...';
+            }
+        }
+
+        // Create entry element (updated with compact preview)
         function createEntryElement(docId, data, selectedGenre) {
             const div = document.createElement('div');
-            div.className = 'entry clickable-post';
+            div.className = 'entry clickable-post compact-entry';
             div.dataset.postId = docId;
             div.dataset.topic = selectedGenre;
             
@@ -294,25 +310,42 @@
                 window.location.href = `post.html?topic=${encodeURIComponent(selectedGenre)}&postId=${encodeURIComponent(docId)}&from=topic`;
             });
             
+            // Create content preview
             const content = document.createElement('p');
-            content.className = 'entry-content';
-            content.innerText = data.content || 'No content available';
+            content.className = 'entry-content-preview';
+            const fullContent = data.content || 'No content available';
+            const previewContent = truncateText(fullContent, 150);
+            content.innerText = previewContent;
             
+            // Add "read more" indicator if content was truncated
+            if (previewContent !== fullContent && previewContent.endsWith('...')) {
+                const readMore = document.createElement('span');
+                readMore.className = 'read-more-indicator';
+                readMore.textContent = ' Read more';
+                content.appendChild(readMore);
+            }
+            
+            // Create compact meta section
             const meta = document.createElement('div');
-            meta.className = 'entry-meta';
-            const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown date';
+            meta.className = 'entry-meta-compact';
+            const date = data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'Unknown date';
             const authorName = data.name || 'Anonymous';
             const authorUID = data.uid || '';
             
-            meta.innerHTML = `&mdash; <strong class="clickable-author" data-author-uid="${authorUID}" data-author-name="${authorName}">${authorName}</strong>, <em>${date}</em>`;
+            meta.innerHTML = `
+                <span class="author-info">
+                    <strong class="clickable-author" data-author-uid="${authorUID}" data-author-name="${authorName}">${authorName}</strong>
+                </span>
+                <span class="date-info">${date}</span>
+            `;
             
-            // Add interaction stats
+            // Add interaction stats (more compact)
             const statsDiv = document.createElement('div');
-            statsDiv.className = 'post-stats';
+            statsDiv.className = 'post-stats-compact';
             statsDiv.innerHTML = `
                 <span class="stat-item">💬 <span class="comment-count">0</span></span>
                 <span class="stat-item">❤️ <span class="like-count">0</span></span>
-                <span class="click-hint">Click to view details</span>
+                <span class="click-hint-compact">Click to read full post</span>
             `;
             
             // Show delete button only if user is authenticated AND owns the post OR is admin
@@ -320,7 +353,7 @@
             
             if (canDelete) {
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
+                deleteBtn.className = 'delete-btn compact-delete-btn';
                 deleteBtn.innerHTML = '&times;';
                 deleteBtn.title = data.uid === currentUserUID ? 'Delete your post' : 'Delete this entry (Admin)';
                 
@@ -509,10 +542,10 @@
             });
         }
 
-        // Create user post element
+        // Create user post element (also compact)
         function createUserPostElement(postId, data, topic) {
             const div = document.createElement('div');
-            div.className = 'entry clickable-post user-post';
+            div.className = 'entry clickable-post user-post compact-entry';
             div.dataset.postId = postId;
             div.dataset.topic = topic;
             
@@ -529,20 +562,30 @@
             topicLabel.textContent = `Topic: ${topic}`;
             
             const content = document.createElement('p');
-            content.className = 'entry-content';
-            content.innerText = data.content || 'No content available';
+            content.className = 'entry-content-preview';
+            const fullContent = data.content || 'No content available';
+            const previewContent = truncateText(fullContent, 150);
+            content.innerText = previewContent;
+            
+            // Add "read more" indicator if content was truncated
+            if (previewContent !== fullContent && previewContent.endsWith('...')) {
+                const readMore = document.createElement('span');
+                readMore.className = 'read-more-indicator';
+                readMore.textContent = ' Read more';
+                content.appendChild(readMore);
+            }
             
             const meta = document.createElement('div');
-            meta.className = 'entry-meta';
-            const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown date';
-            meta.innerHTML = `<em>${date}</em>`;
+            meta.className = 'entry-meta-compact';
+            const date = data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'Unknown date';
+            meta.innerHTML = `<span class="date-info">${date}</span>`;
             
             const statsDiv = document.createElement('div');
-            statsDiv.className = 'post-stats';
+            statsDiv.className = 'post-stats-compact';
             statsDiv.innerHTML = `
                 <span class="stat-item">💬 <span class="comment-count">0</span></span>
                 <span class="stat-item">❤️ <span class="like-count">0</span></span>
-                <span class="click-hint">Click to view details</span>
+                <span class="click-hint-compact">Click to read full post</span>
             `;
             
             // Show delete button if user owns the post or is admin
@@ -550,7 +593,7 @@
             
             if (canDelete) {
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
+                deleteBtn.className = 'delete-btn compact-delete-btn';
                 deleteBtn.innerHTML = '&times;';
                 deleteBtn.title = 'Delete this post';
                 

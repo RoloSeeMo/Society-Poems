@@ -792,6 +792,112 @@ Footer Links
   opacity: 1;
 }
 
+/* Compact Entry Styles - NEW */
+.compact-entry {
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.compact-entry:hover {
+  background: var(--bg-primary);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.entry-content-preview {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin: 0 0 10px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.read-more-indicator {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.entry-meta-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.author-info {
+  color: var(--text-primary);
+}
+
+.date-info {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.post-stats-compact {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.post-stats-compact .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.click-hint-compact {
+  margin-left: auto;
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.compact-entry:hover .click-hint-compact {
+  opacity: 1;
+}
+
+.compact-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.compact-entry:hover .compact-delete-btn {
+  opacity: 1;
+}
+
+.compact-delete-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
 /* User post specific styles */
 .user-post {
   border-left: 3px solid var(--primary-color);
@@ -978,6 +1084,27 @@ Footer Links
   .expiry-notice-content {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .compact-entry {
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .entry-meta-compact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .post-stats-compact {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .click-hint-compact {
+    margin-left: 0;
+    margin-top: 5px;
   }
 }
 
