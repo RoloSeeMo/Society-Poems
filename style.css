@@ -867,6 +867,83 @@ Footer Links
   border-color: var(--primary-color);
 }
 
+/* Room expiry notice */
+.room-expiry-notice {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.expiry-notice-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #e6a700;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.expiry-icon {
+  font-size: 1.1rem;
+}
+
+/* Room expiry badge on individual rooms */
+.room-expiry-badge {
+  background: rgba(255, 87, 34, 0.15);
+  color: #ff5722;
+  border: 1px solid rgba(255, 87, 34, 0.3);
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 8px 0;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Room expiry warning in chat header */
+.room-expiry-warning {
+  color: #ff5722;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 10px;
+  padding: 2px 6px;
+  background: rgba(255, 87, 34, 0.1);
+  border-radius: 4px;
+  animation: pulse 2s infinite;
+}
+
+/* Form help text styling */
+.form-help {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.expiry-help {
+  color: #e6a700;
+  font-weight: 500;
+  background: rgba(255, 193, 7, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #ffc107;
+}
+
 /* Mobile responsive */
 @media screen and (max-width: 768px) {
   .readonly-banner-content {
@@ -892,6 +969,15 @@ Footer Links
   .sorting-controls-header {
     justify-content: center;
     flex-wrap: wrap;
+  }
+
+  .room-expiry-notice {
+    padding: 12px;
+  }
+
+  .expiry-notice-content {
+    flex-direction: column;
+    gap: 8px;
   }
 }
 

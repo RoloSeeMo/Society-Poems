@@ -73,6 +73,7 @@
                         <div class="room-stats">
                             <span id="room-users-count">0</span> users • 
                             Created by <span id="room-creator">Unknown</span>
+                            <span id="room-expiry-warning" class="room-expiry-warning" style="display: none;"></span>
                         </div>
                     </div>
                     <button id="leave-room-btn" class="leave-room-btn auth-required">Leave Room</button>
@@ -126,6 +127,7 @@
                         <label for="chat-topic">Chat Topic:</label>
                         <input type="text" id="chat-topic" placeholder="Enter a topic for discussion..." maxlength="100" required>
                         <div class="form-help">Choose a topic that others can easily find and join</div>
+                        <div class="form-help expiry-help">💡 Chat rooms automatically close after 24 hours of inactivity</div>
                         <button type="submit" id="create-chat-btn" class="form-button form-button-primary">Create Chat Room</button>
                     </form>
                 </div>
@@ -146,6 +148,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="shared-auth-utils.js"></script>
+    <script src="chat-cleanup.js"></script>
 
     <script>
         // Firebase configuration
@@ -197,6 +200,9 @@
             // Initialize chat functionality
             initializeChatRooms();
             setupEventListeners();
+            
+            // Initialize global room cleanup
+            ChatCleanup.initGlobalCleanup(db);
         });
 
         // Initialize chat rooms
@@ -219,6 +225,9 @@
                 if (snapshot.exists()) {
                     let roomCount = 0;
                     let totalUsers = 0;
+                    
+                    // Add expiry notice at the top
+                    ChatCleanup.addRoomExpiryNotice(chatRoomsGrid);
                     
                     snapshot.forEach((roomSnapshot) => {
                         const roomData = roomSnapshot.val();
@@ -257,16 +266,27 @@
             const topic = roomData.topic || 'Untitled Chat';
             const creator = roomData.createdBy || 'Unknown';
             const createdAt = roomData.createdAt ? new Date(roomData.createdAt).toLocaleString() : 'Unknown';
-            const lastActivity = roomData.lastActivity ? new Date(roomData.lastActivity).toLocaleString() : createdAt;
+            const lastActivity = roomData.lastActivity || roomData.createdAt || Date.now();
+            const lastActivityFormatted = new Date(lastActivity).toLocaleString();
+            
+            // Check if room is near expiry
+            const isNearExpiry = ChatCleanup.isRoomNearExpiry(lastActivity);
+            const timeUntilExpiry = ChatCleanup.getTimeUntilExpiry(lastActivity);
+            
+            let expiryWarning = '';
+            if (isNearExpiry && timeUntilExpiry !== 'Expired') {
+                expiryWarning = `<div class="room-expiry-badge">⚠️ Expires in ${timeUntilExpiry}</div>`;
+            }
             
             div.innerHTML = `
                 <div class="room-header">
                     <h3 class="room-topic">${topic}</h3>
                     <div class="room-users-badge">${activeUsers} users</div>
                 </div>
+                ${expiryWarning}
                 <div class="room-meta">
                     <p>Created by: <strong>${creator}</strong></p>
-                    <p>Last activity: ${lastActivity}</p>
+                    <p>Last activity: ${lastActivityFormatted}</p>
                 </div>
                 <div class="room-actions">
                     <button class="join-room-btn" onclick="joinChatRoom('${roomId}', '${topic}')">
@@ -299,8 +319,8 @@
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
             });
             
-            // Update last activity
-            db.ref(`chatRooms/${roomId}/lastActivity`).set(firebase.database.ServerValue.TIMESTAMP);
+            // Update room activity
+            ChatCleanup.updateRoomActivity(roomId, db);
             
             showChatRoomView(roomId, topic);
         }
@@ -321,14 +341,14 @@
             }
         }
 
-        // Show read-only chat room view (for guests) - also live-only
+        // Show read-only chat room view (for guests)
         function showChatRoomReadOnly(roomId, topic) {
             document.getElementById('chat-rooms-view').style.display = 'none';
             document.getElementById('chat-room-view').style.display = 'block';
             document.getElementById('current-room-topic').textContent = topic;
             
             loadChatRoomData(roomId);
-            setupMessageListener(roomId); // This will now only show new messages
+            setupMessageListener(roomId);
             setupUsersListener(roomId);
             
             // Show guest system message
@@ -350,6 +370,19 @@
                 if (snapshot.exists()) {
                     const roomData = snapshot.val();
                     document.getElementById('room-creator').textContent = roomData.createdBy || 'Unknown';
+                    
+                    // Check and show expiry warning
+                    const lastActivity = roomData.lastActivity || roomData.createdAt || Date.now();
+                    const isNearExpiry = ChatCleanup.isRoomNearExpiry(lastActivity);
+                    const timeUntilExpiry = ChatCleanup.getTimeUntilExpiry(lastActivity);
+                    
+                    const expiryWarning = document.getElementById('room-expiry-warning');
+                    if (isNearExpiry && timeUntilExpiry !== 'Expired') {
+                        expiryWarning.textContent = `⚠️ Room expires in ${timeUntilExpiry}`;
+                        expiryWarning.style.display = 'inline';
+                    } else {
+                        expiryWarning.style.display = 'none';
+                    }
                 }
             });
         }
@@ -415,6 +448,22 @@
             }
         }
 
+        // Setup users listener
+        function setupUsersListener(roomId) {
+            if (usersListener) {
+                usersListener.off();
+            }
+            
+            usersListener = db.ref(`chatRooms/${roomId}/activeUsers`);
+            usersListener.on('value', (snapshot) => {
+                const userCount = snapshot.exists() ? snapshot.numChildren() : 0;
+                const userCountEl = document.getElementById('room-users-count');
+                if (userCountEl) {
+                    userCountEl.textContent = userCount;
+                }
+            });
+        }
+
         // Create message element
         function createMessageElement(messageData) {
             const div = document.createElement('div');
@@ -469,8 +518,8 @@
                 messageInput.value = '';
                 updateCharCount();
                 
-                // Update room's last activity
-                db.ref(`chatRooms/${currentChatRoom}/lastActivity`).set(firebase.database.ServerValue.TIMESTAMP);
+                // Update room activity
+                ChatCleanup.updateRoomActivity(currentChatRoom, db);
             }).catch((error) => {
                 console.error('Error sending message:', error);
                 showMessage('error', 'Failed to send message. Please try again.');
@@ -655,6 +704,9 @@
             if (currentChatRoom && currentUserUID) {
                 db.ref(`chatRooms/${currentChatRoom}/activeUsers/${currentUserUID}`).remove();
             }
+            
+            // Stop global cleanup
+            ChatCleanup.stopGlobalCleanup();
         });
     </script>
 </body>
