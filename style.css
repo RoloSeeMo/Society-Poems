@@ -1082,7 +1082,8 @@ Footer Links
   line-height: 1.4;
   margin-bottom: 6px;
   font-size: 0.95rem;
-  color: inherit; /* Use the message color */
+  background: var(--primary-color-200);
+  color: white; /* Use the message color */
 }
 
 .message-timestamp {
