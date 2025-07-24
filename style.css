@@ -1045,25 +1045,24 @@ Footer Links
   min-height: 200px;
 }
 
-/* Individual chat message styling */
+/* Individual chat message styling - UPDATED */
 .chat-message {
   margin-bottom: 15px;
   padding: 12px 15px;
   border-radius: 12px;
-  background: var(--bg-secondary);
-  border-left: 3px solid var(--primary-color);
+  background: #f5f5f5; /* Light grey for incoming messages */
+  color: #333; /* Dark text for readability */
   max-width: 75%;
   position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message.own-message {
-  background: var(--primary-color);
-  color: white;
-  border-left-color: var(--bg-primary);
+  background: white; /* White background for sent messages */
+  color: #333; /* Dark text for readability */
   margin-left: auto;
   margin-right: 0;
-  border-left: none;
-  border-right: 3px solid var(--bg-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .message-username-header {
@@ -1075,7 +1074,7 @@ Footer Links
 }
 
 .own-message .message-username-header {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--primary-color); /* Keep primary color for consistency */
 }
 
 .message-content {
@@ -1083,6 +1082,7 @@ Footer Links
   line-height: 1.4;
   margin-bottom: 6px;
   font-size: 0.95rem;
+  color: inherit; /* Use the message color */
 }
 
 .message-timestamp {
@@ -1091,10 +1091,11 @@ Footer Links
   text-align: right;
   margin-top: 4px;
   font-family: monospace;
+  color: #666; /* Consistent timestamp color */
 }
 
 .own-message .message-timestamp {
-  color: rgba(255, 255, 255, 0.8);
+  color: #666; /* Same timestamp color for consistency */
 }
 
 /* Remove old message header styles */
@@ -1121,6 +1122,7 @@ Footer Links
     font-size: 0.9rem;
   }
 }
+
 
 /* Mobile responsive */
 @media screen and (max-width: 768px) {
