@@ -317,12 +317,19 @@
             userRef.set({
                 username: currentUsername,
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log('Successfully added user to room');
+                
+                // Update room activity (don't let this block the room join)
+                ChatCleanup.updateRoomActivity(roomId, db, firebase).finally(() => {
+                    // Show the chat room view regardless of activity update result
+                    showChatRoomView(roomId, topic);
+                });
+                
+            }).catch((error) => {
+                console.error('Error joining room:', error);
+                showMessage('error', 'Failed to join room. Please try again.');
             });
-            
-            // Update room activity
-            ChatCleanup.updateRoomActivity(roomId, db);
-            
-            showChatRoomView(roomId, topic);
         }
 
         // Show chat room view (for authenticated users)
@@ -519,7 +526,7 @@
                 updateCharCount();
                 
                 // Update room activity
-                ChatCleanup.updateRoomActivity(currentChatRoom, db);
+                ChatCleanup.updateRoomActivity(currentChatRoom, db, firebase);
             }).catch((error) => {
                 console.error('Error sending message:', error);
                 showMessage('error', 'Failed to send message. Please try again.');
