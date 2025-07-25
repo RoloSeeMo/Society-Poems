@@ -15,11 +15,11 @@
             <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index/" class="nav-link">Home</a></li>
-                <li><a href="read/" class="nav-link">Read</a></li>
-                <li><a href="upload/" class="nav-link">Upload</a></li>
-                <li><a href="livechat/" class="nav-link active">Live Chat</a></li>
-                <li><a href="feedback/" class="nav-link">Feedback</a></li>
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="read.html" class="nav-link">Read</a></li>
+                <li><a href="upload.html" class="nav-link">Upload</a></li>
+                <li><a href="livechat.html" class="nav-link active">Live Chat</a></li>
+                <li><a href="feedback.html" class="nav-link">Feedback</a></li>
                 <li><a id="logoutBtn" class="nav-link">Logout</a></li>
             </ul>
         </nav>
@@ -31,8 +31,8 @@
                 <h1 class="section-title">A new space for you to read and write.</h1>
                 <p>Every post tells a story. Share yours.</p>
                 <div class="hero-buttons">
-                    <a href="read/" class="button read-here">READ</a>
-                    <a href="upload/" class="button upload-here">UPLOAD</a>
+                    <a href="read.html" class="button read-here">READ</a>
+                    <a href="upload.html" class="button upload-here">UPLOAD</a>
                 </div>
             </div>
         </section>
@@ -47,7 +47,7 @@
         <section class="read-section section-content" style="padding: 40px 0;">
             <h2 class="section-title">Note from the Author</h2>
             <p style="text-align:center;">
-                Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback/" style="color: var(--primary-color);">receive your feedback!</a>
+                Thank you for visiting Society Poems. As I continue to work on this project, I'd love to <a href="feedback.html" style="color: var(--primary-color);">receive your feedback!</a>
             </p>
         </section>
     </main>
@@ -55,9 +55,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy/">Privacy Policy</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
             <span>|</span>
-            <a href="tos/">Terms of Service</a>
+            <a href="tos.html">Terms of Service</a>
         </div>
     </footer>
 
@@ -105,13 +105,13 @@
 
             const checkAuthState = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login/');
+                    const isAuthPage = window.location.pathname.includes('login.html');
                     if (!user && !isAuthPage) {
                         // Not logged in and not on an auth page, send to login.
-                        window.location.href = 'login/';
+                        window.location.href = 'login.html';
                     } else if (user && isAuthPage) {
                         // Logged in but on an auth page, redirect away.
-                        window.location.href = 'index/';
+                        window.location.href = 'index.html';
                     } else if (user) {
                         // --- !! NEW SECURITY CHECK !! ---
                         // User is logged in, now verify they have a username.
@@ -122,7 +122,7 @@
                                 document.body.style.visibility = 'visible';
                             } else {
                                 // No username! Force back to login to complete profile.
-                                window.location.href = 'login/';
+                                window.location.href = 'login.html';
                             }
                         });
                     } else {
