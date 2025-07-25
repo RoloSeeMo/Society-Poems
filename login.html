@@ -105,8 +105,8 @@
                         <label>
                             <input type="checkbox" id="agreeTerms" required>
                             <span>
-                                I agree to the <a href="tos.html" target="_blank">Terms of Service</a> 
-                                and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>
+                                I agree to the <a href="tos/" target="_blank">Terms of Service</a> 
+                                and <a href="privacy-policy/" target="_blank">Privacy Policy</a>
                             </span>
                         </label>
                     </div>
@@ -191,7 +191,7 @@
                     // User exists with username, redirect to main app
                     showMessage('success', 'Welcome back! Redirecting...', getCurrentMessageContainer());
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = 'index/';
                     }, 1500);
                 } else {
                     // New user or user without username, show username creation
@@ -341,7 +341,7 @@
                     if (snapshot.exists() && snapshot.val().username) {
                         showMessage('success', 'Welcome back! Redirecting...', 'login-message-container');
                         setTimeout(() => {
-                            window.location.href = 'index.html';
+                            window.location.href = 'index/';
                         }, 1500);
                     } else {
                         showMessage('success', 'Please complete your profile setup...', 'login-message-container');
@@ -420,7 +420,7 @@
                     
                     showMessage('success', 'Account created successfully! Welcome to Society Poems!', 'signup-message-container');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = 'index/';
                     }, 2000);
                 } catch (error) {
                     console.error('Signup error:', error);
@@ -481,7 +481,7 @@
 
                     showMessage('success', 'Username saved successfully! Redirecting...', 'username-message-container');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = 'index/';
                     }, 1500);
 
                 } catch (error) {
@@ -505,7 +505,7 @@
                             // User is signed in and has a username, redirect to main app
                             const urlParams = new URLSearchParams(window.location.search);
                             if (urlParams.get('step') !== 'profile') { // Only redirect if not explicitly in profile setup flow
-                                window.location.href = 'index.html';
+                                window.location.href = 'index/';
                             }
                         } else {
                             // User is signed in but no username, show create username view
@@ -525,9 +525,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="privacy-policy/">Privacy Policy</a>
             <span>|</span>
-            <a href="tos.html">Terms of Service</a>
+            <a href="tos/">Terms of Service</a>
         </div>
     </footer>
 </body>

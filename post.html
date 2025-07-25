@@ -10,15 +10,15 @@
 
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <a href="index/" class="nav-logo">📖 Society Poems</a>
             <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="read.html" class="nav-link">Read</a></li>
-                <li><a href="upload.html" class="nav-link">Upload</a></li>
-                <li><a href="livechat.html" class="nav-link active">Live Chat</a></li>
-                <li><a href="feedback.html" class="nav-link">Feedback</a></li>
+                <li><a href="index/" class="nav-link">Home</a></li>
+                <li><a href="read/" class="nav-link">Read</a></li>
+                <li><a href="upload/" class="nav-link">Upload</a></li>
+                <li><a href="livechat/" class="nav-link active">Live Chat</a></li>
+                <li><a href="feedback/" class="nav-link">Feedback</a></li>
                 <li><a id="logoutBtn" class="nav-link">Logout</a></li>
             </ul>
         </nav>
@@ -113,9 +113,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="privacy-policy/">Privacy Policy</a>
             <span>|</span>
-            <a href="tos.html">Terms of Service</a>
+            <a href="tos/">Terms of Service</a>
         </div>
     </footer>
 
@@ -154,7 +154,7 @@
         currentPostId = urlParams.get('postId');
 
         if (!currentTopic || !currentPostId) {
-            window.location.href = 'read.html';
+            window.location.href = 'read/';
         }
 
         // Show message function
@@ -194,7 +194,7 @@
         const checkAuthState = () => {
             auth.onAuthStateChanged(user => {
                 if (!user) {
-                    window.location.href = 'login.html';
+                    window.location.href = 'login/';
                 } else {
                     currentUserUID = user.uid;
                     const userRef = db.ref('users/' + user.uid);
@@ -207,7 +207,7 @@
                             setupEventListeners();
                             updateAvatars(); // Add this line
                         } else {
-                            window.location.href = 'login.html';
+                            window.location.href = 'login/';
                         }
                     });
                 }
@@ -221,7 +221,7 @@
                 if (!snapshot.exists()) {
                     showMessage('error', 'Post not found.');
                     setTimeout(() => {
-                        window.location.href = 'read.html';
+                        window.location.href = 'read/';
                     }, 2000);
                     return;
                 }
@@ -245,7 +245,7 @@
 
             // Set up back button
             document.getElementById('back-to-topic-btn').onclick = () => {
-                window.location.href = `read.html?topic=${encodeURIComponent(currentTopic)}`;
+                window.location.href = `read/?topic=${encodeURIComponent(currentTopic)}`;
             };
             
             // Update avatars
@@ -291,7 +291,7 @@
                 }).then(() => {
                     showMessage('success', 'Post deleted successfully. Redirecting...');
                     setTimeout(() => {
-                        window.location.href = `read.html?topic=${encodeURIComponent(currentTopic)}`;
+                        window.location.href = `read/?topic=${encodeURIComponent(currentTopic)}`;
                     }, 2000);
                 }).catch(error => {
                     console.error('Error deleting post:', error);

@@ -11,15 +11,15 @@
 
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <a href="index/" class="nav-logo">📖 Society Poems</a>
             <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="read.html" class="nav-link">Read</a></li>
-                <li><a href="upload.html" class="nav-link">Upload</a></li>
-                <li><a href="livechat.html" class="nav-link active">Live Chat</a></li>
-                <li><a href="feedback.html" class="nav-link">Feedback</a></li>
+                <li><a href="index/" class="nav-link">Home</a></li>
+                <li><a href="read/" class="nav-link">Read</a></li>
+                <li><a href="upload/" class="nav-link">Upload</a></li>
+                <li><a href="livechat/" class="nav-link active">Live Chat</a></li>
+                <li><a href="feedback/" class="nav-link">Feedback</a></li>
                 <li><a id="logoutBtn" class="nav-link">Logout</a></li>
             </ul>
         </nav>
@@ -72,9 +72,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="privacy-policy/">Privacy Policy</a>
             <span>|</span>
-            <a href="tos.html">Terms of Service</a>
+            <a href="tos/">Terms of Service</a>
         </div>
     </footer>
 
@@ -122,11 +122,11 @@
             
             const checkAuthState_impl = () => {
                 auth.onAuthStateChanged(user => {
-                    const isAuthPage = window.location.pathname.includes('login.html');
+                    const isAuthPage = window.location.pathname.includes('login/');
                     if (!user && !isAuthPage) {
-                        window.location.href = 'login.html';
+                        window.location.href = 'login/';
                     } else if (user && isAuthPage) {
-                        window.location.href = 'index.html';
+                        window.location.href = 'index/';
                     } else if (user) {
                         // --- !! NEW SECURITY CHECK !! ---
                         const userRef = db.ref('users/' + user.uid);
@@ -140,7 +140,7 @@
                                 populateExistingTopics();
                                 document.body.style.visibility = 'visible';
                             } else {
-                                window.location.href = 'login.html';
+                                window.location.href = 'login/';
                             }
                         });
                     }
@@ -388,7 +388,7 @@
 
                         // Wait a moment to show the success message, then redirect
                         setTimeout(() => {
-                            window.location.href = `read.html?topic=${encodeURIComponent(selectedTopic)}`;
+                            window.location.href = `read/?topic=${encodeURIComponent(selectedTopic)}`;
                         }, 1500);
                     }).catch(error => {
                         console.error('Upload error:', error);
