@@ -11,15 +11,15 @@
 
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <a href="index" class="nav-logo">📖 Society Poems</a>
             <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="read.html" class="nav-link">Read</a></li>
-                <li><a href="upload.html" class="nav-link auth-required">Upload</a></li>
-                <li><a href="livechat.html" class="nav-link active">Live Chat</a></li>
-                <li><a href="feedback.html" class="nav-link auth-required">Feedback</a></li>
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="read" class="nav-link">Read</a></li>
+                <li><a href="upload" class="nav-link auth-required">Upload</a></li>
+                <li><a href="livechat" class="nav-link active">Live Chat</a></li>
+                <li><a href="feedback" class="nav-link auth-required">Feedback</a></li>
                 <li><a id="logoutBtn" class="nav-link">Login</a></li>
             </ul>
         </nav>
@@ -44,7 +44,7 @@
                     <div style="background: var(--bg-secondary); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; border-left: 4px solid var(--primary-color);">
                         <h3 style="margin-top: 0; color: var(--text-primary);">👋 Welcome to Live Chat!</h3>
                         <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                            You can browse active chat rooms, but you'll need to <a href="login.html" style="color: var(--primary-color);">sign in</a> to join conversations and create new rooms.
+                            You can browse active chat rooms, but you'll need to <a href="login" style="color: var(--primary-color);">sign in</a> to join conversations and create new rooms.
                         </p>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                     <div class="empty-icon">💬</div>
                     <h3>No active chat rooms</h3>
                     <p class="auth-required">Be the first to start a conversation! Click the "New Live Chat" button to create a chat room.</p>
-                    <p class="guest-only">No active conversations right now. <a href="login.html">Sign in</a> to start a new chat room!</p>
+                    <p class="guest-only">No active conversations right now. <a href="login">Sign in</a> to start a new chat room!</p>
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                 <div class="chat-messages-container">
                     <div id="chat-messages" class="chat-messages">
                         <div class="welcome-message">
-                            <p>Welcome to the chat room! <span class="auth-required">Start the conversation...</span><span class="guest-only"><a href="login.html">Sign in</a> to join the conversation!</span></p>
+                            <p>Welcome to the chat room! <span class="auth-required">Start the conversation...</span><span class="guest-only"><a href="login">Sign in</a> to join the conversation!</span></p>
                         </div>
                     </div>
                 </div>
@@ -103,7 +103,7 @@
                 <!-- Guest input message -->
                 <div class="guest-only" style="padding: 20px; text-align: center; background: var(--bg-secondary); border-top: 1px solid var(--border-color);">
                     <p style="margin: 0; color: var(--text-secondary);">
-                        <a href="login.html" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign in</a> to participate in this conversation
+                        <a href="login" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign in</a> to participate in this conversation
                     </p>
                 </div>
             </div>
@@ -138,9 +138,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="privacy-policy">Privacy Policy</a>
             <span>|</span>
-            <a href="tos.html">Terms of Service</a>
+            <a href="tos">Terms of Service</a>
         </div>
     </footer>
 
@@ -365,7 +365,7 @@
             guestSystemMessage.innerHTML = `
                 <div class="system-message-content">
                     <span class="system-icon">👀</span>
-                    <span>You're viewing this chat as a guest. <a href="login.html">Sign in</a> to participate and see new messages as they arrive.</span>
+                    <span>You're viewing this chat as a guest. <a href="login">Sign in</a> to participate and see new messages as they arrive.</span>
                 </div>
             `;
             messagesContainer.appendChild(guestSystemMessage);
@@ -695,12 +695,12 @@
                             leaveChatRoom();
                         }
                         auth.signOut().then(() => {
-                            window.location.href = 'login.html';
+                            window.location.href = 'login';
                         }).catch((error) => {
                             console.error('Logout error:', error);
                         });
                     } else {
-                        window.location.href = 'login.html';
+                        window.location.href = 'login';
                     }
                 });
             }

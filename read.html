@@ -11,15 +11,15 @@
 
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">📖 Society Poems</a>
+            <a href="/" class="nav-logo">📖 Society Poems</a>
             <button id="menu-open-button" class="fas fa-bars"></button>
             <ul class="nav-menu">
                 <button id="menu-close-button" class="fas fa-times"></button>
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="read.html" class="nav-link active">Read</a></li>
-                <li><a href="upload.html" class="nav-link auth-required">Upload</a></li>
-                <li><a href="livechat.html" class="nav-link">Live Chat</a></li>
-                <li><a href="feedback.html" class="nav-link auth-required">Feedback</a></li>
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="read" class="nav-link">Read</a></li>
+                <li><a href="upload" class="nav-link auth-required">Upload</a></li>
+                <li><a href="livechat" class="nav-link active">Live Chat</a></li>
+                <li><a href="feedback" class="nav-link auth-required">Feedback</a></li>
                 <li><a id="logoutBtn" class="nav-link">Login</a></li>
             </ul>
         </nav>
@@ -75,9 +75,9 @@
     <footer>
         <p>&copy; 2025 Society Poems</p>
         <div class="footer-links">
-            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="privacy-policy">Privacy Policy</a>
             <span>|</span>
-            <a href="tos.html">Terms of Service</a>
+            <a href="tos">Terms of Service</a>
         </div>
     </footer>
 
@@ -307,7 +307,7 @@
                     return;
                 }
                 // Add from=post parameter to indicate we're coming from a post list
-                window.location.href = `post.html?topic=${encodeURIComponent(selectedGenre)}&postId=${encodeURIComponent(docId)}&from=topic`;
+                window.location.href = `post?topic=${encodeURIComponent(selectedGenre)}&postId=${encodeURIComponent(docId)}&from=topic`;
             });
             
             // Create content preview
@@ -554,7 +554,7 @@
                 if (e.target.classList.contains('delete-btn')) {
                     return;
                 }
-                window.location.href = `post.html?topic=${encodeURIComponent(topic)}&postId=${encodeURIComponent(postId)}&from=user`;
+                window.location.href = `post?topic=${encodeURIComponent(topic)}&postId=${encodeURIComponent(postId)}&from=user`;
             });
             
             const topicLabel = document.createElement('div');
@@ -696,13 +696,13 @@
                     if (AuthUtils.canWrite()) {
                         // User is logged in, perform logout
                         auth.signOut().then(() => {
-                            window.location.href = 'login.html';
+                            window.location.href = 'login';
                         }).catch((error) => {
                             console.error('Logout error:', error);
                         });
                     } else {
                         // User is not logged in, redirect to login
-                        window.location.href = 'login.html';
+                        window.location.href = 'login';
                     }
                 });
             }
