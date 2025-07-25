@@ -1,0 +1,22 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Remove .html extension from URLs
+# This allows /about to serve about.html
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
+
+# Redirect .html URLs to extensionless URLs (prevents duplicate content)
+# This redirects /about.html to /about
+RewriteCond %{THE_REQUEST} /([^.]+)\.html [NC]
+RewriteRule ^ /%1 [NC,L,R=301]
+
+# Optional: Force HTTPS (recommended for production)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Optional: Remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{THE_REQUEST} \s/+([^?\s]*?)//+(\S*)
+RewriteRule ^ /%1/%2 [R=301,L]
