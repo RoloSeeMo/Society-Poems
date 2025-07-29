@@ -83,29 +83,28 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
-    authDomain: "society-poems-97f4d.firebaseapp.com",
-    databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
-    projectId: "society-poems-97f4d",
-    storageBucket: "society-poems-97f4d.firebasestorage.app",
-    messagingSenderId: "723670230106",
-    appId: "1:723670230106:web:6d6dda4f8c46626c55a463",
-    measurementId: "G-EMPTKV652X"
-  };
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+            authDomain: "society-poems-97f4d.firebaseapp.com",
+            databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+            projectId: "society-poems-97f4d",
+            storageBucket: "society-poems-97f4d.firebasestorage.app",
+            messagingSenderId: "723670230106",
+            appId: "1:723670230106:web:6d6dda4f8c46626c55a463",
+            measurementId: "G-EMPTKV652X"
+        };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
