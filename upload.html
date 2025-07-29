@@ -82,6 +82,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        const firebaseConfig = {}
+
+        const analytics = getAnalytics(app);
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // TODO: Replace with your Firebase config.
@@ -95,6 +103,7 @@
                 appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
             };
 
+            
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.database();
