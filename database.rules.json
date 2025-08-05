@@ -1,125 +1,126 @@
 {
     "rules": {
       // Default: deny all access unless explicitly allowed
-    ".read": false,
-    ".write": false,
-
+      ".read": false,
+      ".write": false,
+  
       // Public uploads - anyone can read, only authenticated users can write their own
-    "uploads": {
+      "uploads": {
         ".read": true,
         "$topic": {
-        "$postId": {
+          "$postId": {
             ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
             ".validate": "newData.hasChildren(['content', 'name', 'timestamp', 'uid']) && newData.child('content').isString() && newData.child('name').isString() && newData.child('uid').val() == auth.uid"
+          }
         }
-        }
-    },
-
+      },
+  
       // Interactions (comments, likes) - public read, authenticated write with ownership
-    "interactions": {
+      "interactions": {
         ".read": true,
         "$topic": {
-        "$postId": {
+          "$postId": {
             "comments": {
-            "$commentId": {
+              "$commentId": {
                 ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
                 ".validate": "newData.hasChildren(['content', 'uid', 'username', 'timestamp']) && newData.child('content').isString() && newData.child('uid').val() == auth.uid"
-            }
+              }
             },
             "likes": {
-            "$userId": {
+              "$userId": {
                 ".write": "auth != null && auth.uid == $userId",
                 ".validate": "newData.hasChildren(['username', 'timestamp']) && newData.child('username').isString()"
+              }
             }
-            }
+          }
         }
-        }
-    },
-
+      },
+  
       // Chat rooms - public read for room list, authenticated write
-    "chatRooms": {
+      "chatRooms": {
         ".read": true,
         "$roomId": {
-        ".write": "auth != null && (!data.exists() || data.child('createdBy').val() == auth.uid)",
-        ".validate": "newData.hasChildren(['topic', 'createdBy', 'createdAt']) && newData.child('topic').isString() && newData.child('createdBy').isString()",
-
-        "messages": {
+          ".write": "auth != null && (!data.exists() || data.child('createdBy').val() == auth.uid)",
+          ".validate": "newData.hasChildren(['topic', 'createdBy', 'createdAt']) && newData.child('topic').isString() && newData.child('createdBy').isString()",
+  
+          "messages": {
             ".read": true,
             "$messageId": {
-            ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
-            ".validate": "newData.hasChildren(['content', 'uid', 'username', 'timestamp']) && newData.child('content').isString() && newData.child('uid').val() == auth.uid"
+              ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
+              ".validate": "newData.hasChildren(['content', 'uid', 'username', 'timestamp']) && newData.child('content').isString() && newData.child('uid').val() == auth.uid"
             }
-        },
-
-        "activeUsers": {
+          },
+  
+          "activeUsers": {
             ".read": true,
             "$userId": {
-            ".write": "auth != null && auth.uid == $userId",
-            ".validate": "newData.hasChildren(['username', 'joinedAt']) && newData.child('username').isString()"
+              ".write": "auth != null && auth.uid == $userId",
+              ".validate": "newData.hasChildren(['username', 'joinedAt']) && newData.child('username').isString()"
             }
-        },
-
+          },
+  
           // Allow room creator and participants to update room metadata
-        "lastActivity": {
+          "lastActivity": {
             ".write": "auth != null"
+          }
         }
-        }
-    },
-
+      },
+  
       // Reports - only authenticated users can write, admins can read
-    "reports": {
+      "reports": {
         ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
         "$topic": {
-        "$postId": {
+          "$postId": {
             "$reportId": {
-                ".write": "auth != null && (!data.exists() || data.child('reportedBy').val() == auth.uid)",
-                ".validate": "newData.hasChildren(['reason', 'reportedBy', 'reporterUsername', 'timestamp', 'status']) && newData.child('reason').isString() && newData.child('reportedBy').val() == auth.uid"
+              ".write": "auth != null && (!data.exists() || data.child('reportedBy').val() == auth.uid)",
+              ".validate": "newData.hasChildren(['reason', 'reportedBy', 'reporterUsername', 'timestamp', 'status']) && newData.child('reason').isString() && newData.child('reportedBy').val() == auth.uid"
             }
+          }
         }
-    }
-    },
-
+      },
+  
       // User profiles - users can only read/write their own data
-        "users": {
+      "users": {
         "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid",
-        ".validate": "newData.hasChildren(['username', 'email']) && newData.child('username').isString() && newData.child('email').isString()",
-
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          ".validate": "newData.hasChildren(['username', 'email']) && newData.child('username').isString() && newData.child('email').isString()",
+  
           // Allow public read access to specific user profile fields for displaying author names
-        "username": {
+          "username": {
             ".read": true
-        },
-        "joinDate": {
+          },
+          "joinDate": {
             ".read": true
-        },
-        "uploadCount": {
+          },
+          "uploadCount": {
             ".read": true
+          }
         }
-        }
-    },
-
-      // Username lookup - for checking username availability
-        "usernames": {
-        ".read": "auth != null",
+      },
+  
+      // Username lookup - FIXED: Allow public read for checking availability, authenticated write for claiming
+      "usernames": {
+        ".read": true, // Allow anyone to check username availability
         "$username": {
-        ".write": "auth != null"
+          ".write": "auth != null && (!data.exists() || data.val() == auth.uid)", // Only allow writing if user is authenticated and either creating new or updating their own
+          ".validate": "newData.isString() && newData.val() == auth.uid" // Username must map to the authenticated user's UID
         }
-    },
-
+      },
+  
       // Feedback - authenticated users can write, admins can read
-    "feedback": {
+      "feedback": {
         ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
         "$feedbackId": {
-        ".write": "auth != null",
-        ".validate": "newData.hasChildren(['email', 'message', 'timestamp']) && newData.child('email').isString() && newData.child('message').isString()"
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['email', 'message', 'timestamp']) && newData.child('email').isString() && newData.child('message').isString()"
         }
-    },
-
+      },
+  
       // Admin-only sections
-        "admin": {
+      "admin": {
         ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
         ".write": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')"
-        }
+      }
     }
-}
+  }
