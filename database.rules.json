@@ -1,40 +1,125 @@
 {
     "rules": {
-        "users": {
-            // Allows any authenticated user to query the /users list.
-            ".read": "auth != null",
-            // UPDATED: Added an index for the new lowercase username field.
-            ".indexOn": ["username", "username_lowercase"],
-            "$uid": {
-            // This rule remains unchanged. It correctly allows a user
-            // to write ONLY to their own profile node.
-            ".write": "auth != null && auth.uid === $uid"
+      // Default: deny all access unless explicitly allowed
+    ".read": false,
+    ".write": false,
+
+      // Public uploads - anyone can read, only authenticated users can write their own
+    "uploads": {
+        ".read": true,
+        "$topic": {
+        "$postId": {
+            ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
+            ".validate": "newData.hasChildren(['content', 'name', 'timestamp', 'uid']) && newData.child('content').isString() && newData.child('name').isString() && newData.child('uid').val() == auth.uid"
+        }
+        }
+    },
+
+      // Interactions (comments, likes) - public read, authenticated write with ownership
+    "interactions": {
+        ".read": true,
+        "$topic": {
+        "$postId": {
+            "comments": {
+            "$commentId": {
+                ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
+                ".validate": "newData.hasChildren(['content', 'uid', 'username', 'timestamp']) && newData.child('content').isString() && newData.child('uid').val() == auth.uid"
+            }
+            },
+            "likes": {
+            "$userId": {
+                ".write": "auth != null && auth.uid == $userId",
+                ".validate": "newData.hasChildren(['username', 'timestamp']) && newData.child('username').isString()"
+            }
+            }
+        }
+        }
+    },
+
+      // Chat rooms - public read for room list, authenticated write
+    "chatRooms": {
+        ".read": true,
+        "$roomId": {
+        ".write": "auth != null && (!data.exists() || data.child('createdBy').val() == auth.uid)",
+        ".validate": "newData.hasChildren(['topic', 'createdBy', 'createdAt']) && newData.child('topic').isString() && newData.child('createdBy').isString()",
+
+        "messages": {
+            ".read": true,
+            "$messageId": {
+            ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid)",
+            ".validate": "newData.hasChildren(['content', 'uid', 'username', 'timestamp']) && newData.child('content').isString() && newData.child('uid').val() == auth.uid"
             }
         },
-        "uploads": {
-            // These rules remain unchanged.
-            ".read": "auth != null",
-            ".write": "auth != null",
-            ".indexOn": ["uid"]
+
+        "activeUsers": {
+            ".read": true,
+            "$userId": {
+            ".write": "auth != null && auth.uid == $userId",
+            ".validate": "newData.hasChildren(['username', 'joinedAt']) && newData.child('username').isString()"
+            }
         },
-        "feedback": {
-            // This rule remains unchanged.
+
+          // Allow room creator and participants to update room metadata
+        "lastActivity": {
             ".write": "auth != null"
-        },
-        "topics": {
-            // Allows any authenticated user to read all topics and their content.
-            ".read": "auth != null",
-            // Allows authenticated users to create new topics or add posts to existing ones.
-            ".write": "auth != null",
-            // Index on 'uploadCount' to enable efficient querying if topics need to be ordered by it.
-            ".indexOn": ["uploadCount"],
-            "$topicName": {
-                "posts": {
-                    // Allows authenticated users to write posts under a specific topic.
-                    // You might want to refine this to only allow the post's owner to delete their post later.
-                    ".write": "auth != null"
-                }
+        }
+        }
+    },
+
+      // Reports - only authenticated users can write, admins can read
+    "reports": {
+        ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
+        "$topic": {
+        "$postId": {
+            "$reportId": {
+                ".write": "auth != null && (!data.exists() || data.child('reportedBy').val() == auth.uid)",
+                ".validate": "newData.hasChildren(['reason', 'reportedBy', 'reporterUsername', 'timestamp', 'status']) && newData.child('reason').isString() && newData.child('reportedBy').val() == auth.uid"
             }
+        }
+    }
+    },
+
+      // User profiles - users can only read/write their own data
+        "users": {
+        "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['username', 'email']) && newData.child('username').isString() && newData.child('email').isString()",
+
+          // Allow public read access to specific user profile fields for displaying author names
+        "username": {
+            ".read": true
+        },
+        "joinDate": {
+            ".read": true
+        },
+        "uploadCount": {
+            ".read": true
+        }
+        }
+    },
+
+      // Username lookup - for checking username availability
+        "usernames": {
+        ".read": "auth != null",
+        "$username": {
+        ".write": "auth != null"
+        }
+    },
+
+      // Feedback - authenticated users can write, admins can read
+    "feedback": {
+        ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
+        "$feedbackId": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['email', 'message', 'timestamp']) && newData.child('email').isString() && newData.child('message').isString()"
+        }
+    },
+
+      // Admin-only sections
+        "admin": {
+        ".read": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')",
+        ".write": "auth != null && (auth.uid == 'SAD2VGjLrtVA80Cg0ay71rDiijQ2')"
         }
     }
 }
