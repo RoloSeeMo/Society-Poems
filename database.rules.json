@@ -78,14 +78,15 @@
         }
       },
   
-      // User profiles - UPDATED: Allow limited public read access for login purposes
+      // User profiles - CRITICAL FIX: Allow public read access to email field for login
       "users": {
         "$uid": {
+          // Users can only read/write their own full profile
           ".read": "auth != null && auth.uid == $uid",
           ".write": "auth != null && auth.uid == $uid",
           ".validate": "newData.hasChildren(['username', 'email']) && newData.child('username').isString() && newData.child('email').isString()",
   
-          // Allow public read access to specific user profile fields
+          // Allow public read access to specific fields
           "username": {
             ".read": true
           },
@@ -95,7 +96,7 @@
           "uploadCount": {
             ".read": true
           },
-          // ADDED: Allow public read access to email for login purposes
+          // CRITICAL: Allow public read access to email for username-based login
           "email": {
             ".read": true
           }

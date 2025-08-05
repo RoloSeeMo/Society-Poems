@@ -348,15 +348,15 @@
                         
                         const userUID = usernameSnapshot.val();
                         
-                        // Get the email associated with this UID
-                        const userRef = db.ref('users/' + userUID);
-                        const userSnapshot = await userRef.once('value');
-                        
-                        if (!userSnapshot.exists() || !userSnapshot.val().email) {
+                        // FIXED: Read only the email field directly instead of the entire user object
+                        const emailRef = db.ref('users/' + userUID + '/email');
+                        const emailSnapshot = await emailRef.once('value');
+
+                        if (!emailSnapshot.exists()) {
                             throw new Error('Account data not found. Please try using your email address.');
                         }
-                        
-                        emailToUse = userSnapshot.val().email;
+
+                        emailToUse = emailSnapshot.val();
                         console.log('Found email for username:', emailToUse);
                     }
                     
