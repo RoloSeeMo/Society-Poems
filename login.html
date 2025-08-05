@@ -321,10 +321,9 @@
                 }
             });
 
-            // Login form submission
+            // Login form submission - UPDATED to support both email and username
             document.getElementById('login-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const email = document.getElementById('login-email').value;
                 const emailOrUsername = document.getElementById('login-email').value.trim();
                 const password = document.getElementById('login-password').value;
                 const loginBtn = document.getElementById('loginBtn');
