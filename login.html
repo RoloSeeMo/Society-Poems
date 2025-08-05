@@ -64,8 +64,8 @@
                 <h1>Welcome Back</h1>
                 <div id="login-message-container" class="message-container"></div>
                 <form id="login-form" onsubmit="return false;">
-                    <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" required>
+                    <label for="login-email">Email or Username:</label>
+                    <input type="text" id="login-email" placeholder="Enter your email or username" required>
                     <label for="login-password">Password:</label>
                     <div class="password-wrapper">
                         <input type="password" id="login-password" required>
@@ -325,6 +325,7 @@
             document.getElementById('login-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('login-email').value;
+                const emailOrUsername = document.getElementById('login-email').value.trim();
                 const password = document.getElementById('login-password').value;
                 const loginBtn = document.getElementById('loginBtn');
                 
@@ -332,7 +333,36 @@
                 loginBtn.textContent = 'Signing In...';
                 
                 try {
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    let emailToUse = emailOrUsername;
+                    
+                    // Check if input looks like an email (contains @)
+                    if (!emailOrUsername.includes('@')) {
+                        // Input is likely a username, look up the email
+                        console.log('Input appears to be username, looking up email...');
+                        
+                        const usernameRef = db.ref('usernames/' + emailOrUsername.toLowerCase());
+                        const usernameSnapshot = await usernameRef.once('value');
+                        
+                        if (!usernameSnapshot.exists()) {
+                            throw new Error('Username not found. Please check your username or try using your email address.');
+                        }
+                        
+                        const userUID = usernameSnapshot.val();
+                        
+                        // Get the email associated with this UID
+                        const userRef = db.ref('users/' + userUID);
+                        const userSnapshot = await userRef.once('value');
+                        
+                        if (!userSnapshot.exists() || !userSnapshot.val().email) {
+                            throw new Error('Account data not found. Please try using your email address.');
+                        }
+                        
+                        emailToUse = userSnapshot.val().email;
+                        console.log('Found email for username:', emailToUse);
+                    }
+                    
+                    // Now attempt login with the email
+                    const userCredential = await auth.signInWithEmailAndPassword(emailToUse, password);
                     const user = userCredential.user;
                     
                     const userRef = db.ref('users/' + user.uid);
@@ -350,12 +380,32 @@
                 } catch (error) {
                     console.error('Login error:', error);
                     let errorMessage = 'Login failed. Please try again.';
-                    switch (error.code) {
-                        case 'auth/user-not-found': errorMessage = 'No account found with this email address.'; break;
-                        case 'auth/wrong-password': errorMessage = 'Incorrect password. Please try again.'; break;
-                        case 'auth/invalid-email': errorMessage = 'Please enter a valid email address.'; break;
-                        case 'auth/user-disabled': errorMessage = 'This account has been disabled. Please contact support.'; break;
-                        case 'auth/too-many-requests': errorMessage = 'Too many failed attempts. Please try again later.'; break;
+                    
+                    // Handle custom username lookup errors
+                    if (error.message.includes('Username not found') || error.message.includes('Account data not found')) {
+                        errorMessage = error.message;
+                    } else {
+                        // Handle Firebase auth errors
+                        switch (error.code) {
+                            case 'auth/user-not-found': 
+                                errorMessage = 'No account found with this email/username.'; 
+                                break;
+                            case 'auth/wrong-password': 
+                                errorMessage = 'Incorrect password. Please try again.'; 
+                                break;
+                            case 'auth/invalid-email': 
+                                errorMessage = 'Please enter a valid email address or username.'; 
+                                break;
+                            case 'auth/user-disabled': 
+                                errorMessage = 'This account has been disabled. Please contact support.'; 
+                                break;
+                            case 'auth/too-many-requests': 
+                                errorMessage = 'Too many failed attempts. Please try again later.'; 
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = 'Network error. Please check your connection and try again.';
+                                break;
+                        }
                     }
                     showMessage('error', errorMessage, 'login-message-container');
                 } finally {
