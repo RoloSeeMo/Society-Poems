@@ -59,7 +59,6 @@
             }
           },
   
-          // Allow room creator and participants to update room metadata
           "lastActivity": {
             ".write": "auth != null"
           }
@@ -79,14 +78,14 @@
         }
       },
   
-      // User profiles - users can only read/write their own data
+      // User profiles - UPDATED: Allow limited public read access for login purposes
       "users": {
         "$uid": {
           ".read": "auth != null && auth.uid == $uid",
           ".write": "auth != null && auth.uid == $uid",
           ".validate": "newData.hasChildren(['username', 'email']) && newData.child('username').isString() && newData.child('email').isString()",
   
-          // Allow public read access to specific user profile fields for displaying author names
+          // Allow public read access to specific user profile fields
           "username": {
             ".read": true
           },
@@ -95,16 +94,20 @@
           },
           "uploadCount": {
             ".read": true
+          },
+          // ADDED: Allow public read access to email for login purposes
+          "email": {
+            ".read": true
           }
         }
       },
   
-      // Username lookup - FIXED: Allow public read for checking availability, authenticated write for claiming
+      // Username lookup - Allow public read for checking availability, authenticated write for claiming
       "usernames": {
-        ".read": true, // Allow anyone to check username availability
+        ".read": true,
         "$username": {
-          ".write": "auth != null && (!data.exists() || data.val() == auth.uid)", // Only allow writing if user is authenticated and either creating new or updating their own
-          ".validate": "newData.isString() && newData.val() == auth.uid" // Username must map to the authenticated user's UID
+          ".write": "auth != null && (!data.exists() || data.val() == auth.uid)",
+          ".validate": "newData.isString() && newData.val() == auth.uid"
         }
       },
   
@@ -124,3 +127,4 @@
       }
     }
   }
+  
