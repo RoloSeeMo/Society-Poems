@@ -26,6 +26,97 @@
     </header>
 
     <center>This page is currently under development. Please check back later.</center>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // TODO: Replace with your Firebase config.
+            const firebaseConfig = {
+                apiKey: "AIzaSyDHXEMtVPn46b2qS1CPGUIEuQ8ntLyvLVM",
+                authDomain: "society-poems-97f4d.firebaseapp.com",
+                databaseURL: "https://society-poems-97f4d-default-rtdb.firebaseio.com",
+                projectId: "society-poems-97f4d",
+                storageBucket: "society-poems-97f4d.firebasestorage.app",
+                messagingSenderId: "723670230106",
+                appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
+            };
+
+            
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+            let currentUsername = null; // Variable to hold the fetched username
+            
+            // --- Shared Logic ---
+             const setupMobileMenu_impl = () => {
+                const openBtn = document.getElementById('menu-open-button');
+                const closeBtn = document.getElementById('menu-close-button');
+                const navMenu = document.querySelector('.nav-menu');
+                if (openBtn && closeBtn && navMenu) {
+                    openBtn.addEventListener('click', () => navMenu.classList.add('active'));
+                    closeBtn.addEventListener('click', () => navMenu.classList.remove('active'));
+                }
+            };
+
+            const handleLogout_impl = () => {
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut().catch(error => console.error('Sign out error', error));
+                    });
+                }
+            };
+            
+            const checkAuthState_impl = () => {
+                auth.onAuthStateChanged(user => {
+                    const isAuthPage = window.location.pathname.includes('login');
+                    if (!user && !isAuthPage) {
+                        window.location.href = 'login';
+                    } else if (user && isAuthPage) {
+                        window.location.href = '/';
+                    } else if (user) {
+                        // --- !! NEW SECURITY CHECK !! ---
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            if (snapshot.exists() && snapshot.val().username) {
+                                // On the upload page, we need to fetch the username after validation
+                                if(typeof fetchUsername === 'function') {
+                                    fetchUsername(user.uid);
+                                }
+                                // NEW: Populate existing topics after authentication
+                                populateExistingTopics();
+                                document.body.style.visibility = 'visible';
+                            } else {
+                                window.location.href = 'login';
+                            }
+                        });
+                    }
+                });
+            };
+
+            // --- NEW: Function to get the username from the database ---
+            const fetchUsername = (uid) => {
+                const userRef = db.ref('users/' + uid + '/username');
+                userRef.once('value', (snapshot) => {
+                    const username = snapshot.val();
+                    const authorNameEl = document.getElementById('author-name');
+                    const submitBtn = document.getElementById('submit-btn');
+
+                    if (username) {
+                        currentUsername = username;
+                        authorNameEl.textContent = username;
+                        submitBtn.disabled = false; // Enable submission
+                    } else {
+                        // This case handles users who signed up before the username feature
+                        authorNameEl.textContent = "No username set. Please contact support.";
+                        // Keep the submit button disabled
+                    }
+                }).catch(error => {
+                    console.error("Failed to fetch username:", error);
+                    document.getElementById('author-name').textContent = "Error loading username.";
+                });
+            };
+        });
+    </script>
 </body>
 
 </html>
