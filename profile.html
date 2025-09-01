@@ -33,7 +33,7 @@
             <h1>Your Profile</h1>
             <div class="username-display">
                 <label>Username:</label>
-                <span id="current-username">Loading...</span>
+                <span id="current-username">N/A</span>
             </div>
         </div>
         <div class="profile-content">
@@ -133,7 +133,7 @@
                                 if (snapshot.exists() && snapshot.val().username) {
                                     usernameElement.textContent = snapshot.val().username;
                                 } else {
-                                    usernameElement.textContent = 'Username not found';
+                                    usernameElement.textContent = 'N/A';
                                 }
                             }
                         }).catch(error => {
