@@ -68,8 +68,11 @@
             
             const checkAuthState = () => {
                 auth.onAuthStateChanged(user => {
+                    console.log("[v0] Auth state changed. User:", user ? "logged in" : "logged out");
+                    
                     const isAuthPage = window.location.pathname.includes('login');
                     if (!user && !isAuthPage) {
+                        console.log("[v0] User not authenticated, redirecting to login");
                         window.location.href = 'login';
                     } else if (user && isAuthPage) {
                         window.location.href = '/';
@@ -99,7 +102,16 @@
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
-                        auth.signOut().catch(error => console.error('Sign out error', error));
+                        console.log("[v0] Logout button clicked, signing out...");
+                        auth.signOut()
+                            .then(() => {
+                                console.log("[v0] Successfully signed out");
+                                // Note: checkAuthState() will handle the redirect automatically
+                            })
+                            .catch(error => {
+                                console.error('[v0] Sign out error:', error);
+                                alert('Failed to sign out. Please try again.');
+                            });
                     });
                 }
             };
@@ -125,6 +137,12 @@
                     console.error("Failed to fetch username:", error);
                     document.getElementById('author-name').textContent = "Error loading username.";
                 });
+            };
+
+            // --- NEW: Function to populate existing topics ---
+            const populateExistingTopics = () => {
+                // Placeholder for logic to fetch and display existing topics
+                console.log("Populating existing topics...");
             };
 
             setupMobileMenu();
