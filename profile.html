@@ -28,7 +28,18 @@
         </nav>
     </header>
 
-    <center>This page is currently under development. Please check back later.</center>
+    <main class="profile-container">
+        <div class="profile-header">
+            <h1>Your Profile</h1>
+            <div class="username-display">
+                <label>Username:</label>
+                <span id="current-username">Loading...</span>
+            </div>
+        </div>
+        <div class="profile-content">
+            <p>More profile features coming soon!</p>
+        </div>
+    </main>
     
     <footer>
         <p>&copy; 2025 Society Poems</p>
@@ -52,7 +63,7 @@
                 appId: "1:723670230106:web:6d6dda4f8c46626c55a463"
             };
 
-            // Initialize Firebase
+            
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.database();
@@ -70,27 +81,21 @@
             
             const checkAuthState = () => {
                 auth.onAuthStateChanged(user => {
-                    console.log("[v0] Auth state changed. User:", user ? "logged in" : "logged out");
-                    
+                    console.log('[v0] Auth state changed. User:', user ? 'logged in' : 'logged out');
                     const isAuthPage = window.location.pathname.includes('login');
                     if (!user && !isAuthPage) {
-                        console.log("[v0] User not authenticated, redirecting to login");
+                        console.log('[v0] No user, redirecting to login');
                         window.location.href = 'login';
                     } else if (user && isAuthPage) {
                         window.location.href = '/';
                     } else if (user) {
-                        // --- !! NEW SECURITY CHECK !! ---
                         const userRef = db.ref('users/' + user.uid);
                         userRef.once('value', (snapshot) => {
                             if (snapshot.exists() && snapshot.val().username) {
-                                // On the upload page, we need to fetch the username after validation
-                                if(typeof fetchUsername === 'function') {
-                                    fetchUsername(user.uid);
-                                }
-                                // NEW: Populate existing topics after authentication
-                                populateExistingTopics();
+                                console.log('[v0] User authenticated and has username');
                                 document.body.style.visibility = 'visible';
                             } else {
+                                console.log('[v0] User missing username, redirecting to login');
                                 window.location.href = 'login';
                             }
                         });
@@ -104,10 +109,10 @@
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
-                        console.log("[v0] Logout button clicked, signing out...");
+                        console.log('[v0] Logout button clicked');
                         auth.signOut()
                             .then(() => {
-                                console.log("[v0] Successfully signed out");
+                                console.log('[v0] Successfully signed out');
                                 // Note: checkAuthState() will handle the redirect automatically
                             })
                             .catch(error => {
@@ -118,32 +123,34 @@
                 }
             };
 
-            // --- NEW: Function to get the username from the database ---
-            const fetchUsername = (uid) => {
-                const userRef = db.ref('users/' + uid + '/username');
-                userRef.once('value', (snapshot) => {
-                    const username = snapshot.val();
-                    const authorNameEl = document.getElementById('author-name');
-                    const submitBtn = document.getElementById('submit-btn');
-
-                    if (username) {
-                        currentUsername = username;
-                        authorNameEl.textContent = username;
-                        submitBtn.disabled = false; // Enable submission
-                    } else {
-                        // This case handles users who signed up before the username feature
-                        authorNameEl.textContent = "No username set. Please contact support.";
-                        // Keep the submit button disabled
+            const fetchUsername = () => {
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        const userRef = db.ref('users/' + user.uid);
+                        userRef.once('value', (snapshot) => {
+                            const usernameElement = document.getElementById('current-username');
+                            if (usernameElement) {
+                                if (snapshot.exists() && snapshot.val().username) {
+                                    usernameElement.textContent = snapshot.val().username;
+                                } else {
+                                    usernameElement.textContent = 'Username not found';
+                                }
+                            }
+                        }).catch(error => {
+                            console.error('[v0] Error fetching username:', error);
+                            const usernameElement = document.getElementById('current-username');
+                            if (usernameElement) {
+                                usernameElement.textContent = 'Error loading username';
+                            }
+                        });
                     }
-                }).catch(error => {
-                    console.error("Failed to fetch username:", error);
-                    document.getElementById('author-name').textContent = "Error loading username.";
                 });
             };
 
             setupMobileMenu();
             handleLogout();
             checkAuthState();
+            fetchUsername();
         });
     </script>
 </body>
